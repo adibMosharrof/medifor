@@ -5,6 +5,10 @@ import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 
+
+# convert all images to grayscale and then do the work...need to revise the whole thing
+
+
 class Metrics(object):
     data_path = "../data/metrics/"
     thresholds = []
@@ -12,14 +16,14 @@ class Metrics(object):
         #self.thresholds = np.arange(0.1, 1, 0.1)
         self.thresholds = [0.5, 0.7]
         data = self.read_data(self.data_path)
-        self.get_average_score(data)
-        #self.get_image_with_noscore_region(data[0])
+        avg_score = self.get_average_score(data)
+        print(avg_score)
     
     def get_average_score(self, data):
         scores = 0
         for d in data:
             img_with_noscore = self.get_image_with_noscore_region(d)
-            scores += self.get_image_score(img_with_noscore, d.sys)     
+            scores += self.get_image_score(img_with_noscore, np.array(d.sys))     
         return scores/len(data)
     
     def get_image_with_noscore_region(self, data):
@@ -44,7 +48,7 @@ class Metrics(object):
         result = np.where(result == 255, 0 , result)
         result = np.where(result == 510, 255 , result)
         
-#         plt.imshow(result, cmap='gray')
+#         plt.imshow(img_dilated_region, cmap='gray')
 #         plt.show()
         return result
       
@@ -56,41 +60,38 @@ class Metrics(object):
         return max_score
         
     def get_image_score_with_threshold(self, ref, sys, threshold):
-        manipulated_indexes = self.get_manipulated_indexes_from_ref(ref);
-        predictions = self.get_sys_normalized_predictions_from_indexes(sys, manipulated_indexes, threshold)
-        manipulations = [1] * len(manipulated_indexes)
+        scoring_indexes = self.get_scoring_indexes(ref);
+        predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold)
+        manipulations = self.get_manipulations(ref, scoring_indexes)
         return self.get_mcc_score(predictions, manipulations)
     
-    def get_manipulated_indexes_from_ref(self, ref):
-        gray = ref.convert('L')
-        bw = gray.point(lambda x: 0 if x<255 else 255, '1')
-        img_data = np.asarray(bw,dtype="int32")
-        
-#         f = plt.figure()
-#         f.add_subplot(1,2, 1)
-        plt.imshow(bw)
-#         f.add_subplot(1,2, 2)
-#         plt.imshow(bw1)
-        plt.show(block=True)
-        indexes = []
-        for x in range(len(img_data)):
-            for y in range(len(img_data[x])):
-                if img_data[x, y] == 0:
-                    indexes.append((x,y))
-        
-        return indexes
+    def get_scoring_indexes(self, ref):
+        return np.argwhere(ref != 100 )
     
     def get_sys_normalized_predictions_from_indexes(self, sys, indexes, threshold):
-        
-        predictions = []
-        img_data = np.asarray(sys)
-        for x,y in indexes:
-            normalized_value_flipped = 1 - img_data[x,y]/255
-            if(normalized_value_flipped > threshold):
-                predictions.append(1)
-            else:
-                predictions.append(0)
+        normalized = self.normalize_flip_handlezeros(sys)
+        filtered = self.filter_image_by_indexes(normalized, indexes)
+        predictions =  np.where(filtered > threshold, 1, 0) #applying the threshold
         return predictions
+        
+    
+    def get_manipulations(self, ref, indexes ):
+        normalized = self.normalize_flip_handlezeros(ref)
+        filtered = self.filter_image_by_indexes(normalized, indexes)
+        return np.where(filtered == 0.1, 0, filtered)
+    
+    def normalize_flip_handlezeros(self, img):
+        normalized = 1 - img/255
+        normalized = np.where(normalized == 0, 0.1, normalized)
+        return normalized
+    
+    def filter_image_by_indexes(self, img, indexes):
+        mask = np.full(img.shape, -1) #creating a mask of all negatives
+        mask[indexes[:,0], indexes[:,1]] = 1 #setting only the filtered indexes to 1
+        #np.where(mask*normalized >= 0, normalized, -1) #filtering by using the indexes as a mask
+        result = mask*img
+        result = result[result > 0]
+        return result
     
     def get_mcc_score(self, predictions, manipulations):
         return matthews_corrcoef(manipulations, predictions)
