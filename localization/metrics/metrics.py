@@ -5,99 +5,135 @@ import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 import cProfile
-
-
-# convert all images to grayscale and then do the work...need to revise the whole thing
-
+import time
+import rawpy
 
 class Metrics(object):
     data_path = "../data/metrics/"
     thresholds = []
+    starting_time = None
+    end_time = None
     def start(self):
-        #self.thresholds = np.arange(0.1, 1, 0.1)
-        self.thresholds = [0.5, 0.7]
+        self.thresholds =  np.arange(0,1, 0.05)
         data = self.read_data(self.data_path)
-        #avg_score = self.get_average_score(data)
-        #cProfile.run('self.get_average_score(data)')
-        cProfile.runctx('self.get_average_score(data)', None, locals())
-        #print(avg_score)
+        self.starting_time = time.time()
+        avg_score = self.get_average_score(data[2:3])
+        print(avg_score)
+        
     
     def get_average_score(self, data):
         scores = 0
         for d in data:
-            img_with_noscore = self.get_image_with_noscore_region(d)
-            scores += self.get_image_score(img_with_noscore.ravel(), np.array(d.sys).ravel())     
+            bw = self.get_black_and_white_image(d.ref)
+            normalized_ref = self.normalize_ref(bw)
+            noscore_img = self.get_noscore_image(normalized_ref)
+#             noscore_img = self.get_server_dilated_image(self.data_path, d.folder_name)
+            scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(d.sys).ravel())     
         return scores/len(data)
     
-    def get_image_with_noscore_region(self, data):
-        '''
-            Dilates the image and returns a new image that has 3 types of pixels
-            0 : manipulated regions
-            100: no score region
-            255: non-manipulated regions
-        '''
-        kernel = np.ones((5,5), np.uint8) 
-        img_dilation = None
+    def get_black_and_white_image(self, img):
+        bw = np.array(img.convert('L'))
+        return np.where(bw < 255, 0, bw)
+    
+    def get_server_dilated_image(self, path, folder_name):
+        for file in os.listdir(path+folder_name):
+            if file.endswith("bpm-bin.png"):
+                dilated_image = Image.open(os.path.join(path+folder_name, file))
+                bw = np.array(dilated_image.convert('L'))
+#                 plt.imshow(bw, cmap='gray')
+#                 plt.show()
+                bw = np.where(bw ==0, 1, bw)
+                bw = np.where(bw ==255, 1, bw)
+                bw = np.where(bw == 225, 0, bw)
+                return bw
+        raise ValueError('found no file ending with bpm-bin.png')
         
-        img = np.array(data.ref.convert('L'))
-        img = np.where(img < 255, 0, img)
+    def get_noscore_image(self, img):
+        baseNoScore = self.boundary_no_score(img)
+        return baseNoScore
+#         distractionNoScore = self.unselected_no_score(img)
+#         wimg = cv2.bitwise_and(baseNoScore,distractionNoScore)
+# #         plt.imshow(bns, cmap='gray')
+# #         plt.show()
+#         return wimg
+    
+    def boundary_no_score(self, img):
+        erosion_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
+        dilation_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(11,11))
+        #NOTE: dilate and erode are "reversed" because dilation and erosion in this context is relative to white, not black.
+        eImg = cv2.dilate(img, erosion_kernel,iterations=1)
+        dImg = cv2.erode(img, dilation_kernel,iterations=1)
+        _,bns=cv2.threshold(eImg-dImg,0,1,cv2.THRESH_BINARY_INV)
+        return bns
+    
+    def unselected_no_score(self, img):
+        erosion_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
+        dilation_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(11,11))
+        #NOTE: dilate and erode are "reversed" because dilation and erosion in this context is relative to white, not black.
+        eImg = cv2.erode(img, erosion_kernel,iterations=1)
+        dImg = 1-cv2.dilate(img, dilation_kernel,iterations=1)
 
-        img_dilated = cv2.dilate(img, kernel, iterations=4)
-
-        img_dilated_region = img_dilated - img
-        img_dilated_region = np.where(img_dilated_region == 255, 100, 255)
-        
-        result = img + img_dilated_region
-        result = np.where(result == 255, 0 , result)
-        result = np.where(result == 510, 255 , result)
-        
-#         plt.imshow(img_dilated_region, cmap='gray')
-#         plt.show()
-        return result
+        dImg = dImg | eImg
+        weights=dImg.astype(np.uint8)
+        return weights
       
-    def get_image_score(self, ref, sys):
+    def get_image_score(self, noscore_img, ref, sys):
         max_score = np.NINF
+        dilated_score_with_threshold = {}
+        vanilla_score_with_threshold = {}
         for t in self.thresholds:
-            score = self.get_image_score_with_threshold(ref, sys, t)
+#             vanilla_score = self.get_image_score_with_threshold(ref, sys, t, False )
+            score = self.get_image_score_with_threshold(noscore_img, ref, sys, t, True )
             max_score = max(max_score, score)
+            dilated_score_with_threshold[t] = score
+#             vanilla_score_with_threshold[t] = vanilla_score
+        self.plot_threshold_with_scores(dilated_score_with_threshold, vanilla_score_with_threshold )
         return max_score
+    
+    def plot_threshold_with_scores(self, dilated_score_with_threshold, vanilla_score_with_threshold):    
+        plt.plot((1-self.thresholds)*255, list(dilated_score_with_threshold.values()), marker='o', color='black', markerfacecolor='b',markeredgecolor='b')
+#         plt.plot(self.thresholds, list(vanilla_score_with_threshold.values()), marker='o', color='g', markerfacecolor='r',markeredgecolor='r', label="vanilla")    
+        plt.xlabel('Binarization Threshold')
+        plt.ylabel('MCC')
+        plt.show()
         
-    def get_image_score_with_threshold(self, ref, sys, threshold):
-        scoring_indexes = self.get_scoring_indexes(ref);
-        predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold)
-        manipulations = self.get_manipulations(ref, scoring_indexes)
+    def get_image_score_with_threshold(self, noscore_img, ref, sys, threshold, should_dilate):
+        scoring_indexes = self.get_scoring_indexes(noscore_img, should_dilate);
+        predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold, should_dilate)
+        manipulations = self.get_manipulations(ref, scoring_indexes, should_dilate)
         return self.get_mcc_score(predictions, manipulations)
     
-    def get_scoring_indexes(self, ref):
-        result = np.where(ref != 100 )
+    
+    def get_scoring_indexes(self, ref, should_dilate):
+        if should_dilate:
+            result = np.where(ref != 0 )
+        else:
+            result = np.where(ref != -1)
         return result[0]
     
-    def get_sys_normalized_predictions_from_indexes(self, sys, indexes, threshold):
-        normalized = self.normalize_flip_handlezeros(sys)
-        filtered = self.filter_image_by_indexes(normalized, indexes)
-        predictions =  np.where(filtered > threshold, 1, 0) #applying the threshold
+    def get_sys_normalized_predictions_from_indexes(self, sys, indexes, threshold, should_dilate):
+        normalized = self.normalize_ref(sys)
+        filtered = self.filter_image_by_indexes(normalized, indexes, should_dilate)
+        predictions =  np.where(filtered > threshold, 1.0, 0.0) #applying the threshold
         return predictions
         
     
-    def get_manipulations(self, ref, indexes ):
-        normalized = self.normalize_flip_handlezeros(ref)
-        filtered = self.filter_image_by_indexes(normalized, indexes)
-        #return np.where(filtered == 0.1, 0, filtered)
+    def get_manipulations(self, ref, indexes, should_dilate ):
+#         normalized = self.normalize_flip_handlezeros(ref)
+        filtered = self.filter_image_by_indexes(ref, indexes, should_dilate)
         return filtered
     
     def normalize_flip_handlezeros(self, img):
         normalized = 1 - img/255
-        #normalized = np.where(normalized == 0, 0.1, normalized)
         return normalized
     
-    def filter_image_by_indexes(self, img, indexes):
-#         mask = np.full(img.shape, -1) #creating a mask of all negatives
-#         mask[indexes[:,0], indexes[:,1]] = 1 #setting only the filtered indexes to 1
-#         #np.where(mask*normalized >= 0, normalized, -1) #filtering by using the indexes as a mask
-#         result = mask*img
-#         result = result[result > 0]
-#         return result
-        return img[indexes]
+    def normalize_ref(self, img):
+        return (255-img)/255
+    
+    def filter_image_by_indexes(self, img, indexes, should_dilate):
+        if(should_dilate):
+            return img[indexes]
+        return img
     
     def get_mcc_score(self, predictions, manipulations):
         return matthews_corrcoef(manipulations, predictions)
@@ -109,7 +145,7 @@ class Metrics(object):
         data = []
         for folder in folders:
             res = self.get_images(folder)
-            data.append(MediforData(res['ref'], res['sys']))
+            data.append(MediforData(res['ref'], res['sys'], folder.split('/')[-1]))
         return data
     
     def get_folders(self, data_path):
@@ -121,25 +157,24 @@ class Metrics(object):
         sys_path = folder+'/sysMask.png'
         try:
             ref_image = Image.open(ref_path)
+            ref_image = cv2.cvtColor(ref_image,cv2.COLOR_BGR2GRAY)
         except:
             print('failed to open: %s' % ref_path)
         try:
             sys_image = Image.open(sys_path)
         except:
             print('failed to open: %s' % sys_path)
+            exit
         
         return {'ref':ref_image, 'sys':sys_image}     
-    
-    
-   
-            
+         
 class MediforData():
     ref = None
     sys = None
+    folder_name = None
     
-    def __init__(self, ref, sys):
+    def __init__(self, ref, sys, folder_name):
         self.ref = ref
         self.sys = sys
-
-metrics = Metrics()
-metrics.start()  
+        self.folder_name = folder_name
+ 
