@@ -1,19 +1,17 @@
 from metrics import Metrics
+from img_ref_builder import ImgRefBuilder
 
-metrics = Metrics()
-metrics.start() 
 
-# exit
-# #ref = np.ones((6, 6))
-# size = 6
-# diff = 1
-# 
-# sys = []
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys.append(np.arange(0., 1.0, 1.0/float(size)))
-# sys = np.array(sys)*255
-# cv2.imwrite('../data/metrics/00/sysMask.png',sys)
+def metric_scoring():
+    data_path = "../data/metrics/"
+    metrics = Metrics()
+    data = metrics.read_data(data_path)
+    metrics.start(data[2:3]) 
+
+def model_scoring():
+    irb = ImgRefBuilder()
+    data = irb.get_img_ref_data()
+    metrics = Metrics()
+    metrics.start(data)
+
+model_scoring()

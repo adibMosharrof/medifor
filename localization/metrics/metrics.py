@@ -4,20 +4,17 @@ import cv2
 import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
-import cProfile
-import time
-import rawpy
+from medifordata import MediforData
 
 class Metrics(object):
-    data_path = "../data/metrics/"
+#     data_path = "../data/metrics/"
     thresholds = []
     starting_time = None
     end_time = None
-    def start(self):
+    def start(self, data):
         self.thresholds =  np.arange(0,1, 0.05)
-        data = self.read_data(self.data_path)
-        self.starting_time = time.time()
-        avg_score = self.get_average_score(data[2:3])
+#         data = self.read_data(self.data_path)
+        avg_score = self.get_average_score(data)
         print(avg_score)
         
     
@@ -168,13 +165,5 @@ class Metrics(object):
         
         return {'ref':ref_image, 'sys':sys_image}     
          
-class MediforData():
-    ref = None
-    sys = None
-    folder_name = None
-    
-    def __init__(self, ref, sys, folder_name):
-        self.ref = ref
-        self.sys = sys
-        self.folder_name = folder_name
+
  
