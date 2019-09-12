@@ -1,5 +1,7 @@
 import os
+import socket
 import sys
+import json
 from PIL import Image
 import cv2 
 import numpy as np
@@ -8,11 +10,24 @@ from numpy import genfromtxt
 import csv
 import re
 from medifordata import MediforData
+import logging
 
 class ImgRefBuilder:
-    data_path = "../data/"
-    ref_data_path = data_path + "MFC18_EvalPart1/targets/manipulation/mask/"
-    sys_data_path = data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/masks/"
+    base_data_path = "../data/"
+    ref_data_path = base_data_path + "MFC18_EvalPart1/targets/manipulation/mask/"
+    sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
+    image_ref_csv_path = None
+    
+    def __init__(self, config_json, env_json):
+        
+        env_path = env_json['path']
+        self.base_data_path = env_path['data']
+        self.current_data_path = self.base_data_path+ config_json["default"]["data"]
+        
+        self.image_ref_csv_path =  self.current_data_path + env_path['image_ref_csv']
+        self.ref_data_path = f'{self.current_data_path}{env_path["target_mask"]}'
+        model_type = config_json["default"]["model_type"]
+        self.sys_data_path = f'{env_path["model_sys_predictions"]}{env_path["model_type"][model_type]}'
     
     def get_img_ref_data(self):
         img_refs = self.get_img_ref()
@@ -27,22 +42,21 @@ class ImgRefBuilder:
         try:
             sys_image = Image.open(sys_img_path)
         except:
-            error_msg = 'failed to open: %s' % sys_img_path
-            print(error_msg)
+            error_msg = 'FAILED to open: %s' % sys_img_path
+            logging.debug(error_msg)
             sys.exit(error_msg)
         ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
         try:
             ref_image = Image.open(ref_img_path)
         except:
-            error_msg = 'failed to open: %s' % ref_img_path
-            print(error_msg)
+            error_msg = 'FAILED to open: %s' % ref_img_path
+            logging.debug(error_msg)
             sys.exit(error_msg)
         return {'ref':ref_image, 'sys':sys_image} 
                 
     def get_img_ref(self):
-        path = self.data_path+"image_ref.csv"
-        with open(path, 'r') as f:
-            reader = csv.reader(f, delimiter=',')
+        with open(self.image_ref_csv_path, 'r') as f:
+            reader = csv.reader(f, delimiter='|')
             # get header from first row
             headers = next(reader)
             # get all the rows as a list
@@ -62,10 +76,6 @@ class ImgRefBuilder:
 class ImgRefs:
     sys_mask_file_name = None
     ref_mask_file_name = None
-    
-    def __init__(self, data):
-        self.sys_mask_file_names = data[:,0]
-        self.ref_mask_file_names = data[:,1]
         
     def __init__(self,sys, ref):
         self.sys_mask_file_name = sys

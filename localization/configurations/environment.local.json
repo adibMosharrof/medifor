@@ -1,0 +1,15 @@
+{
+    "path":{
+        "data" : "../data/",
+        "outputs":"../outputs/",
+        "model_sys_predictions":"../data/model_sys_predictions/",
+        "metrics": "metrics/",
+        "MFC18": "MFC18_EvalPart1/",
+        "target_mask":"targets/manipulation/mask/",
+        "image_ref_csv":"reference/manipulation/image_ref.csv",
+        "model_type":{
+            "c8-lgb_local_40_nb_a":"c8-lgb_local_40_nb_a/mask/"
+        }
+    },
+    "threshold_step":0.9
+}

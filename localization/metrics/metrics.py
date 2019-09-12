@@ -5,18 +5,18 @@ import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 from medifordata import MediforData
+import logging
 
 class Metrics(object):
 #     data_path = "../data/metrics/"
     thresholds = []
     starting_time = None
     end_time = None
-    def start(self, data):
-        self.thresholds =  np.arange(0,1, 0.05)
+    def start(self, data, threshold_step):
+        self.thresholds =  np.arange(0,1, threshold_step)
 #         data = self.read_data(self.data_path)
         avg_score = self.get_average_score(data)
-        print(avg_score)
-        
+        logging.info('The average Score of the whole run is :' + str(avg_score))
     
     def get_average_score(self, data):
         scores = 0

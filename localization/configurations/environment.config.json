@@ -1,0 +1,11 @@
+{
+    "hostnames" :{
+        "uomlmedifor":"environment.server.json",
+        "LAPTOP-DNMQC5VO":"environment.local.json"
+    },
+    "default":{
+        "model_type":"c8-lgb_local_40_nb_a",
+        "data":"MFC18_EvalPart1/"
+    }
+    
+}
