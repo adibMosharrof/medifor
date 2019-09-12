@@ -55,14 +55,14 @@ class Runner():
     
     def create_folder_for_output(self):
         model_type = self.config_json["default"]["model_type"]
-        model_dir = f'{self.env_json["path"]["outputs"]}{model_type}/'
+        model_dir = '{}{}/'.format(self.env_json["path"]["outputs"], model_type)
         output_folder_name = datetime.datetime.now().strftime("%Y%m%d %H%M%S")
         output_dir = model_dir+output_folder_name
         os.makedirs(output_dir)
         return output_dir
         
     def initiate_log(self, output_dir):
-        logging.basicConfig(filename=f'{output_dir}/app.log', level=logging.INFO, format='%(message)s')
+        logging.basicConfig(filename='{}/app.log'.format(output_dir), level=logging.INFO, format='%(message)s')
 #         logging.debug('This message should appear on the console')
 #         logging.info('So should this')
 #         logging.warning('And this, too')

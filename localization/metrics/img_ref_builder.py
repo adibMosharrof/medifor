@@ -25,9 +25,9 @@ class ImgRefBuilder:
         self.current_data_path = self.base_data_path+ config_json["default"]["data"]
         
         self.image_ref_csv_path =  self.current_data_path + env_path['image_ref_csv']
-        self.ref_data_path = f'{self.current_data_path}{env_path["target_mask"]}'
+        self.ref_data_path = '{}{}'.format(self.current_data_path, env_path["target_mask"])
         model_type = config_json["default"]["model_type"]
-        self.sys_data_path = f'{env_path["model_sys_predictions"]}{env_path["model_type"][model_type]}'
+        self.sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_type"][model_type])
     
     def get_img_ref_data(self):
         img_refs = self.get_img_ref()
@@ -57,11 +57,11 @@ class ImgRefBuilder:
     def get_img_ref(self):
         with open(self.image_ref_csv_path, 'r') as f:
             reader = csv.reader(f, delimiter='|')
-            # get header from first row
             headers = next(reader)
-            # get all the rows as a list
             all_rows = np.array(list(reader))
+        #only selected images that have a reference(we are only scoring the manipulated images)
         valid_rows =all_rows[all_rows[:,4] != '']
+        #only need the sys and ref image names
         required_data = valid_rows[:,[1,4]]
         sys_masks = required_data[:,0]
         ref_masks = list(map(lambda x:self.extract_ref_mask_file_name(x) ,required_data[:,1]))
@@ -80,8 +80,6 @@ class ImgRefs:
     def __init__(self,sys, ref):
         self.sys_mask_file_name = sys
         self.ref_mask_file_name = ref    
-        
-# irb = ImgRefBuilder()
-# irb.get_img_ref_data()
+
         
     
