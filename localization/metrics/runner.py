@@ -13,16 +13,17 @@ class Runner():
     config_json = None
     env_json = None
     email_json = None
+    my_logger = None
     
     def __init__(self):
-        logging.info("starting run")
+        #logging.info("starting run")
         json_files = self.load_json_files(self.config_path)
         self.env_json = json_files['env']
         self.config_json = json_files['config']
         self.email_json = json_files['email']
 
         output_dir = self.create_folder_for_output()
-        self.initiate_log(output_dir)
+        self.my_logger = self.initiate_log(output_dir)
         emailsender = EmailSender()
 #         emailsender.send(self.email_json)
     
@@ -33,11 +34,9 @@ class Runner():
         metrics.start(data[2:3]) 
     
     def model_scoring(self):
-        
-        
-        irb = ImgRefBuilder(self.config_json, self.env_json)
+        irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
-        metrics = Metrics()
+        metrics = Metrics(self.my_logger)
         metrics.start(data, self.env_json["threshold_step"])
     
     def load_json_files(self, config_path):
@@ -67,7 +66,8 @@ class Runner():
 #         logging.debug('This message should appear on the console')
 #         logging.info('So should this')
 #         logging.warning('And this, too')
-    
+        my_logger = logging.getLogger()
+        return my_logger
         
 r = Runner()
 r.model_scoring()

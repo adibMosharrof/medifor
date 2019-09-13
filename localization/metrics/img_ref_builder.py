@@ -17,9 +17,10 @@ class ImgRefBuilder:
     ref_data_path = base_data_path + "MFC18_EvalPart1/targets/manipulation/mask/"
     sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
     image_ref_csv_path = None
+    my_logger = None
     
-    def __init__(self, config_json, env_json):
-        
+    def __init__(self, config_json, env_json, logger):
+        self.my_logger = logger
         env_path = env_json['path']
         self.base_data_path = env_path['data']
         self.current_data_path = self.base_data_path+ config_json["default"]["data"]
@@ -43,14 +44,14 @@ class ImgRefBuilder:
             sys_image = Image.open(sys_img_path)
         except:
             error_msg = 'FAILED to open: %s' % sys_img_path
-            logging.debug(error_msg)
+            self.my_logger.debug(error_msg)
             sys.exit(error_msg)
         ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
         try:
             ref_image = Image.open(ref_img_path)
         except:
             error_msg = 'FAILED to open: %s' % ref_img_path
-            logging.debug(error_msg)
+            self.my_logger.debug(error_msg)
             sys.exit(error_msg)
         return {'ref':ref_image, 'sys':sys_image} 
                 
