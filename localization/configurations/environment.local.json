@@ -2,6 +2,7 @@
     "path":{
         "data" : "../data/",
         "outputs":"../outputs/",
+        "config:"../configurations/",
         "model_sys_predictions":"../data/model_sys_predictions/",
         "metrics": "metrics/",
         "MFC18": "MFC18_EvalPart1/",

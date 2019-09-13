@@ -1,7 +1,8 @@
 {
     "path":{
-        "data" : "~/dropbox/uoml2/medifor_local_large/",
-        "outputs":"~/adib/outputs/",
+        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
+        "outputs":"/home/ubuntu/adib/outputs/",
+        "config:"../configurations/",
         "model_sys_predictions":"~/adib/inputs/model_sys_predictions/",
         "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",
