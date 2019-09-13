@@ -18,7 +18,7 @@ class ImgRefBuilder:
     sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
     image_ref_csv_path = None
     my_logger = None
-    data_size = {start:None, end:None}
+    data_size = {"starting_index":None, "ending_index":None}
     
     def __init__(self, config_json, env_json, logger):
         self.my_logger = logger
@@ -31,12 +31,12 @@ class ImgRefBuilder:
         model_type = config_json["default"]["model_type"]
         self.sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_type"][model_type])
         
-        self.data_size = self.get_data_size(env_json)
+        self.set_data_size(env_json)
     
     def get_img_ref_data(self):
         img_refs = self.get_img_ref()
         data = []
-        for img_ref in img_refs[self.data_size.start:self.data_size.end]:
+        for img_ref in img_refs[self.data_size["starting_index"]:self.data_size["ending_index"]]:
             result = self.read_img_ref(img_ref)
             data.append(MediforData(result['ref'], result['sys'], ''))
         return data
@@ -72,20 +72,21 @@ class ImgRefBuilder:
         img_refs = []
         for i in range(len(sys_masks)):
             img_refs.append(ImgRefs(sys_masks[i], ref_masks[i]))
-        return img_refs
+        return np.array(img_refs)
         
     def extract_ref_mask_file_name(self, text):
         return re.search("(?<=reference\/manipulation-image\/mask\/).*(?=.ccm.png)", text).group()
 
-    def get_data_size(self, env_json):
+    def set_data_size(self, env_json):
         try:
-          self.data_size.start = int(env_json["data_size"]["start"])
+          self.data_size["starting_index"] = int(env_json["data_size"]["starting_index"])
         except ValueError:
-          self.data_size.start = 0
+          self.data_size["starting_index"] = 0
         try:
-          self.data_size.end = int(env_json["data_size"]["end"])
+          self.data_size["ending_index"] = int(env_json["data_size"]["ending_index"])
         except ValueError:
-          self.data_size.end = None  
+          self.data_size["ending_index"] = None
+
 
 class ImgRefs:
     sys_mask_file_name = None
