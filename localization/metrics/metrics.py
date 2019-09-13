@@ -16,6 +16,7 @@ class Metrics(object):
         self.thresholds =  np.arange(0,1, threshold_step)
 #         data = self.read_data(self.data_path)
         avg_score = self.get_average_score(data)
+        print(avg_score)
         logging.info('The average Score of the whole run is :' + str(avg_score))
     
     def get_average_score(self, data):

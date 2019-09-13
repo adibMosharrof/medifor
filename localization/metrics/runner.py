@@ -15,6 +15,7 @@ class Runner():
     email_json = None
     
     def __init__(self):
+        logging.info("starting run")
         json_files = self.load_json_files(self.config_path)
         self.env_json = json_files['env']
         self.config_json = json_files['config']
