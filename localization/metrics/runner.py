@@ -25,7 +25,7 @@ class Runner():
         output_dir = self.create_folder_for_output()
         self.my_logger = self.initiate_log(output_dir)
         emailsender = EmailSender()
-#         emailsender.send(self.email_json)
+        emailsender.send(self.email_json)
     
     def metric_scoring(self):
         data_path = "../data/metrics/"
