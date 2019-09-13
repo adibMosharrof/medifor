@@ -4,6 +4,4 @@ bulldozers
 /localization/metrics/__pycache__/medifordata.cpython-36.pyc
 /localization/metrics/__pycache__/metrics.cpython-36.pyc
 /localization/outputs
-/localization/data/model_sys_predictions
-/localization/data/MFC18_EvalPart1
-metrics
+/localization/data/
