@@ -11,5 +11,6 @@
             "c8-lgb_local_40_nb_a":"c8-lgb_local_40_nb_a/mask/"
         }
     },
-    "threshold_step":0.9
+    "threshold_step":0.9,
+    "data_size":"all"
 }
