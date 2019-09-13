@@ -6,7 +6,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 class EmailSender():
+    my_logger = None
     
+    def __init__(self, my_logger):
+        self.my_logger = my_logger
+        
     def send(self, config_json):
         subject = "An email with attachment from Python"
         body = "This is an email with attachment sent from Python"
@@ -24,14 +28,15 @@ class EmailSender():
         # Add body to email
         message.attach(MIMEText(body, "plain"))
         
-        filename = "../outputs/c8-lgb_local_40_nb_a/20190912 120505/app.log"
+        filename = self.my_logger.handlers[0].baseFilename
         
         # Open PDF file in binary mode
         with open(filename, "rb") as attachment:
             # Add file as application/octet-stream
             # Email client can usually download this automatically as attachment
+            log_file = attachment.read()
             part = MIMEBase("application", "octet-stream")
-            part.set_payload(attachment.read())
+            part.set_payload(log_file)
         
         # Encode file in ASCII characters to send by email    
         encoders.encode_base64(part)

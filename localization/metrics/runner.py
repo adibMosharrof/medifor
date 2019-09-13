@@ -14,6 +14,7 @@ class Runner():
     env_json = None
     email_json = None
     my_logger = None
+    email_sender = None
     
     def __init__(self):
         #logging.info("starting run")
@@ -24,8 +25,8 @@ class Runner():
 
         output_dir = self.create_folder_for_output()
         self.my_logger = self.initiate_log(output_dir)
-        emailsender = EmailSender()
-        emailsender.send(self.email_json)
+        self.emailsender = EmailSender(self.my_logger)
+        
     
     def metric_scoring(self):
         data_path = "../data/metrics/"
@@ -38,6 +39,7 @@ class Runner():
         data = irb.get_img_ref_data()
         metrics = Metrics(self.my_logger)
         metrics.start(data, self.env_json["threshold_step"])
+        self.emailsender.send(self.email_json)
     
     def load_json_files(self, config_path):
         hostname = socket.gethostname()
@@ -62,7 +64,7 @@ class Runner():
         return output_dir
         
     def initiate_log(self, output_dir):
-        logging.basicConfig(filename='{}/app.log'.format(output_dir), level=logging.INFO, format='%(message)s')
+        logging.basicConfig(filename='{}/app.txt'.format(output_dir), level=logging.INFO, format='%(message)s')
 #         logging.debug('This message should appear on the console')
 #         logging.info('So should this')
 #         logging.warning('And this, too')
