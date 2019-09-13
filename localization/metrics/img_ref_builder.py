@@ -18,7 +18,7 @@ class ImgRefBuilder:
     sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
     image_ref_csv_path = None
     my_logger = None
-    data_size = None
+    data_size = {start:None, end:None}
     
     def __init__(self, config_json, env_json, logger):
         self.my_logger = logger
@@ -36,7 +36,7 @@ class ImgRefBuilder:
     def get_img_ref_data(self):
         img_refs = self.get_img_ref()
         data = []
-        for img_ref in img_refs[0:self.data_size]:
+        for img_ref in img_refs[self.data_size.start:self.data_size.end]:
             result = self.read_img_ref(img_ref)
             data.append(MediforData(result['ref'], result['sys'], ''))
         return data
@@ -79,9 +79,13 @@ class ImgRefBuilder:
 
     def get_data_size(self, env_json):
         try:
-          self.data_size = int(env_json["data_size"])
+          self.data_size.start = int(env_json["data_size"]["start"])
         except ValueError:
-          self.data_size = None
+          self.data_size.start = 0
+        try:
+          self.data_size.end = int(env_json["data_size"]["end"])
+        except ValueError:
+          self.data_size.end = None  
 
 class ImgRefs:
     sys_mask_file_name = None

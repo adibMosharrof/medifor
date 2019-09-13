@@ -12,5 +12,8 @@
         }
     },
     "threshold_step":0.9,
-    "data_size":"all"
+    "data_size":{
+        "start":2,
+        "end":"all"
+    }
 }
