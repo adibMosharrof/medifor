@@ -7,6 +7,7 @@ import json
 import datetime
 import os
 import logging
+import sys
 
 class Runner():
     config_path = "../configurations/"
@@ -38,7 +39,11 @@ class Runner():
         irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
         metrics = Metrics(self.my_logger)
-        metrics.start(data, self.env_json["threshold_step"])
+        try:
+            metrics.start(data, self.env_json["threshold_step"])
+        except:
+            error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
+            self.my_logger.debug(error_msg)
         self.emailsender.send(self.email_json)
     
     def load_json_files(self, config_path):
