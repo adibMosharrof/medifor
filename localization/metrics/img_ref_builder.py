@@ -45,6 +45,7 @@ class ImgRefBuilder:
         sys_img_path = self.sys_data_path+img_ref.sys_mask_file_name + ".png"
         try:
             sys_image = Image.open(sys_img_path)
+            sys_image.load()
         except:
             error_msg = 'FAILED to open sys image: {} \n {} \n {}'.format(sys_img_path, sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
@@ -52,6 +53,7 @@ class ImgRefBuilder:
         ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
         try:
             ref_image = Image.open(ref_img_path)
+            ref_image.load()
         except:
             error_msg = 'FAILED to open ref image: {} \n {} \n {}'.format(ref_img_path, sys.exc_info()[0], sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
