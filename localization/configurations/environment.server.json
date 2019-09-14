@@ -13,7 +13,7 @@
     },
     "threshold_step":0.9,
     "data_size":{
-        "starting_index":2,
+        "starting_index":0,
         "ending_index":"all"
     }
 }

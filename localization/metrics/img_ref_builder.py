@@ -46,14 +46,14 @@ class ImgRefBuilder:
         try:
             sys_image = Image.open(sys_img_path)
         except:
-            error_msg = 'FAILED to open: %s' % sys_img_path
+            error_msg = 'FAILED to open sys image: {} \n {} \n {}'.format(sys_img_path, sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
         ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
         try:
             ref_image = Image.open(ref_img_path)
         except:
-            error_msg = 'FAILED to open: %s' % ref_img_path
+            error_msg = 'FAILED to open ref image: {} \n {} \n {}'.format(ref_img_path, sys.exc_info()[0], sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
         return {'ref':ref_image, 'sys':sys_image} 
