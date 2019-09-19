@@ -2,10 +2,11 @@ from metrics import Metrics
 from email_sender import EmailSender
 from img_ref_builder import ImgRefBuilder
 from image_utils import ImageUtils
+from timing import Timing 
 from types import SimpleNamespace as Namespace
 import socket
 import json
-import datetime
+from datetime import datetime
 import os
 import logging
 import sys
@@ -16,11 +17,11 @@ class Runner():
     env_json = None
     email_json = None
     my_logger = None
+    my_timing = None
     email_sender = None
     image_utils = None
     
     def __init__(self):
-        logging.info("starting run")
         json_files = self.load_json_files(self.config_path)
         self.env_json = json_files['env']
         self.config_json = json_files['config']
@@ -28,6 +29,7 @@ class Runner():
 
         output_dir = self.create_folder_for_output()
         self.my_logger = self.initiate_log(output_dir)
+        self.my_timing = Timing(self.my_logger)
         self.emailsender = EmailSender(self.my_logger)
         
         self.image_utils = ImageUtils(self.my_logger)
@@ -39,10 +41,8 @@ class Runner():
         metrics.start(data[2:3]) 
     
     def model_scoring(self):
-        self.my_logger.info('Start: Img ref builder')
         irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
-        self.my_logger.info('End: Img ref builder')
         metrics = Metrics(self.my_logger, self.image_utils)
         try:
             metrics.start(data, self.env_json["threshold_step"])
@@ -69,7 +69,7 @@ class Runner():
     def create_folder_for_output(self):
         model_type = self.config_json["default"]["model_type"]
         model_dir = '{}{}/'.format(self.env_json["path"]["outputs"], model_type)
-        output_folder_name = datetime.datetime.now().strftime("%Y%m%d %H%M%S")
+        output_folder_name = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_dir = model_dir+output_folder_name
         os.makedirs(output_dir)
         return output_dir
