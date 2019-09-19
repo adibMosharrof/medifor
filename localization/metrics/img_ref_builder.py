@@ -37,28 +37,14 @@ class ImgRefBuilder:
         img_refs = self.get_img_ref()
         data = []
         for img_ref in img_refs[self.data_size["starting_index"]:self.data_size["ending_index"]]:
-            result = self.read_img_ref(img_ref)
-            data.append(MediforData(result['ref'], result['sys'], ''))
+            path = self.generate_img_ref_paths(img_ref)
+            data.append(MediforData(path['ref'], path['sys']))
         return data
         
-    def read_img_ref(self, img_ref):
+    def generate_img_ref_paths(self, img_ref):
         sys_img_path = self.sys_data_path+img_ref.sys_mask_file_name + ".png"
-        try:
-            sys_image = Image.open(sys_img_path)
-            sys_image.load()
-        except:
-            error_msg = 'FAILED to open sys image: {} \n {} \n {}'.format(sys_img_path, sys.exc_info()[0], sys.exc_info()[1])
-            self.my_logger.debug(error_msg)
-            sys.exit(error_msg)
         ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
-        try:
-            ref_image = Image.open(ref_img_path)
-            ref_image.load()
-        except:
-            error_msg = 'FAILED to open ref image: {} \n {} \n {}'.format(ref_img_path, sys.exc_info()[0], sys.exc_info()[0], sys.exc_info()[1])
-            self.my_logger.debug(error_msg)
-            sys.exit(error_msg)
-        return {'ref':ref_image, 'sys':sys_image} 
+        return {'ref':ref_img_path, 'sys':sys_img_path} 
                 
     def get_img_ref(self):
         with open(self.image_ref_csv_path, 'r') as f:

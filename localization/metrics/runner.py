@@ -1,6 +1,7 @@
 from metrics import Metrics
 from email_sender import EmailSender
 from img_ref_builder import ImgRefBuilder
+from image_utils import ImageUtils
 from types import SimpleNamespace as Namespace
 import socket
 import json
@@ -16,9 +17,10 @@ class Runner():
     email_json = None
     my_logger = None
     email_sender = None
+    image_utils = None
     
     def __init__(self):
-        #logging.info("starting run")
+        logging.info("starting run")
         json_files = self.load_json_files(self.config_path)
         self.env_json = json_files['env']
         self.config_json = json_files['config']
@@ -28,6 +30,7 @@ class Runner():
         self.my_logger = self.initiate_log(output_dir)
         self.emailsender = EmailSender(self.my_logger)
         
+        self.image_utils = ImageUtils(self.my_logger)
     
     def metric_scoring(self):
         data_path = "../data/metrics/"
@@ -36,14 +39,17 @@ class Runner():
         metrics.start(data[2:3]) 
     
     def model_scoring(self):
+        self.my_logger.info('Start: Img ref builder')
         irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
-        metrics = Metrics(self.my_logger)
+        self.my_logger.info('End: Img ref builder')
+        metrics = Metrics(self.my_logger, self.image_utils)
         try:
             metrics.start(data, self.env_json["threshold_step"])
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
+            sys.exit(error_msg)
         self.emailsender.send(self.email_json)
     
     def load_json_files(self, config_path):

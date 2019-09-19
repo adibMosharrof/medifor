@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
 from medifordata import MediforData
+from image_utils import ImageUtils
 import logging
 
 class Metrics(object):
@@ -13,9 +14,11 @@ class Metrics(object):
     starting_time = None
     end_time = None
     my_logger = None
+    image_utils = None
     
-    def __init__(self, logger):
+    def __init__(self, logger, image_utils):
         self.my_logger = logger
+        self.image_utils = image_utils
     
     def start(self, data, threshold_step):
         self.thresholds =  np.arange(0,1, threshold_step)
@@ -27,24 +30,19 @@ class Metrics(object):
     def get_average_score(self, data):
         scores = 0
         for d in data:
-            bw = self.get_black_and_white_image(d.ref)
+            bw = self.image_utils.get_black_and_white_image(d.ref)
             normalized_ref = self.normalize_ref(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
+            sys_image = self.image_utils.read_image(d.sys)
 #             noscore_img = self.get_server_dilated_image(self.data_path, d.folder_name)
-            scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(d.sys).ravel())     
+            scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
         return scores/len(data)
-    
-    def get_black_and_white_image(self, img):
-        bw = np.array(img.convert('L'))
-        return np.where(bw < 255, 0, bw)
     
     def get_server_dilated_image(self, path, folder_name):
         for file in os.listdir(path+folder_name):
             if file.endswith("bpm-bin.png"):
                 dilated_image = Image.open(os.path.join(path+folder_name, file))
                 bw = np.array(dilated_image.convert('L'))
-#                 plt.imshow(bw, cmap='gray')
-#                 plt.show()
                 bw = np.where(bw ==0, 1, bw)
                 bw = np.where(bw ==255, 1, bw)
                 bw = np.where(bw == 225, 0, bw)
@@ -85,17 +83,14 @@ class Metrics(object):
         dilated_score_with_threshold = {}
         vanilla_score_with_threshold = {}
         for t in self.thresholds:
-#             vanilla_score = self.get_image_score_with_threshold(ref, sys, t, False )
             score = self.get_image_score_with_threshold(noscore_img, ref, sys, t, True )
             max_score = max(max_score, score)
             dilated_score_with_threshold[t] = score
-#             vanilla_score_with_threshold[t] = vanilla_score
         self.plot_threshold_with_scores(dilated_score_with_threshold, vanilla_score_with_threshold )
         return max_score
     
     def plot_threshold_with_scores(self, dilated_score_with_threshold, vanilla_score_with_threshold):    
         plt.plot((1-self.thresholds)*255, list(dilated_score_with_threshold.values()), marker='o', color='black', markerfacecolor='b',markeredgecolor='b')
-#         plt.plot(self.thresholds, list(vanilla_score_with_threshold.values()), marker='o', color='g', markerfacecolor='r',markeredgecolor='r', label="vanilla")    
         plt.xlabel('Binarization Threshold')
         plt.ylabel('MCC')
         plt.show()
