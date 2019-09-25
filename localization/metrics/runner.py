@@ -30,6 +30,7 @@ class Runner():
         output_dir = self.create_folder_for_output()
         self.my_logger = self.initiate_log(output_dir)
         self.my_timing = Timing(self.my_logger)
+        self.log_configs()
         self.emailsender = EmailSender(self.my_logger)
         
         self.image_utils = ImageUtils(self.my_logger)
@@ -37,7 +38,10 @@ class Runner():
     def at_exit(self):
         self.my_timing.endlog()
         self.emailsender.send(self.email_json)
-        
+     
+    def log_configs(self):
+        self.my_logger.info("Threshold step: {0}".format(self.env_json["threshold_step"]))
+
     
     def metric_scoring(self):
         data_path = "../data/metrics/"
@@ -48,6 +52,7 @@ class Runner():
     def model_scoring(self):
         irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
+        self.my_logger.info("Data Size {0}".format(len(data)))
         metrics = Metrics(self.my_logger, self.image_utils)
         try:
             metrics.start(data, self.env_json["threshold_step"])

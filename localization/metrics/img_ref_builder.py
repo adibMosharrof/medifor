@@ -32,6 +32,8 @@ class ImgRefBuilder:
         self.sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_type"][model_type])
         
         self.set_data_size(env_json)
+        self.my_logger.info("Data starting index: {0}".format(self.data_size["starting_index"]))
+        self.my_logger.info("Data ending index: {0}".format(self.data_size["ending_index"]))
     
     def get_img_ref_data(self):
         img_refs = self.get_img_ref()
