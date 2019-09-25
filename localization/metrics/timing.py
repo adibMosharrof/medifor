@@ -1,4 +1,3 @@
-import atexit
 from datetime import datetime
 from functools import reduce
 
@@ -11,7 +10,6 @@ class Timing():
     def __init__(self, my_logger):
         self.my_logger = my_logger
         self.start = datetime.now()
-        atexit.register(self.endlog)
     
     def get_output(self, elapsed):
         return '{0} \nProgram Execution Time : {1} \n{0}'.format(self.line, elapsed)

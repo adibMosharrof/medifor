@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from medifordata import MediforData
 from image_utils import ImageUtils
 import logging
+import concurrent.futures
 
 class Metrics(object):
 #     data_path = "../data/metrics/"
@@ -15,6 +16,8 @@ class Metrics(object):
     end_time = None
     my_logger = None
     image_utils = None
+    
+    processes = []
     
     def __init__(self, logger, image_utils):
         self.my_logger = logger
@@ -79,27 +82,35 @@ class Metrics(object):
         return weights
       
     def get_image_score(self, noscore_img, ref, sys):
+    
+        score_with_threshold = {}
         max_score = np.NINF
         dilated_score_with_threshold = {}
         vanilla_score_with_threshold = {}
+        
         for t in self.thresholds:
-            score = self.get_image_score_with_threshold(noscore_img, ref, sys, t, True )
-            max_score = max(max_score, score)
-            dilated_score_with_threshold[t] = score
-        self.plot_threshold_with_scores(dilated_score_with_threshold, vanilla_score_with_threshold )
+            score = self.get_image_score_with_threshold(t, noscore_img, ref, sys, True,score_with_threshold )
+            
+        for f in concurrent.futures.as_completed(self.processes):
+            print(f.result())
+        self.plot_threshold_with_scores(score_with_threshold, vanilla_score_with_threshold)
         return max_score
+    
     
     def plot_threshold_with_scores(self, dilated_score_with_threshold, vanilla_score_with_threshold):    
         plt.plot((1-self.thresholds)*255, list(dilated_score_with_threshold.values()), marker='o', color='black', markerfacecolor='b',markeredgecolor='b')
         plt.xlabel('Binarization Threshold')
         plt.ylabel('MCC')
-        plt.show()
+#         plt.show()
         
-    def get_image_score_with_threshold(self, noscore_img, ref, sys, threshold, should_dilate):
+    def get_image_score_with_threshold(self, threshold, noscore_img, ref, sys, should_dilate, score_with_threshold):
         scoring_indexes = self.get_scoring_indexes(noscore_img, should_dilate);
         predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold, should_dilate)
         manipulations = self.get_manipulations(ref, scoring_indexes, should_dilate)
-        return self.get_mcc_score(predictions, manipulations)
+        score = self.get_mcc_score(predictions, manipulations)
+#         score_with_threshold[threshold] = score
+        score_with_threshold[threshold] = 0
+        
     
     
     def get_scoring_indexes(self, ref, should_dilate):
@@ -134,7 +145,10 @@ class Metrics(object):
         return img
     
     def get_mcc_score(self, predictions, manipulations):
-        return matthews_corrcoef(manipulations, predictions)
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            self.processes.append(executor.submit(matthews_corrcoef, manipulations, predictions))
+
+#         return matthews_corrcoef(manipulations, predictions)
 
     
     

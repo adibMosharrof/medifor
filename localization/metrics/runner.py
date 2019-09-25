@@ -34,6 +34,11 @@ class Runner():
         
         self.image_utils = ImageUtils(self.my_logger)
     
+    def at_exit(self):
+        self.my_timing.endlog()
+#         self.emailsender.send(self.email_json)
+        
+    
     def metric_scoring(self):
         data_path = "../data/metrics/"
         metrics = Metrics()
@@ -50,7 +55,7 @@ class Runner():
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
-        self.emailsender.send(self.email_json)
+        
     
     def load_json_files(self, config_path):
         hostname = socket.gethostname()
@@ -82,5 +87,7 @@ class Runner():
         my_logger = logging.getLogger()
         return my_logger
         
-r = Runner()
-r.model_scoring()
+if __name__ == '__main__':
+    r = Runner()
+    r.model_scoring()
+    r.at_exit()
