@@ -94,6 +94,7 @@ class Metrics(object):
 #         for f in concurrent.futures.as_completed(self.processes):
 #             print(f.result())
         self.plot_threshold_with_scores(score_with_threshold, vanilla_score_with_threshold)
+        max_score = max(score_with_threshold.values())
         return max_score
     
     
@@ -108,10 +109,7 @@ class Metrics(object):
         predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold, should_dilate)
         manipulations = self.get_manipulations(ref, scoring_indexes, should_dilate)
         score = self.get_mcc_score(predictions, manipulations)
-#         score_with_threshold[threshold] = score
-        score_with_threshold[threshold] = 0
-        
-    
+        score_with_threshold[threshold] = score
     
     def get_scoring_indexes(self, ref, should_dilate):
         if should_dilate:
