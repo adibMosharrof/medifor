@@ -91,8 +91,8 @@ class Metrics(object):
         for t in self.thresholds:
             score = self.get_image_score_with_threshold(t, noscore_img, ref, sys, True,score_with_threshold )
             
-        for f in concurrent.futures.as_completed(self.processes):
-            print(f.result())
+#         for f in concurrent.futures.as_completed(self.processes):
+#             print(f.result())
         self.plot_threshold_with_scores(score_with_threshold, vanilla_score_with_threshold)
         return max_score
     
@@ -145,10 +145,10 @@ class Metrics(object):
         return img
     
     def get_mcc_score(self, predictions, manipulations):
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            self.processes.append(executor.submit(matthews_corrcoef, manipulations, predictions))
+#         with concurrent.futures.ProcessPoolExecutor() as executor:
+#             self.processes.append(executor.submit(matthews_corrcoef, manipulations, predictions))
 
-#         return matthews_corrcoef(manipulations, predictions)
+        return matthews_corrcoef(manipulations, predictions)
 
     
     
