@@ -36,7 +36,7 @@ class Runner():
     
     def at_exit(self):
         self.my_timing.endlog()
-#         self.emailsender.send(self.email_json)
+        self.emailsender.send(self.email_json)
         
     
     def metric_scoring(self):
