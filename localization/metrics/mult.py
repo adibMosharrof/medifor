@@ -84,9 +84,9 @@ if __name__== "__main__":
     results = []
     
     r.processes(r.mcc_score)
-#     r.pool(r.mcc_score)
-#     r.future_thread(r.mcc_score)
-#     r.future_process(r.mcc_score)
+    r.pool(r.mcc_score)
+    r.future_thread(r.mcc_score)
+    r.future_process(r.mcc_score)
     r.vanilla(r.mcc_score)
     
 #     r.processes(r.sleeper)
