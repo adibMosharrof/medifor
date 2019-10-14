@@ -1,0 +1,12 @@
+{
+    "hostnames" :{
+        "uomlmedifor":"predictions.server.json",
+        "uomlmedifor3":"predictions.server.json",
+        "LAPTOP-DNMQC5VO":"predictions.local.json"
+    },
+    "default":{
+        "model_type":"c8-lgb_local_40_nb_a",
+        "data":"MFC18_EvalPart1/"
+    }
+    
+}

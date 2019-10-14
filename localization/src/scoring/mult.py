@@ -5,6 +5,7 @@ import concurrent.futures
 from multiprocessing import Process, Pool
 from functools import partial
 import warnings
+import sys
 
 
 class Runner():
@@ -76,8 +77,9 @@ class Runner():
 
 if __name__== "__main__":
     #warnings.filterwarnings("ignore")
+    print(sys.version)
     r = Runner()
-    thres = np.arange(0,1, 0.1)
+    thres = np.arange(0,1, 0.3)
     print(f"Number of thresholds {len(thres)}")
     pred = [1]*200000
     man = [1]*200000
@@ -94,4 +96,6 @@ if __name__== "__main__":
 #     r.future_thread(r.sleeper)
 #     r.future_process(r.sleeper)
 #     r.vanilla(r.sleeper)
+    
+    
 

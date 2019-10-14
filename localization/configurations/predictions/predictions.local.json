@@ -1,19 +1,19 @@
 {
     "path":{
         "data" : "../../data/",
-        "outputs":"../../outputs/",
-        "config":"../../configurations/",
-        "model_sys_predictions":"../../data/model_sys_predictions/",
-        "metrics": "metrics/",
+        "outputs":"../../outputs/predictions/",
+        "config":"../../configurations/predictions/",
+        "model_sys_predictions":"../data/model_sys_predictions/",
+        "metrics": "scoring/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
         "model_type":{
-            "c8-lgb_local_40_nb_a":"c8-lgb_local_40_nb_a/mask/"
+            "unet":"unet"
         }
     },
     "threshold_step":0.3,
     "data_size":{
         "starting_index":0,
-        "ending_index":"1"
+        "ending_index":"3"
     }
 }

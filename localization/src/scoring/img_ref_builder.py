@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 from numpy import genfromtxt
 import csv
 import re
-from medifordata import MediforData
+from scoring.medifordata import MediforData
 import logging
 
 class ImgRefBuilder:
-    base_data_path = "../data/"
+    base_data_path = "../../data/"
     ref_data_path = base_data_path + "MFC18_EvalPart1/targets/manipulation/mask/"
     sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
     image_ref_csv_path = None

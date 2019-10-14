@@ -1,4 +1,5 @@
-from metrics import Metrics
+import sys
+from scorer import Scorer
 from email_sender import EmailSender
 from img_ref_builder import ImgRefBuilder
 from image_utils import ImageUtils
@@ -9,10 +10,10 @@ import json
 from datetime import datetime
 import os
 import logging
-import sys
+
 
 class Runner():
-    config_path = "../configurations/"
+    config_path = "../../configurations/"
     config_json = None
     env_json = None
     email_json = None
@@ -37,25 +38,19 @@ class Runner():
     
     def at_exit(self):
         self.my_timing.endlog()
-        self.emailsender.send(self.email_json)
+        #self.emailsender.send(self.email_json)
      
     def log_configs(self):
         self.my_logger.info("Threshold step: {0}".format(self.env_json["threshold_step"]))
 
     
-    def metric_scoring(self):
-        data_path = "../data/metrics/"
-        metrics = Metrics()
-        data = metrics.read_data(data_path)
-        metrics.start(data[2:3]) 
-    
     def model_scoring(self):
         irb = ImgRefBuilder(self.config_json, self.env_json, self.my_logger)
         data = irb.get_img_ref_data()
         self.my_logger.info("Data Size {0}".format(len(data)))
-        metrics = Metrics(self.my_logger, self.image_utils)
+        scorer = Scorer(self.my_logger, self.image_utils)
         try:
-            metrics.start(data, self.env_json["threshold_step"])
+            scorer.start(data, self.env_json["threshold_step"])
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
@@ -86,9 +81,6 @@ class Runner():
         
     def initiate_log(self, output_dir):
         logging.basicConfig(filename='{}/app.txt'.format(output_dir), level=logging.INFO, format='%(message)s')
-#         logging.debug('This message should appear on the console')
-#         logging.info('So should this')
-#         logging.warning('And this, too')
         my_logger = logging.getLogger()
         return my_logger
         

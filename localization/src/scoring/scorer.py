@@ -9,8 +9,7 @@ from image_utils import ImageUtils
 import logging
 import concurrent.futures
 
-class Metrics(object):
-#     data_path = "../data/metrics/"
+class Scorer(object):
     thresholds = []
     starting_time = None
     end_time = None
@@ -25,7 +24,6 @@ class Metrics(object):
     
     def start(self, data, threshold_step):
         self.thresholds =  np.arange(0,1, threshold_step)
-#         data = self.read_data(self.data_path)
         avg_score = self.get_average_score(data)
         print(avg_score)
         self.my_logger.info('The average Score of the whole run is :' + str(avg_score))
@@ -37,29 +35,12 @@ class Metrics(object):
             normalized_ref = self.normalize_ref(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
             sys_image = self.image_utils.read_image(d.sys)
-#             noscore_img = self.get_server_dilated_image(self.data_path, d.folder_name)
             scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
         return scores/len(data)
-    
-    def get_server_dilated_image(self, path, folder_name):
-        for file in os.listdir(path+folder_name):
-            if file.endswith("bpm-bin.png"):
-                dilated_image = Image.open(os.path.join(path+folder_name, file))
-                bw = np.array(dilated_image.convert('L'))
-                bw = np.where(bw ==0, 1, bw)
-                bw = np.where(bw ==255, 1, bw)
-                bw = np.where(bw == 225, 0, bw)
-                return bw
-        raise ValueError('found no file ending with bpm-bin.png')
-        
+      
     def get_noscore_image(self, img):
         baseNoScore = self.boundary_no_score(img)
-        return baseNoScore
-#         distractionNoScore = self.unselected_no_score(img)
-#         wimg = cv2.bitwise_and(baseNoScore,distractionNoScore)
-# #         plt.imshow(bns, cmap='gray')
-# #         plt.show()
-#         return wimg
+        return baseNoScore 
     
     def boundary_no_score(self, img):
         erosion_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
@@ -91,8 +72,6 @@ class Metrics(object):
         for t in self.thresholds:
             score = self.get_image_score_with_threshold(t, noscore_img, ref, sys, True,score_with_threshold )
             
-#         for f in concurrent.futures.as_completed(self.processes):
-#             print(f.result())
         self.plot_threshold_with_scores(score_with_threshold, vanilla_score_with_threshold)
         max_score = max(score_with_threshold.values())
         return max_score
@@ -143,12 +122,7 @@ class Metrics(object):
         return img
     
     def get_mcc_score(self, predictions, manipulations):
-#         with concurrent.futures.ProcessPoolExecutor() as executor:
-#             self.processes.append(executor.submit(matthews_corrcoef, manipulations, predictions))
-
         return matthews_corrcoef(manipulations, predictions)
-
-    
     
     def read_data(self, data_path):
         folders = self.get_folders(data_path)
