@@ -84,12 +84,12 @@ class MediforPredictionData:
         return config_json, env_json
             
     def dump_pickle_data(self, data ):
-        pickle_out = open("data.pickle","wb")
+        pickle_out = open("temp/data.pickle","wb")
         pickle.dump(data, pickle_out)
         pickle_out.close()
 
     def load_pickle_data(self):
-        pickle_in = open("data.pickle","rb")
+        pickle_in = open("temp/data.pickle","rb")
         return pickle.load(pickle_in)
 
 class Model:

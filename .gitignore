@@ -5,3 +5,6 @@ bulldozers
 /localization/metrics/__pycache__/metrics.cpython-36.pyc
 /localization/outputs
 /localization/data/
+/localization/metrics/__pycache__
+__pycache__
+temp
