@@ -9,74 +9,59 @@ import matplotlib.pyplot as plt
 from numpy import genfromtxt
 import csv
 import re
-from scoring.medifordata import MediforData
+import math
 import logging
+from typing import overload, List
+from pythonlangutil.overload import Overload, signature
 
 class ImgRefBuilder:
-    base_data_path = "../../data/"
-    ref_data_path = base_data_path + "MFC18_EvalPart1/targets/manipulation/mask/"
-    sys_data_path = base_data_path +"MFC18_EvalPart1/c8-lgb_local_40_nb_a/mask/"
     image_ref_csv_path = None
-    my_logger = None
-    data_size = {"starting_index":None, "ending_index":None}
     
-    def __init__(self, config_json, env_json, logger):
-        self.my_logger = logger
-        env_path = env_json['path']
-        self.base_data_path = env_path['data']
-        self.current_data_path = self.base_data_path+ config_json["default"]["data"]
-        
-        self.image_ref_csv_path =  self.current_data_path + env_path['image_ref_csv']
-        self.ref_data_path = '{}{}'.format(self.current_data_path, env_path["target_mask"])
-        model_type = config_json["default"]["model_type"]
-        self.sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_type"][model_type])
-        
-        self.set_data_size(env_json)
-        self.my_logger.info("Data starting index: {0}".format(self.data_size["starting_index"]))
-        self.my_logger.info("Data ending index: {0}".format(self.data_size["ending_index"]))
+    def __init__(self, image_ref_csv_path):
+        self.image_ref_csv_path =  image_ref_csv_path
+
+    @Overload
+    @signature("int")
+    def get_img_ref(self, num_rows) :
+        return self.get_img_ref(0, num_rows)            
     
-    def get_img_ref_data(self):
-        img_refs = self.get_img_ref()
-        data = []
-        for img_ref in img_refs[self.data_size["starting_index"]:self.data_size["ending_index"]]:
-            path = self.generate_img_ref_paths(img_ref)
-            data.append(MediforData(path['ref'], path['sys']))
-        return data
-        
-    def generate_img_ref_paths(self, img_ref):
-        sys_img_path = self.sys_data_path+img_ref.sys_mask_file_name + ".png"
-        ref_img_path = self.ref_data_path + img_ref.ref_mask_file_name +".png"
-        return {'ref':ref_img_path, 'sys':sys_img_path} 
-                
-    def get_img_ref(self):
+    @get_img_ref.overload
+    @signature("list")
+    def get_img_ref(self, indices):
+        #need to change this if indices are not all in order
+        #that is if they have random values in them
+        return self.get_img_ref(indices[0], indices[-1])
+            
+    @get_img_ref.overload
+    @signature("int","int")
+    def get_img_ref(self, starting_index, ending_index):
+        if ending_index is -1:
+            ending_index = math.inf
+        rows = []
         with open(self.image_ref_csv_path, 'r') as f:
             reader = csv.reader(f, delimiter='|')
             headers = next(reader)
-            all_rows = np.array(list(reader))
-        #only selected images that have a reference(we are only scoring the manipulated images)
-        valid_rows =all_rows[all_rows[:,4] != '']
-        #only need the sys and ref image names
-        required_data = valid_rows[:,[1,4]]
-        sys_masks = required_data[:,0]
-        ref_masks = list(map(lambda x:self.extract_ref_mask_file_name(x) ,required_data[:,1]))
+            counter = 0
+            for row in reader:
+                #only selected images that have a reference(we are only scoring the manipulated images)
+                if(row[4] == ''):
+                    continue
+                if counter>= starting_index and counter <ending_index:
+                    rows.append([row[1], row[4]])
+                counter +=1
+                if counter is ending_index:
+                    break
+                
+        rows = np.array(rows)        
+        sys_masks = rows[:,0]
+        ref_masks = list(map(lambda x:self.extract_ref_mask_file_name(x) ,rows[:,1]))
         img_refs = []
         for i in range(len(sys_masks)):
             img_refs.append(ImgRefs(sys_masks[i], ref_masks[i]))
-        return np.array(img_refs)
+        return img_refs
         
     def extract_ref_mask_file_name(self, text):
         return re.search("(?<=reference\/manipulation-image\/mask\/).*(?=.ccm.png)", text).group()
-
-    def set_data_size(self, env_json):
-        try:
-          self.data_size["starting_index"] = int(env_json["data_size"]["starting_index"])
-        except ValueError:
-          self.data_size["starting_index"] = 0
-        try:
-          self.data_size["ending_index"] = int(env_json["data_size"]["ending_index"])
-        except ValueError:
-          self.data_size["ending_index"] = None
-
 
 class ImgRefs:
     sys_mask_file_name = None

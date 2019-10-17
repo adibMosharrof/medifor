@@ -4,12 +4,12 @@ import cv2
 import numpy as np
 from sklearn.metrics import matthews_corrcoef
 import matplotlib.pyplot as plt
-from medifordata import MediforData
-from image_utils import ImageUtils
+from shared.medifordata import MediforData
+from shared.image_utils import ImageUtils
 import logging
 import concurrent.futures
 
-class Scorer(object):
+class Scoring(object):
     thresholds = []
     starting_time = None
     end_time = None
@@ -18,23 +18,19 @@ class Scorer(object):
     
     processes = []
     
-    def __init__(self, logger, image_utils):
-        self.my_logger = logger
-        self.image_utils = image_utils
-    
     def start(self, data, threshold_step):
         self.thresholds =  np.arange(0,1, threshold_step)
         avg_score = self.get_average_score(data)
         print(avg_score)
-        self.my_logger.info('The average Score of the whole run is :' + str(avg_score))
+        logging.getLogger().info('The average Score of the whole run is :' + str(avg_score))
     
     def get_average_score(self, data):
         scores = 0
         for d in data:
-            bw = self.image_utils.get_black_and_white_image(d.ref)
+            bw = ImageUtils.get_black_and_white_image(d.ref)
             normalized_ref = self.normalize_ref(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
-            sys_image = self.image_utils.read_image(d.sys)
+            sys_image = ImageUtils.read_image(d.sys)
             scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
         return scores/len(data)
       
@@ -70,12 +66,11 @@ class Scorer(object):
         vanilla_score_with_threshold = {}
         
         for t in self.thresholds:
-            score = self.get_image_score_with_threshold(t, noscore_img, ref, sys, True,score_with_threshold )
+            self.score_threshold(t, noscore_img, ref, sys,score_with_threshold )
             
         self.plot_threshold_with_scores(score_with_threshold, vanilla_score_with_threshold)
         max_score = max(score_with_threshold.values())
         return max_score
-    
     
     def plot_threshold_with_scores(self, dilated_score_with_threshold, vanilla_score_with_threshold):    
         plt.plot((1-self.thresholds)*255, list(dilated_score_with_threshold.values()), marker='o', color='black', markerfacecolor='b',markeredgecolor='b')
@@ -83,43 +78,29 @@ class Scorer(object):
         plt.ylabel('MCC')
 #         plt.show()
         
-    def get_image_score_with_threshold(self, threshold, noscore_img, ref, sys, should_dilate, score_with_threshold):
-        scoring_indexes = self.get_scoring_indexes(noscore_img, should_dilate);
-        predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold, should_dilate)
-        manipulations = self.get_manipulations(ref, scoring_indexes, should_dilate)
+    def score_threshold(self, threshold, noscore_img, ref, sys, score_with_threshold):
+        scoring_indexes = self.get_scoring_indexes(noscore_img);
+        predictions = self.get_sys_normalized_predictions_from_indexes(sys, scoring_indexes, threshold)
+        manipulations = ref[scoring_indexes]
         score = self.get_mcc_score(predictions, manipulations)
         score_with_threshold[threshold] = score
     
-    def get_scoring_indexes(self, ref, should_dilate):
-        if should_dilate:
-            result = np.where(ref != 0 )
-        else:
-            result = np.where(ref != -1)
+    def get_scoring_indexes(self, ref):
+        result = np.where(ref != 0 )
         return result[0]
     
-    def get_sys_normalized_predictions_from_indexes(self, sys, indexes, threshold, should_dilate):
+    def get_sys_normalized_predictions_from_indexes(self, sys, indexes, threshold):
         normalized = self.normalize_ref(sys)
-        filtered = self.filter_image_by_indexes(normalized, indexes, should_dilate)
+        filtered = normalized[indexes]
         predictions =  np.where(filtered > threshold, 1.0, 0.0) #applying the threshold
         return predictions
         
-    
-    def get_manipulations(self, ref, indexes, should_dilate ):
-#         normalized = self.normalize_flip_handlezeros(ref)
-        filtered = self.filter_image_by_indexes(ref, indexes, should_dilate)
-        return filtered
-    
     def normalize_flip_handlezeros(self, img):
         normalized = 1 - img/255
         return normalized
     
     def normalize_ref(self, img):
         return (255-img)/255
-    
-    def filter_image_by_indexes(self, img, indexes, should_dilate):
-        if(should_dilate):
-            return img[indexes]
-        return img
     
     def get_mcc_score(self, predictions, manipulations):
         return matthews_corrcoef(manipulations, predictions)
