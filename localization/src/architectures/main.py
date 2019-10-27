@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 sys.path.append('..')
 from unet import UNet
 from data_generator import DataGenerator
-from medifor_prediction import MediforPrediction
+# from medifor_prediction import MediforPrediction
 from scoring.img_ref_builder import ImgRefBuilder
 from scoring.scoring import Scoring
 from shared.image_utils import ImageUtils
@@ -54,7 +54,6 @@ class Main():
     config_json = None
     image_utils = None
     image_size = 256
-    mp = None
     my_timing = None
     
     def __init__(self):
@@ -72,7 +71,6 @@ class Main():
         self.indicators_path = f"{env_path['data']}{self.config_json['default']['data']}indicators/"
         self.irb = ImgRefBuilder(image_ref_csv_path)
         
-        self.mp = MediforPrediction(model_name)
 
     def start(self):
         my_logger = logging.getLogger()
@@ -80,7 +78,7 @@ class Main():
         
         train_data_size = 10
         validation_data_size = 10
-        batch_size = 2
+        batch_size = 1
         
         indicator_directories = self.get_indicator_directories(self.indicators_path)
         img_refs = self.irb.get_img_ref(train_data_size+validation_data_size)
@@ -88,21 +86,32 @@ class Main():
         img_refs_validation = img_refs[train_data_size: train_data_size+validation_data_size:]
         train_gen = DataGenerator(img_refs[:train_data_size], self.targets_path, indicator_directories, self.indicators_path, batch_size) 
         validation_gen = DataGenerator(img_refs_validation, self.targets_path, indicator_directories, self.indicators_path, batch_size)
-#         data = self.mp.get_data()
-#         x,y = self.prep_data_for_training(data)
-
-#         train_x, train_y, test_x, test_y, test_indices = self.get_train_test_data(x,y)
+        
         model = self.train_model(train_gen, validation_gen)
-        self.mp.reconstruct_images_from_predictions(
+        self.reconstruct_images_from_predictions(
                                                                 model, 
                                                                 validation_gen, 
                                                                 validation_data_size, 
                                                                 batch_size,
                                                                 self.output_dir)
 
-#         item = validation_gen.getmeta()
         score = self.get_score(img_refs_validation)
         a = 1
+        
+    def train_model(self, train_gen, validation_gen):
+#         x = x/255
+        unet = UNet()
+        item = train_gen.__getitem__(0)
+        model = unet.get_model(self.image_size, item[0].shape[-1])
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        a = model.fit_generator(generator=train_gen,
+                                validation_data = validation_gen,
+                                epochs=1,
+                                use_multiprocessing=True,
+                                workers= 1
+                                )
+        print(a)
+        return model
         
     def get_score(self, img_refs):
         data = MediforData.get_data(img_refs, self.output_dir, self.ref_data_path)
@@ -114,48 +123,18 @@ class Main():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
 
-    def train_model(self, train_gen, validation_gen):
-#         x = x/255
-        unet = UNet()
-        item = train_gen.__getitem__(0)
-        model = unet.get_model(self.image_size, item[0].shape[-1])
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
-        a = model.fit_generator(generator=train_gen,
-                                validation_data = validation_gen,
-                                epochs=1,
-                                use_multiprocessing=True,
-                                workers= 4
-                                )
-        print(a)
-        return model
-    
-    def test_model(self, model, x, y):
-        return model.predict(x)
-
-    def get_train_test_data(self, x, y):
-        data_split_index = len(x)//2
-        train_x = x[:data_split_index]
-        train_y =  y[:data_split_index]
+    def reconstruct_images_from_predictions(self, model, validation_gen, validation_data_size, batch_size, output_dir):
         
-        test_x = x[data_split_index:]
-        test_y =  y[data_split_index:]
-        
-        test_indices = list(range(data_split_index, len(x)))
-        return train_x, train_y, test_x, test_y, test_indices
-        
+        for i in range(validation_data_size//batch_size):
+            x_list,y_list,meta_list = validation_gen.__getitem__(i, include_meta=True)
+            predictions = model.predict(x_list)
+            for (prediction, y, meta) in zip(predictions, y_list, meta_list):
+                prediction = 255 - (prediction*255).astype(np.uint8)
+                resized = cv2.resize(prediction, meta.original_image_size)
+                file_name =  f'{meta.probe_file_id}.png'
+                file_path = f'{output_dir}/{file_name}'
+                ImageUtils.save_image(resized,file_path)
 
-    def prep_data_for_training(self, data):
-#         x = [d.indicators for d in data]
-#         y = [d.target_image for d in data] 
-
-        x,y = zip(*[(d.indicators, d.target_image) for d in data])
-
-        x = np.array(x).reshape(-1, self.image_size, self.image_size, len(x[0]))
-        y = np.array(y).reshape(-1, self.image_size, self.image_size, 1)
-        return x,y
-    
-    
-    
     def get_indicator_directories(self, indicators_path):
         return [name for name in os.listdir(indicators_path)
             if os.path.isdir(os.path.join(indicators_path, name))]    
