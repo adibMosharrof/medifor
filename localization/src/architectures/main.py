@@ -66,7 +66,6 @@ class Main():
         image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
         
         self.irb = ImgRefBuilder(image_ref_csv_path)
-        
 
     def start(self):
         my_logger = logging.getLogger()

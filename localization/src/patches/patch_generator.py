@@ -3,6 +3,7 @@ sys.path.append('..')
 
 import numpy as np
 import os
+import csv
 
 from shared.image_utils import ImageUtils
 from shared.folder_utils import FolderUtils
@@ -21,10 +22,12 @@ class PatchGenerator:
         self.indicators_path = indicators_path
     
     def start(self):
+        patch_metas= []
         for img_ref in self.img_refs:
-            self.create(img_ref)
+            patch_metas.append(self.create_patches(img_ref))
+        self.create_patch_img_ref(patch_metas)
 
-    def create(self, img_ref):
+    def create_patches(self, img_ref):
         probe_file_out_dir = FolderUtils.make_dir(self.output_dir + img_ref.sys_mask_file_name)
         target_image_path = os.path.join(self.targets_path, "manipulation", "mask",img_ref.ref_mask_file_name)+".png"
         try:
@@ -51,7 +54,7 @@ class PatchGenerator:
                     vertical= border_vertical,
                     horizontal=border_horizontal)
             except FileNotFoundError as err:
-                img = self.handle_missing_indicator_image(original_image.shape)
+                img = self._handle_missing_indicator_image(original_image.shape)
             finally:
                 img_patches, _ = PatchUtils.get_patches(img, self.patch_shape)  
                 for i, patch in enumerate(img_patches):
@@ -59,8 +62,16 @@ class PatchGenerator:
                     ImageUtils.save_image(patch, path)
         
         return meta
+    
+    def create_patch_img_ref(self, patch_metas):
+        file_name = self.output_dir + 'patch_image_ref.csv'
+        with open(file_name, 'w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(['ProbeFileID', 'OriginalImageShape', 'PatchWindowShape'])
+            writer.writerows(patch_metas)
+        csv_file.close()
             
-    def handle_missing_indicator_image(self, shape):
+    def _handle_missing_indicator_image(self, shape):
         return np.full(shape, 255, dtype='uint8')
     
     

@@ -16,7 +16,7 @@ class PatchRunner:
     def __init__(self):
         self.config_json, self.env_json = JsonLoader.load_config_env(self.config_path) 
         self.patch_shape = int(self.env_json["patch_shape"])
-        self.output_dir = FolderUtils.create_output_folder(self.patch_shape, self.env_json["path"]["outputs"])
+        self.output_dir = FolderUtils.create_patch_output_folder(self.patch_shape, self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(self.output_dir)
         
     def start(self):

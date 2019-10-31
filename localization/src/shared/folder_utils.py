@@ -11,10 +11,13 @@ class FolderUtils:
     
     @staticmethod
     def create_patch_output_folder(patch_shape, output_path):
-        output_dir = '{}{}/'.format(output_path, patch_shape)
+        output_dir = '{}{}'.format(output_path, patch_shape)
         return FolderUtils.make_dir(output_dir)
     
     @staticmethod
     def make_dir(path):
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except FileExistsError as err:
+            pass
         return path + '/'
