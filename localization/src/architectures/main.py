@@ -40,6 +40,7 @@ from data_generator import DataGenerator
 from scoring.img_ref_builder import ImgRefBuilder
 from scoring.scoring import Scoring
 from shared.image_utils import ImageUtils
+from shared.path_utils import PathUtils
 from shared.timing import Timing
 from shared.json_loader import JsonLoader
 from shared.folder_utils import FolderUtils
@@ -62,13 +63,8 @@ class Main():
         self.output_dir = FolderUtils.create_output_folder(model_name,self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(self.output_dir)
         
-        env_path = self.env_json['path']
-        current_data_path = env_path['data']+ self.config_json["default"]["data"]
-        image_ref_csv_path =  current_data_path + env_path['image_ref_csv']
-        self.ref_data_path = '{}{}'.format(current_data_path, env_path["target_mask"])
+        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
         
-        self.targets_path = f"{env_path['data']}{self.config_json['default']['data']}targets/"
-        self.indicators_path = f"{env_path['data']}{self.config_json['default']['data']}indicators/"
         self.irb = ImgRefBuilder(image_ref_csv_path)
         
 
