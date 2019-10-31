@@ -1,0 +1,13 @@
+{
+    "path":{
+        "data" : "../../data/",
+        "outputs":"../../outputs/patches/",
+        "config":"../../configurations/patches/",
+        "target_mask":"targets/manipulation/mask/",
+        "image_ref_csv":"reference/manipulation/image_ref.csv",
+    },
+    "data_size":{
+        "starting_index":0,
+        "ending_index":"3"
+    }
+}

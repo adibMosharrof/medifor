@@ -1,0 +1,12 @@
+{
+    "hostnames" :{
+        "uomlmedifor":"server.json",
+        "uomlmedifor3":"server.json",
+        "LAPTOP-DNMQC5VO":"local.json"
+    },
+    "default":{
+        "model_type":"unet",
+        "data":"MFC18_EvalPart1/"
+    }
+    
+}
