@@ -49,9 +49,7 @@ class Runner():
     def start(self):
         env_path = self.env_json['path']
         sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_name"][self.model_name])
-        current_data_path = env_path['data']+ self.config_json["default"]["data"]
-        ref_data_path = '{}{}'.format(current_data_path, env_path["target_mask"])
-        image_ref_csv_path =  current_data_path + env_path['image_ref_csv']
+        ref_data_path, image_ref_csv_path = PathUtils.get_image_ref_paths(self.config_json, self.env_json)
 
         starting_index, ending_index = self.get_data_size(self.env_json)
         irb = ImgRefBuilder(image_ref_csv_path)

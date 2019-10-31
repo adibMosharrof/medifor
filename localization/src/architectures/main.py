@@ -63,7 +63,7 @@ class Main():
         self.output_dir = FolderUtils.create_output_folder(model_name,self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(self.output_dir)
         
-        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
+        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths_for_architecture_runner(self.config_json, self.env_json)
         
         self.irb = ImgRefBuilder(image_ref_csv_path)
         
