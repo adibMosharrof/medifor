@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 tf.get_logger().setLevel('WARN')
@@ -25,8 +26,9 @@ class UNet():
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
         return c
     
-    def get_model(self, image_size, num_indicators):
-        f = [16, 32, 64, 128, 256]
+    def get_model(self, image_size, num_indicators, layers=5):
+        f = np.around(np.geomspace(image_size/2**(layers-1), image_size, num=layers)).astype('uint8')
+#         f = [8, 16, 32, 64, 128]
         inputs = keras.layers.Input((image_size, image_size, num_indicators))
         
         p0 = inputs

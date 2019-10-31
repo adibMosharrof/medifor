@@ -62,21 +62,24 @@ class DataGenerator(Sequence):
                 except TypeError:
                     indicators = img_patches
         self.print_memory_usage("After reading all indicators")
-        return indicators, original_image_patches, meta
-#         return np.array(indicators).reshape(-1, self.patch_shape[0], self.patch_shape[1], len(self.indicator_directories)), original_image_patches, meta
+#         return indicators, original_image_patches, meta
+        return (np.array(indicators).reshape(-1, self.patch_shape[0], self.patch_shape[1], len(self.indicator_directories)), 
+            np.array(original_image_patches).reshape(-1, self.patch_shape[0], self.patch_shape[1], 1), 
+            meta)
 
     def __get_data(self, img_refs):
-        x = []
-        y = []
+#         x = []
+        x = None
+        y = None
         metas = []
         for img_ref in img_refs:
             indicators , target_image , meta = self.__load__(img_ref)
-            x.append(indicators)
-            y.append(target_image)
-            metas.append(meta)
-        x = np.array(x)    
-        x = x.reshape(-1, self.patch_shape[0], self.patch_shape[1], len(self.indicator_directories))
-        y = np.array(y).reshape(-1, self.patch_shape[0], self.patch_shape[1], 1) 
+#             x.append(indicators)
+            x = self.my_append(x, indicators)
+            y = self.my_append(y, target_image)
+            metas.append(meta)    
+#         x = x.reshape(-1, self.patch_shape[0], self.patch_shape[1], len(self.indicator_directories))
+#         y = np.array(y).reshape(-1, self.patch_shape[0], self.patch_shape[1], 1) 
         return x, y, np.array(metas)
 
     def __getitem__(self, index, include_meta=False):
@@ -125,6 +128,13 @@ class DataGenerator(Sequence):
     
     def print_memory_usage_data(self, data, text=""):
         print(f'{text} {sys.getsizeof(data)}')
+        
+    def my_append(self, dest, new_item):
+        try:
+            dest = np.array(list(itertools.chain(dest, new_item)))
+        except TypeError:
+            dest = new_item
+        return dest
         
 class MetaData:
     def __init__(self, shape, patch_window_shape, id):

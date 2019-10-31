@@ -4,6 +4,7 @@ import sys
 import cv2
 import logging
 import math
+from shared.log_utils import LogUtils
 
 class ImageUtils:
     
@@ -20,12 +21,14 @@ class ImageUtils:
             logging.getLogger().debug(error_msg)
             raise err
         if normalize is True:
-            return ImageUtils.normalize(image)
+            a = ImageUtils.normalize(image)
+            return a
         return image    
     
     @staticmethod
     def normalize(img):
-        return img/255
+        return np.divide(img, 255, dtype='float32')
+#         return img/255
     
     @staticmethod
     def save_image(img, path, error_message=None):
@@ -55,7 +58,7 @@ class ImageUtils:
         plt.show()
         
     @staticmethod
-    def display_multiple(imgs):
+    def display_multiple(*imgs):
         n = len(imgs)
         f = plt.figure()
         for i, img in enumerate(imgs):
@@ -64,8 +67,11 @@ class ImageUtils:
         plt.show()
         
     @staticmethod
-    def read_image_add_border(path, patch_shape, normalize=False, vertical=None, horizontal=None):
-        img = ImageUtils.read_image(path, normalize=True)
+    def read_image_add_border(path, patch_shape, vertical=None, horizontal=None):
+#         img = ImageUtils.read_image(path, normalize=True)
+        img1 = ImageUtils.read_image(path, normalize=True)
+        img = ImageUtils.shrink_image(img1)
+#         ImageUtils.display_multiple(img1, img)
         return ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
         
     
@@ -84,4 +90,7 @@ class ImageUtils:
         border_size = (patch_size * math.ceil(quotient) - img_size)//2
         return border_size
         
+    @staticmethod
+    def shrink_image(img):
+        return cv2.resize(img, (img.shape[1]//16, img.shape[0]//16))
         

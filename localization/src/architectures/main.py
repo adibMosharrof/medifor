@@ -53,7 +53,7 @@ class Main():
     env_json = None
     config_json = None
     image_utils = None
-    image_size = 256
+    image_size = 128
     my_timing = None
     
     def __init__(self):
@@ -76,39 +76,42 @@ class Main():
         my_logger = logging.getLogger()
         self.my_timing = Timing(my_logger)
         
-        train_data_size = 10
-        validation_data_size = 10
-        batch_size = 1
+        train_data_size = 2
+        validation_data_size = 2
+        batch_size = 2
         
         indicator_directories = self.get_indicator_directories(self.indicators_path)
+        indicator_directories = indicator_directories[:2]
         img_refs = self.irb.get_img_ref(train_data_size+validation_data_size)
         
         img_refs_validation = img_refs[train_data_size: train_data_size+validation_data_size:]
-        train_gen = DataGenerator(img_refs[:train_data_size], self.targets_path, indicator_directories, self.indicators_path, batch_size) 
-        validation_gen = DataGenerator(img_refs_validation, self.targets_path, indicator_directories, self.indicators_path, batch_size)
+        train_gen = DataGenerator(img_refs[:train_data_size], self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size) 
+        validation_gen = DataGenerator(img_refs_validation, self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size)
         
-        model = self.train_model(train_gen, validation_gen)
-        self.reconstruct_images_from_predictions(
-                                                                model, 
-                                                                validation_gen, 
-                                                                validation_data_size, 
-                                                                batch_size,
-                                                                self.output_dir)
+        LogUtils.print_memory_usage("Before starting training")
+        model = self.train_model(train_gen, validation_gen, len(indicator_directories))
+#         model = self.train_model(validation_gen, train_gen, len(indicator_directories))
+        self.reconstruct_images_from_predictions(model, 
+                                                validation_gen, 
+                                                validation_data_size, 
+                                                batch_size,
+                                                self.output_dir)
 
         score = self.get_score(img_refs_validation)
         a = 1
         
-    def train_model(self, train_gen, validation_gen):
+    def train_model(self, train_gen, validation_gen, num_indicators):
 #         x = x/255
         unet = UNet()
-        item = train_gen.__getitem__(0)
-        model = unet.get_model(self.image_size, item[0].shape[-1])
+        model = unet.get_model(self.image_size, num_indicators)
+        LogUtils.print_memory_usage("After getting model")
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        LogUtils.print_memory_usage("Before fitting generator")
         a = model.fit_generator(generator=train_gen,
-                                validation_data = validation_gen,
-                                epochs=1,
-                                use_multiprocessing=True,
-                                workers= 1
+#                                 validation_data = validation_gen,
+#                                 epochs=1,
+#                                 use_multiprocessing=True,
+#                                 workers= 4,
                                 )
         print(a)
         return model
@@ -130,7 +133,7 @@ class Main():
             predictions = model.predict(x_list)
             for (prediction, y, meta) in zip(predictions, y_list, meta_list):
                 prediction = 255 - (prediction*255).astype(np.uint8)
-                resized = cv2.resize(prediction, meta.original_image_size)
+                resized = cv2.resize(prediction, meta.original_image_shape)
                 file_name =  f'{meta.probe_file_id}.png'
                 file_path = f'{output_dir}/{file_name}'
                 ImageUtils.save_image(resized,file_path)
