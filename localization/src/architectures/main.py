@@ -58,12 +58,12 @@ class Main():
     my_timing = None
     
     def __init__(self):
-        model_name = "unet"
-        self.config_json, self.env_json , self.email_json =JsonLoader. load_config_env_email(self.config_path) 
+        self.config_json, self.env_json , self.email_json =JsonLoader.load_config_env_email(self.config_path) 
+        model_name = self.config_json["default"]["model_name"]
         self.output_dir = FolderUtils.create_output_folder(model_name,self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(self.output_dir)
         
-        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths_for_architecture_runner(self.config_json, self.env_json)
+        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
         
         self.irb = ImgRefBuilder(image_ref_csv_path)
         
@@ -76,7 +76,7 @@ class Main():
         validation_data_size = 2
         batch_size = 2
         
-        indicator_directories = self.get_indicator_directories(self.indicators_path)
+        indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
         indicator_directories = indicator_directories[:2]
         img_refs = self.irb.get_img_ref(train_data_size+validation_data_size)
         

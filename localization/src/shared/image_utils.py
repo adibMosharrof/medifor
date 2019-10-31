@@ -21,8 +21,8 @@ class ImageUtils:
             logging.getLogger().debug(error_msg)
             raise err
         if normalize is True:
-            a = ImageUtils.normalize(image)
-            return a
+            image_normalized = ImageUtils.normalize(image)
+            return image_normalized 
         return image    
     
     @staticmethod
@@ -69,7 +69,7 @@ class ImageUtils:
     @staticmethod
     def read_image_add_border(path, patch_shape, vertical=None, horizontal=None):
 #         img = ImageUtils.read_image(path, normalize=True)
-        img1 = ImageUtils.read_image(path, normalize=True)
+        img1 = ImageUtils.read_image(path)
         img = ImageUtils.shrink_image(img1)
 #         ImageUtils.display_multiple(img1, img)
         return ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
@@ -79,7 +79,7 @@ class ImageUtils:
     def add_border(img, patch_shape, vertical=None, horizontal=None):
         vertical = vertical or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
         horizontal = horizontal or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
-        bordered = cv2.copyMakeBorder(img,top=vertical,bottom=vertical,left =horizontal,right=horizontal,borderType=cv2.BORDER_CONSTANT,value=[0,0,0])
+        bordered = cv2.copyMakeBorder(img,top=vertical,bottom=vertical,left =horizontal,right=horizontal,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
         return bordered, vertical, horizontal
 
     @staticmethod     

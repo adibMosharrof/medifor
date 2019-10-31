@@ -51,7 +51,7 @@ class Runner():
         sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_name"][self.model_name])
         ref_data_path, image_ref_csv_path = PathUtils.get_image_ref_paths(self.config_json, self.env_json)
 
-        starting_index, ending_index = self.get_data_size(self.env_json)
+        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         irb = ImgRefBuilder(image_ref_csv_path)
         img_refs = irb.get_img_ref(starting_index, ending_index)
         data = MediforData.get_data(img_refs, sys_data_path, ref_data_path)
@@ -67,17 +67,6 @@ class Runner():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
 
-    def get_data_size(self, env_json):
-        try:
-          starting_index = int(env_json["data_size"]["starting_index"])
-        except ValueError:
-          starting_index= 0
-        try:
-          ending_index = int(env_json["data_size"]["ending_index"])
-        except ValueError:
-          ending_index = None   
-        return starting_index, ending_index  
-    
     def create_folder_for_output(self, model_name):
         model_dir = '{}{}/'.format(self.env_json["path"]["outputs"], model_name)
         output_folder_name = datetime.now().strftime("%Y%m%d_%H%M%S")

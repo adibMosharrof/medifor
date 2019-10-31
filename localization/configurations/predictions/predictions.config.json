@@ -5,7 +5,7 @@
         "LAPTOP-DNMQC5VO":"local.json"
     },
     "default":{
-        "model_type":"unet",
+        "model_name":"unet",
         "data":"MFC18_EvalPart1/"
     }
     
