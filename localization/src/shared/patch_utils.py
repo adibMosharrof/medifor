@@ -9,7 +9,10 @@ from patchify import patchify, unpatchify
 class PatchUtils:
     @staticmethod
     def get_patches(img, patch_shape):
-        patch_windows = view_as_windows(img, patch_shape, patch_shape)
+        try:
+            patch_windows = view_as_windows(img, patch_shape, patch_shape)
+        except ValueError as err:
+            raise
         patches = patch_windows.reshape(-1,patch_shape[0], patch_shape[1])
         return patches, patch_windows.shape
       

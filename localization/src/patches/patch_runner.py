@@ -16,27 +16,29 @@ class PatchRunner:
     def __init__(self):
         self.config_json, self.env_json = JsonLoader.load_config_env(self.config_path) 
         self.patch_shape = int(self.env_json["patch_shape"])
-        self.output_dir = FolderUtils.create_patch_output_folder(self.patch_shape, self.env_json["path"]["outputs"])
-        self.my_logger = LogUtils.init_log(self.output_dir)
+        self.img_downscale_factor = int(self.env_json['image_downscale_factor'])
         
     def start(self):
-        
-        image_ref_csv_path, ref_data_path, targets_path, indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
-        irb = ImgRefBuilder(image_ref_csv_path)
-        
-        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
-        indicator_directories = PathUtils.get_indicator_directories(indicators_path)
-        img_refs = irb.get_img_ref(starting_index, ending_index)
+        img_ref_csv_path, ref_data_path, targets_path, indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
+        irb = ImgRefBuilder(img_ref_csv_path)
 
+        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
+        img_refs = irb.get_img_ref(starting_index, ending_index)
+        
+        output_dir = FolderUtils.create_patch_output_folder(
+            self.patch_shape, 
+            self.img_downscale_factor, self.env_json["path"]["outputs"], 
+            PathUtils.get_indicator_directories(indicators_path))
+        
+        LogUtils.init_log(output_dir)
+        
         pg = PatchGenerator(
-            img_refs=img_refs,
-            output_dir=self.output_dir,
-            targets_path=targets_path,
-            indicator_directories=indicator_directories,
+            output_dir=output_dir,
             indicators_path=indicators_path,
+            img_downscale_factor = self.img_downscale_factor,
             patch_shape=self.patch_shape)
         
-        pg.start()
+        pg.create_img_patches(img_refs, targets_path)
 
             
 if __name__ == '__main__':

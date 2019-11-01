@@ -10,9 +10,13 @@ class FolderUtils:
         return FolderUtils.make_dir(output_dir)
     
     @staticmethod
-    def create_patch_output_folder(patch_shape, output_path):
-        output_dir = '{}{}'.format(output_path, patch_shape)
-        return FolderUtils.make_dir(output_dir)
+    def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators):
+        output_dir = '{}{}_{}'.format(output_path, patch_shape, img_downscale_factor)
+        output_dir =  FolderUtils.make_dir(output_dir)
+        for indicator in indicators:
+            FolderUtils.make_dir(FolderUtils.make_dir(output_dir+ indicator))
+        FolderUtils.make_dir(output_dir+ 'target_image')
+        return output_dir
     
     @staticmethod
     def make_dir(path):

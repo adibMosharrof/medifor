@@ -67,10 +67,10 @@ class ImageUtils:
         plt.show()
         
     @staticmethod
-    def read_image_add_border(path, patch_shape, vertical=None, horizontal=None):
+    def get_image_with_border(path, patch_shape, image_downscale_factor, vertical=None, horizontal=None):
 #         img = ImageUtils.read_image(path, normalize=True)
         img1 = ImageUtils.read_image(path)
-        img = ImageUtils.shrink_image(img1)
+        img = ImageUtils.shrink_image(img1, image_downscale_factor)
 #         ImageUtils.display_multiple(img1, img)
         return ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
         
@@ -91,6 +91,6 @@ class ImageUtils:
         return border_size
         
     @staticmethod
-    def shrink_image(img):
-        return cv2.resize(img, (img.shape[1]//16, img.shape[0]//16))
+    def shrink_image(img, image_downscale_factor):
+        return cv2.resize(img, (img.shape[1]//image_downscale_factor, img.shape[0]//image_downscale_factor))
         
