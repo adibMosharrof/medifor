@@ -29,7 +29,8 @@ import numpy as np
 import pickle
 import psutil
 import multiprocessing
-from datetime import datetime 
+from datetime import datetime
+import math
 
 import matplotlib.pyplot as plt
 
@@ -46,6 +47,9 @@ from shared.json_loader import JsonLoader
 from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
 from shared.medifordata import MediforData
+from patches.patch_image_ref import PatchImageRefFactory
+from patch_train_data_generator import PatchTrainDataGenerator
+from patch_test_data_generator import PatchTestDataGenerator
 
 class Main():
     config_path = "../../configurations/predictions/"
@@ -63,9 +67,74 @@ class Main():
         self.output_dir = FolderUtils.create_output_folder(model_name,self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(self.output_dir)
         
-        image_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
+        a = 1
+
+    def run(self):
+        my_logger = logging.getLogger()
+        patches_path, patch_img_ref_path, indicators_path = PathUtils.get_paths_for_patches(self.config_json, self.env_json)
+        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
+        indicator_directories = PathUtils.get_indicator_directories(indicators_path)
+        patch_shape = self.env_json['patch_shape']
         
-        self.irb = ImgRefBuilder(image_ref_csv_path)
+        patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(patch_img_ref_path, starting_index, ending_index)
+        
+        train_batch_size = self.env_json['train_batch_size']
+        test_batch_size = self.env_json['test_batch_size']
+        train_data_size = self.env_json['train_data_size']
+        num_training_patches = self._get_num_patches(patch_img_refs[:train_data_size])
+        
+        test_data_size = ending_index-starting_index - train_data_size
+
+        train_gen = PatchTrainDataGenerator(
+                        batch_size= train_batch_size,
+                        indicator_directories = indicator_directories,
+                        patches_path= patches_path,
+                        patch_shape=patch_shape,
+                        num_patches = num_training_patches
+                        )
+        
+        test_gen = PatchTestDataGenerator(
+                        batch_size= test_batch_size,
+                        indicator_directories = indicator_directories,
+                        patches_path= patches_path,
+                        patch_shape=patch_shape,
+                        data_size = test_data_size,
+                        patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
+                        )
+        
+        unet = UNet()
+        
+        model = unet.get_model(patch_shape, len(indicator_directories))
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        a = model.fit_generator(generator=train_gen,
+#                                 validation_data = validation_gen,
+#                                 epochs=1,
+#                                 use_multiprocessing=True,
+#                                 workers= 4,
+                                )
+        print(a)
+        return model    
+    
+    def _get_num_patches(self, patch_img_refs):
+        num_patches = 0
+        for patch_img_ref in patch_img_refs:
+            window_shape = patch_img_ref.patch_window_shape
+            num_patches += window_shape[0] * window_shape[1]
+        return num_patches    
+        
+        
+    def train_model(self, train_gen, validation_gen, num_indicators, patch_shape):
+        unet = UNet()
+        model = unet.get_model(patch_shape, num_indicators)
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        a = model.fit_generator(generator=train_gen,
+#                                 validation_data = validation_gen,
+#                                 epochs=1,
+#                                 use_multiprocessing=True,
+#                                 workers= 4,
+                                )
+        print(a)
+        return model    
 
     def start(self):
         my_logger = logging.getLogger()
@@ -77,14 +146,13 @@ class Main():
         
         indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
         indicator_directories = indicator_directories[:2]
-        img_refs = self.irb.get_img_ref(train_data_size+validation_data_size)
         
         img_refs_validation = img_refs[train_data_size: train_data_size+validation_data_size:]
         train_gen = DataGenerator(img_refs[:train_data_size], self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size) 
         validation_gen = DataGenerator(img_refs_validation, self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size)
         
         LogUtils.print_memory_usage("Before starting training")
-        model = self.train_model(train_gen, validation_gen, len(indicator_directories))
+        model = self.train_model1(train_gen, validation_gen, len(indicator_directories))
 #         model = self.train_model(validation_gen, train_gen, len(indicator_directories))
         self.reconstruct_images_from_predictions(model, 
                                                 validation_gen, 
@@ -95,15 +163,14 @@ class Main():
         score = self.get_score(img_refs_validation)
         a = 1
         
-    def train_model(self, train_gen, validation_gen, num_indicators):
-#         x = x/255
+    def train_model1(self, train_gen, test_gen, num_indicators):
         unet = UNet()
         model = unet.get_model(self.image_size, num_indicators)
         LogUtils.print_memory_usage("After getting model")
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         LogUtils.print_memory_usage("Before fitting generator")
         a = model.fit_generator(generator=train_gen,
-#                                 validation_data = validation_gen,
+#                                 validation_data = test_gen,
 #                                 epochs=1,
 #                                 use_multiprocessing=True,
 #                                 workers= 4,
@@ -144,4 +211,4 @@ class Main():
 if __name__ == '__main__':
     
     m = Main()
-    m.start()
+    m.run()
