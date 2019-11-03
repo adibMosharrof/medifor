@@ -37,7 +37,7 @@ class PatchGenerator:
             for i, patch in enumerate(original_image_patches):
                 path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
                 ImageUtils.save_image(patch, path)
-            meta = PatchImageRefFactory.get_img_ref(img_ref.sys_mask_file_name, original_image.shape, patch_window_shape)
+            meta = PatchImageRefFactory.create_img_ref(img_ref.sys_mask_file_name, original_image.shape, patch_window_shape, img_ref.ref_mask_file_name)
         except ValueError as err:
             print(err)
             raise
@@ -66,7 +66,7 @@ class PatchGenerator:
         file_name = self.output_dir + 'patch_image_ref.csv'
         with open(file_name, 'w', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            writer.writerow(['ProbeFileID', 'OriginalImageShape', 'PatchWindowShape'])
+            writer.writerow(['ProbeFileID', 'OriginalImageShape', 'PatchWindowShape', 'ProbeMaskFileName'])
             writer.writerows(patch_metas)
         csv_file.close()
             

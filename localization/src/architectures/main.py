@@ -12,8 +12,6 @@ reconstruct images from predictions
 '''
 import sys, os
 from pathlib import Path
-# os.environ['TF_CPP_MIN_VLOG_LEVEL']='2'
-
 import sklearn
 
 from sklearn.metrics import log_loss, roc_auc_score, matthews_corrcoef
@@ -42,6 +40,7 @@ from scoring.img_ref_builder import ImgRefBuilder
 from scoring.scoring import Scoring
 from shared.image_utils import ImageUtils
 from shared.path_utils import PathUtils
+from shared.patch_utils import PatchUtils
 from shared.timing import Timing
 from shared.json_loader import JsonLoader
 from shared.folder_utils import FolderUtils
@@ -92,18 +91,18 @@ class Main():
                         patch_shape=patch_shape,
                         num_patches = num_training_patches
                         )
-        
+        test_patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
         test_gen = PatchTestDataGenerator(
                         batch_size= test_batch_size,
                         indicator_directories = indicator_directories,
                         patches_path= patches_path,
                         patch_shape=patch_shape,
                         data_size = test_data_size,
-                        patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
+                        patch_img_refs = test_patch_img_refs
                         )
         
-        unet = UNet()
         
+        unet = UNet()
         model = unet.get_model(patch_shape, len(indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         a = model.fit_generator(generator=train_gen,
@@ -112,8 +111,9 @@ class Main():
 #                                 use_multiprocessing=True,
 #                                 workers= 4,
                                 )
-        print(a)
-        return model    
+        predictions, test_patch_img_refs = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
+        recon = self.reconstruct_images_from_predictions(predictions, test_patch_img_refs)
+        a=1
     
     def _get_num_patches(self, patch_img_refs):
         num_patches = 0
@@ -122,7 +122,43 @@ class Main():
             num_patches += window_shape[0] * window_shape[1]
         return num_patches    
         
+    def _get_test_predictions(self, model, test_gen, data_size, batch_size):
+        predictions = []
+#         x_list = []
+        patch_img_ref_list = []
+        for i in range(int(math.ceil(data_size/batch_size))):
+            x_list,y_list, patch_img_refs = test_gen.__getitem__(i)
+            patch_img_ref_list += patch_img_refs
+            for x in x_list:
+                predictions.append(model.predict(x))
+        return predictions,patch_img_ref_list
+
         
+    def reconstruct_images_from_predictions(self, predictions, patch_img_refs):
+        for prediction , patch_img_ref in zip(predictions, patch_img_refs):
+            prediction = 255- (prediction*255)
+            img_from_patches = PatchUtils.get_image_from_patches(
+                                    prediction, 
+                                    patch_img_ref.original_image_shape,
+                                    patch_img_ref.patch_window_shape)
+            file_name = f'{patch_img_ref.probe_file_id}.png'
+            file_path = self.output_dir+file_name
+            ImageUtils.save_image(img_from_patches, file_path)
+            a=1
+    
+    def reconstruct_images_from_predictions1(self, model, validation_gen, validation_data_size, batch_size, output_dir):
+        
+        for i in range(validation_data_size//batch_size):
+            x_list,y_list,meta_list = validation_gen.__getitem__(i, include_meta=True)
+            predictions = model.predict(x_list)
+            for (prediction, y, meta) in zip(predictions, y_list, meta_list):
+                prediction = 255 - (prediction*255).astype(np.uint8)
+                resized = cv2.resize(prediction, meta.original_image_shape)
+                file_name =  f'{meta.probe_file_id}.png'
+                file_path = f'{output_dir}/{file_name}'
+                ImageUtils.save_image(resized,file_path)
+    
+     
     def train_model(self, train_gen, validation_gen, num_indicators, patch_shape):
         unet = UNet()
         model = unet.get_model(patch_shape, num_indicators)
@@ -154,7 +190,7 @@ class Main():
         LogUtils.print_memory_usage("Before starting training")
         model = self.train_model1(train_gen, validation_gen, len(indicator_directories))
 #         model = self.train_model(validation_gen, train_gen, len(indicator_directories))
-        self.reconstruct_images_from_predictions(model, 
+        self.reconstruct_images_from_predictions1(model, 
                                                 validation_gen, 
                                                 validation_data_size, 
                                                 batch_size,
@@ -188,17 +224,9 @@ class Main():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
 
-    def reconstruct_images_from_predictions(self, model, validation_gen, validation_data_size, batch_size, output_dir):
-        
-        for i in range(validation_data_size//batch_size):
-            x_list,y_list,meta_list = validation_gen.__getitem__(i, include_meta=True)
-            predictions = model.predict(x_list)
-            for (prediction, y, meta) in zip(predictions, y_list, meta_list):
-                prediction = 255 - (prediction*255).astype(np.uint8)
-                resized = cv2.resize(prediction, meta.original_image_shape)
-                file_name =  f'{meta.probe_file_id}.png'
-                file_path = f'{output_dir}/{file_name}'
-                ImageUtils.save_image(resized,file_path)
+    
+
+    
 
     def get_indicator_directories(self, indicators_path):
         return [name for name in os.listdir(indicators_path)

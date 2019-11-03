@@ -13,7 +13,8 @@ class ImageUtils:
     @staticmethod
     def read_image(path, error_message=None, normalize=False):
         try:
-            image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+            image = cv2.imread(path, cv2.IMREAD_GRAYSCALE).astype(np.float32)
+#             image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
             if image is None:
                 raise FileNotFoundError(f"No image found at the path {path}")
         except FileNotFoundError as err:

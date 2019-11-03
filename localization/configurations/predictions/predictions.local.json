@@ -13,13 +13,13 @@
         }
     },
     "threshold_step":0.3,
-    "image_downscale_factor":8,
+    "image_downscale_factor":4,
     "patch_shape":128,
     "train_batch_size":20,
     "test_batch_size":5,
-    "train_data_size":8,
+    "train_data_size":3,
     "data_size":{
         "starting_index":0,
-        "ending_index":"10"
+        "ending_index":"5"
     }
 }

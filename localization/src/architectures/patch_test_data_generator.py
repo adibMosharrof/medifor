@@ -33,13 +33,15 @@ class PatchTestDataGenerator(Sequence):
     def __getitem__(self, index):
         patch_img_refs = self.patch_img_refs[index * self.batch_size:(index + 1) * self.batch_size]   
         
-        x = None
-        y = None
+        x = []
+        y = []
         for patch_img_ref in patch_img_refs:
             _x, _y = self._get_img(patch_img_ref)
-            x= self.my_append(x, _x)
-            y = self.my_append(y, _y)
-        return x,y
+#             x = self.my_append(x, _x)
+#             y = self.my_append(y,_y)
+            x.append(_x)
+            y.append(_y)
+        return x, y, patch_img_refs
         
     def _get_img(self, patch_img_ref):
         
@@ -59,7 +61,7 @@ class PatchTestDataGenerator(Sequence):
         a = np.array(indicator_imgs)
         x = a.reshape(-1, self.patch_shape, self.patch_shape, len(self.indicator_directories))
         y = np.array(target_imgs).reshape(-1, self.patch_shape, self.patch_shape, 1)
-        
+         
         return x, y
     
     def _get_img_patches_by_id(self, dir_path, probe_file_id):
@@ -82,6 +84,7 @@ class PatchTestDataGenerator(Sequence):
         except TypeError:
             dest = new_item
         return dest
+        
     
     def on_epoch_end(self):
         if self.shuffle is True:    
