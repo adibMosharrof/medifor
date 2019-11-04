@@ -63,17 +63,20 @@ class Main():
     def __init__(self):
         self.config_json, self.env_json , self.email_json =JsonLoader.load_config_env_email(self.config_path) 
         model_name = self.config_json["default"]["model_name"]
-        self.output_dir = FolderUtils.create_output_folder(model_name,self.env_json["path"]["outputs"])
+        self.patch_shape = self.env_json['patch_shape']
+        img_downscale_factor = self.env_json['image_downscale_factor']
+        self.output_dir = FolderUtils.create_predictions_output_folder(
+            model_name, self.patch_shape, img_downscale_factor, 
+            self.env_json["path"]["outputs"])
+        
         self.my_logger = LogUtils.init_log(self.output_dir)
         
-        a = 1
-
     def run(self):
         my_logger = logging.getLogger()
-        patches_path, patch_img_ref_path, indicators_path = PathUtils.get_paths_for_patches(self.config_json, self.env_json)
+        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.config_json, self.env_json)
+        
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)
-        patch_shape = self.env_json['patch_shape']
         
         patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(patch_img_ref_path, starting_index, ending_index)
         
@@ -88,7 +91,7 @@ class Main():
                         batch_size= train_batch_size,
                         indicator_directories = indicator_directories,
                         patches_path= patches_path,
-                        patch_shape=patch_shape,
+                        patch_shape=self.patch_shape,
                         num_patches = num_training_patches
                         )
         test_patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
@@ -96,14 +99,12 @@ class Main():
                         batch_size= test_batch_size,
                         indicator_directories = indicator_directories,
                         patches_path= patches_path,
-                        patch_shape=patch_shape,
+                        patch_shape=self.patch_shape,
                         data_size = test_data_size,
                         patch_img_refs = test_patch_img_refs
                         )
-        
-        
         unet = UNet()
-        model = unet.get_model(patch_shape, len(indicator_directories))
+        model = unet.get_model(self.patch_shape, len(indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         a = model.fit_generator(generator=train_gen,
 #                                 validation_data = validation_gen,
@@ -111,8 +112,12 @@ class Main():
 #                                 use_multiprocessing=True,
 #                                 workers= 4,
                                 )
-        predictions, test_patch_img_refs = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
+        predictions = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
         recon = self.reconstruct_images_from_predictions(predictions, test_patch_img_refs)
+        img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
+        
+        threshold_step = self.env_json['threshold_step']
+        score = self.get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
         a=1
     
     def _get_num_patches(self, patch_img_refs):
@@ -124,26 +129,26 @@ class Main():
         
     def _get_test_predictions(self, model, test_gen, data_size, batch_size):
         predictions = []
-#         x_list = []
-        patch_img_ref_list = []
         for i in range(int(math.ceil(data_size/batch_size))):
-            x_list,y_list, patch_img_refs = test_gen.__getitem__(i)
-            patch_img_ref_list += patch_img_refs
+            x_list,y_list = test_gen.__getitem__(i)
             for x in x_list:
                 predictions.append(model.predict(x))
-        return predictions,patch_img_ref_list
+        return predictions
 
         
     def reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
-            prediction = 255- (prediction*255)
+#             prediction = 255- (prediction*255)
+            prediction = prediction*255
             img_from_patches = PatchUtils.get_image_from_patches(
                                     prediction, 
-                                    patch_img_ref.original_image_shape,
+                                    patch_img_ref.bordered_img_shape,
                                     patch_img_ref.patch_window_shape)
+            img_original_size = cv2.resize(
+                img_from_patches, patch_img_ref.original_img_shape)
             file_name = f'{patch_img_ref.probe_file_id}.png'
             file_path = self.output_dir+file_name
-            ImageUtils.save_image(img_from_patches, file_path)
+            ImageUtils.save_image(img_original_size, file_path)
             a=1
     
     def reconstruct_images_from_predictions1(self, model, validation_gen, validation_data_size, batch_size, output_dir):
@@ -214,19 +219,15 @@ class Main():
         print(a)
         return model
         
-    def get_score(self, img_refs):
-        data = MediforData.get_data(img_refs, self.output_dir, self.ref_data_path)
+    def get_score(self, img_refs, threshold_step, output_dir, ref_data_path):
+        data = MediforData.get_data(img_refs, output_dir, ref_data_path)
         scorer = Scoring()
         try:
-            scorer.start(data, self.env_json["threshold_step"])
+            return scorer.start(data, threshold_step)
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
-            sys.exit(error_msg)
-
-    
-
-    
+            sys.exit(error_msg)   
 
     def get_indicator_directories(self, indicators_path):
         return [name for name in os.listdir(indicators_path)

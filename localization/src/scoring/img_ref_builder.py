@@ -20,6 +20,14 @@ class ImgRefBuilder:
     def __init__(self, image_ref_csv_path):
         self.image_ref_csv_path =  image_ref_csv_path
 
+    @staticmethod
+    def get_img_ref_from_patch_ref(patch_refs):
+        img_refs = []
+        for patch_ref in patch_refs:
+            img_refs.append(ImgRefs(
+                patch_ref.probe_file_id, patch_ref.probe_mask_file_name))
+        return img_refs    
+        
     @Overload
     @signature("int")
     def get_img_ref(self, num_rows) :

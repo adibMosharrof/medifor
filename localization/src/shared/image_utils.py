@@ -13,7 +13,7 @@ class ImageUtils:
     @staticmethod
     def read_image(path, error_message=None, normalize=False):
         try:
-            image = cv2.imread(path, cv2.IMREAD_GRAYSCALE).astype(np.float32)
+            image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 #             image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
             if image is None:
                 raise FileNotFoundError(f"No image found at the path {path}")
@@ -24,7 +24,7 @@ class ImageUtils:
         if normalize is True:
             image_normalized = ImageUtils.normalize(image)
             return image_normalized 
-        return image    
+        return image.astype(np.float32)
     
     @staticmethod
     def normalize(img):
@@ -70,12 +70,11 @@ class ImageUtils:
     @staticmethod
     def get_image_with_border(path, patch_shape, image_downscale_factor, vertical=None, horizontal=None):
 #         img = ImageUtils.read_image(path, normalize=True)
-        img1 = ImageUtils.read_image(path)
-        img = ImageUtils.shrink_image(img1, image_downscale_factor)
-#         ImageUtils.display_multiple(img1, img)
-        return ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
+        original_img = ImageUtils.read_image(path)
+        img = ImageUtils.shrink_image(original_img, image_downscale_factor)
+        bordered, vertical, horizontal = ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
+        return bordered, vertical, horizontal, original_img.shape
         
-    
     @staticmethod
     def add_border(img, patch_shape, vertical=None, horizontal=None):
         vertical = vertical or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])

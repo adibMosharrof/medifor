@@ -23,6 +23,7 @@ class Scoring(object):
         avg_score = self.get_average_score(data)
         print(avg_score)
         logging.getLogger().info('The average Score of the whole run is :' + str(avg_score))
+        return avg_score
     
     def get_average_score(self, data):
         scores = 0

@@ -41,7 +41,7 @@ class PatchTestDataGenerator(Sequence):
 #             y = self.my_append(y,_y)
             x.append(_x)
             y.append(_y)
-        return x, y, patch_img_refs
+        return x, y
         
     def _get_img(self, patch_img_ref):
         
