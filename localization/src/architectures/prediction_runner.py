@@ -78,31 +78,18 @@ class PredictionRunner():
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)
         
-        patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(patch_img_ref_path, starting_index, ending_index)
+        patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(
+            patch_img_ref_path, starting_index, ending_index)
         
-        train_batch_size = self.env_json['train_batch_size']
-        test_batch_size = self.env_json['test_batch_size']
-        train_data_size = self.env_json['train_data_size']
-        num_training_patches = self._get_num_patches(patch_img_refs[:train_data_size])
-        
-        test_data_size = ending_index-starting_index - train_data_size
+        train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches = self._get_test_train_data_size(
+            self.env_json, patch_img_refs, starting_index, ending_index)
 
-        train_gen = PatchTrainDataGenerator(
-                        batch_size= train_batch_size,
-                        indicator_directories = indicator_directories,
-                        patches_path= patches_path,
-                        patch_shape=self.patch_shape,
-                        num_patches = num_training_patches
-                        )
         test_patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
-        test_gen = PatchTestDataGenerator(
-                        batch_size= test_batch_size,
-                        indicator_directories = indicator_directories,
-                        patches_path= patches_path,
-                        patch_shape=self.patch_shape,
-                        data_size = test_data_size,
-                        patch_img_refs = test_patch_img_refs
-                        )
+        
+        train_gen, test_gen = self._get_train_test_generators(
+            train_batch_size, test_batch_size, test_data_size, indicator_directories, 
+            patches_path, self.patch_shape, num_training_patches, test_patch_img_refs)
+        
         unet = UNet()
         model = unet.get_model(self.patch_shape, len(indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
@@ -119,8 +106,29 @@ class PredictionRunner():
         
         threshold_step = self.env_json['threshold_step']
         score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
-        a=1
-    
+        
+    def _get_train_test_generators(self, train_batch_size, test_batch_size, 
+            test_data_size,indicator_directories, patches_path, patch_shape, 
+            num_training_patches, test_patch_img_refs):
+        
+        train_gen = PatchTrainDataGenerator(
+                        batch_size= train_batch_size,
+                        indicator_directories = indicator_directories,
+                        patches_path= patches_path,
+                        patch_shape=self.patch_shape,
+                        num_patches = num_training_patches
+                        )
+        test_gen = PatchTestDataGenerator(
+                        batch_size= test_batch_size,
+                        indicator_directories = indicator_directories,
+                        patches_path= patches_path,
+                        patch_shape=self.patch_shape,
+                        data_size = test_data_size,
+                        patch_img_refs = test_patch_img_refs
+                        )
+        return train_gen, test_gen
+        
+        
     def _get_num_patches(self, patch_img_refs):
         num_patches = 0
         for patch_img_ref in patch_img_refs:
@@ -135,7 +143,6 @@ class PredictionRunner():
             for x in x_list:
                 predictions.append(model.predict(x))
         return predictions
-
         
     def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
@@ -161,6 +168,16 @@ class PredictionRunner():
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)   
+            
+    def _get_test_train_data_size(self, env_json, patch_img_refs, starting_index, ending_index):
+        train_batch_size =env_json['train_batch_size']
+        test_batch_size = env_json['test_batch_size']
+        train_data_size = env_json['train_data_size']
+        num_training_patches = self._get_num_patches(patch_img_refs[:train_data_size])
+        
+        test_data_size = ending_index-starting_index - train_data_size
+        
+        return train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches
 
     def at_exit(self):
         self.my_timing.endlog()
