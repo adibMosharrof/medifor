@@ -50,7 +50,7 @@ from patches.patch_image_ref import PatchImageRefFactory
 from patch_train_data_generator import PatchTrainDataGenerator
 from patch_test_data_generator import PatchTestDataGenerator
 
-class Main():
+class PredictionRunner():
     config_path = "../../configurations/predictions/"
     indicators_path = "../../data/MFC18_EvalPart1/indicators"
     targets_path = "../../data/MFC18_EvalPart1/targets"
@@ -106,18 +106,19 @@ class Main():
         unet = UNet()
         model = unet.get_model(self.patch_shape, len(indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        epochs = self.env_json["epochs"]
+        workers = self.env_json["workers"]
         a = model.fit_generator(generator=train_gen,
-#                                 validation_data = validation_gen,
-#                                 epochs=1,
-#                                 use_multiprocessing=True,
-#                                 workers= 4,
+                                epochs=1,
+                                use_multiprocessing=True,
+                                workers= 4,
                                 )
         predictions = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
-        recon = self.reconstruct_images_from_predictions(predictions, test_patch_img_refs)
+        recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
         threshold_step = self.env_json['threshold_step']
-        score = self.get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
+        score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
         a=1
     
     def _get_num_patches(self, patch_img_refs):
@@ -136,7 +137,7 @@ class Main():
         return predictions
 
         
-    def reconstruct_images_from_predictions(self, predictions, patch_img_refs):
+    def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
 #             prediction = 255- (prediction*255)
             prediction = prediction*255
@@ -150,76 +151,8 @@ class Main():
             file_path = self.output_dir+file_name
             ImageUtils.save_image(img_original_size, file_path)
             a=1
-    
-    def reconstruct_images_from_predictions1(self, model, validation_gen, validation_data_size, batch_size, output_dir):
-        
-        for i in range(validation_data_size//batch_size):
-            x_list,y_list,meta_list = validation_gen.__getitem__(i, include_meta=True)
-            predictions = model.predict(x_list)
-            for (prediction, y, meta) in zip(predictions, y_list, meta_list):
-                prediction = 255 - (prediction*255).astype(np.uint8)
-                resized = cv2.resize(prediction, meta.original_image_shape)
-                file_name =  f'{meta.probe_file_id}.png'
-                file_path = f'{output_dir}/{file_name}'
-                ImageUtils.save_image(resized,file_path)
-    
-     
-    def train_model(self, train_gen, validation_gen, num_indicators, patch_shape):
-        unet = UNet()
-        model = unet.get_model(patch_shape, num_indicators)
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
-        a = model.fit_generator(generator=train_gen,
-#                                 validation_data = validation_gen,
-#                                 epochs=1,
-#                                 use_multiprocessing=True,
-#                                 workers= 4,
-                                )
-        print(a)
-        return model    
 
-    def start(self):
-        my_logger = logging.getLogger()
-        self.my_timing = Timing(my_logger)
-        
-        train_data_size = 2
-        validation_data_size = 2
-        batch_size = 2
-        
-        indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
-        indicator_directories = indicator_directories[:2]
-        
-        img_refs_validation = img_refs[train_data_size: train_data_size+validation_data_size:]
-        train_gen = DataGenerator(img_refs[:train_data_size], self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size) 
-        validation_gen = DataGenerator(img_refs_validation, self.targets_path, indicator_directories, self.indicators_path, batch_size, self.image_size)
-        
-        LogUtils.print_memory_usage("Before starting training")
-        model = self.train_model1(train_gen, validation_gen, len(indicator_directories))
-#         model = self.train_model(validation_gen, train_gen, len(indicator_directories))
-        self.reconstruct_images_from_predictions1(model, 
-                                                validation_gen, 
-                                                validation_data_size, 
-                                                batch_size,
-                                                self.output_dir)
-
-        score = self.get_score(img_refs_validation)
-        a = 1
-        
-    def train_model1(self, train_gen, test_gen, num_indicators):
-        unet = UNet()
-        model = unet.get_model(self.image_size, num_indicators)
-        LogUtils.print_memory_usage("After getting model")
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
-        LogUtils.print_memory_usage("Before fitting generator")
-        a = model.fit_generator(generator=train_gen,
-#                                 validation_data = test_gen,
-#                                 epochs=1,
-#                                 use_multiprocessing=True,
-#                                 workers= 4,
-                                )
-        print(a)
-        return model
-        
-    def get_score(self, img_refs, threshold_step, output_dir, ref_data_path):
+    def _get_score(self, img_refs, threshold_step, output_dir, ref_data_path):
         data = MediforData.get_data(img_refs, output_dir, ref_data_path)
         scorer = Scoring()
         try:
@@ -229,15 +162,11 @@ class Main():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)   
 
-    def get_indicator_directories(self, indicators_path):
-        return [name for name in os.listdir(indicators_path)
-            if os.path.isdir(os.path.join(indicators_path, name))]    
-    
     def at_exit(self):
         self.my_timing.endlog()
         #self.emailsender.send(self.email_json)
     
 if __name__ == '__main__':
     
-    m = Main()
+    m = PredictionRunner()
     m.run()
