@@ -18,6 +18,8 @@
     "train_batch_size":20,
     "test_batch_size":5,
     "train_data_size":3,
+    "workers":4,
+    "epochs":1,
     "data_size":{
         "starting_index":0,
         "ending_index":"5"
