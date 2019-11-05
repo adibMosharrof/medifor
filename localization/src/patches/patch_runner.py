@@ -25,9 +25,10 @@ class PatchRunner:
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         img_refs = irb.get_img_ref(starting_index, ending_index)
         
+        patches_folder = self.env_json['path']['outputs']+"patches/"
         output_dir = FolderUtils.create_patch_output_folder(
             self.patch_shape, 
-            self.img_downscale_factor, self.env_json["path"]["outputs"], 
+            self.img_downscale_factor, patches_folder, 
             PathUtils.get_indicator_directories(indicators_path))
         
         LogUtils.init_log(output_dir)

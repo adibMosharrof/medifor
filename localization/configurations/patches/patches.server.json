@@ -1,13 +1,15 @@
 {
     "path":{
-        "data" : "../../data/",
-        "outputs":"../../outputs/patches/",
+        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
+        "outputs":"/home/ubuntu/adib/outputs/",
         "config":"../../configurations/patches/",
         "target_mask":"targets/manipulation/mask/",
-        "image_ref_csv":"reference/manipulation/image_ref.csv",
+        "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
+    "patch_shape":"128",
+    "image_downscale_factor":4,
     "data_size":{
         "starting_index":0,
-        "ending_index":"3"
+        "ending_index":"20"
     }
 }

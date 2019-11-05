@@ -1,8 +1,7 @@
 {
     "path":{
         "data" : "../../data/",
-        "outputs":"../../outputs/predictions/",
-        "patches":"../../outputs/patches/",
+        "outputs":"../../outputs/",
         "config":"../../configurations/predictions/",
         "model_sys_predictions":"../data/model_sys_predictions/",
         "metrics": "scoring/",

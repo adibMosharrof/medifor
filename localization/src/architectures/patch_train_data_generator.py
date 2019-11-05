@@ -44,7 +44,6 @@ class PatchTrainDataGenerator(Sequence):
         
         return x,y
         
-    
     def _read_images_from_directory(self, dir_path, starting_index, ending_index):
         img_names = os.listdir(dir_path)[starting_index:ending_index]
         imgs = []

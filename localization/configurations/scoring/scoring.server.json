@@ -2,7 +2,7 @@
     "path":{
         "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
         "outputs":"/home/ubuntu/adib/outputs/",
-        "config":"../configurations/",
+        "config":"../../configurations/scoring/",
         "model_sys_predictions":"/home/ubuntu/adib/inputs/model_sys_predictions/",
         "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",

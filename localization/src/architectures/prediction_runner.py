@@ -65,9 +65,10 @@ class PredictionRunner():
         model_name = self.config_json["default"]["model_name"]
         self.patch_shape = self.env_json['patch_shape']
         img_downscale_factor = self.env_json['image_downscale_factor']
+        patches_output_folder = self.env_json["path"]["outputs"] + "patches/"
         self.output_dir = FolderUtils.create_predictions_output_folder(
             model_name, self.patch_shape, img_downscale_factor, 
-            self.env_json["path"]["outputs"])
+            patches_output_folder)
         
         self.my_logger = LogUtils.init_log(self.output_dir)
         
@@ -96,9 +97,9 @@ class PredictionRunner():
         epochs = self.env_json["epochs"]
         workers = self.env_json["workers"]
         a = model.fit_generator(generator=train_gen,
-                                epochs=1,
+                                epochs=epochs,
                                 use_multiprocessing=True,
-                                workers= 4,
+                                workers= workers,
                                 )
         predictions = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
         recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)

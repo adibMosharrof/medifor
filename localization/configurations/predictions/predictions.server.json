@@ -1,12 +1,26 @@
 {
-    "hostnames" :{
-        "uomlmedifor":"environment.server.json",
-        "uomlmedifor3":"environment.server.json",
-        "LAPTOP-DNMQC5VO":"environment.local.json"
+    "path":{
+        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
+        "outputs":"/home/ubuntu/adib/outputs/",
+        "config":"../../configurations/predictions/",
+        "model_sys_predictions":"../data/model_sys_predictions/",
+        "metrics": "scoring/",
+        "target_mask":"targets/manipulation/mask/",
+        "image_ref_csv":"reference/manipulation/image_ref.csv",
+        "model_type":{
+            "unet":"unet"
+        }
     },
-    "default":{
-        "model_type":"c8-lgb_local_40_nb_a",
-        "data":"MFC18_EvalPart1/"
+    "threshold_step":0.3,
+    "image_downscale_factor":4,
+    "patch_shape":128,
+    "train_batch_size":20,
+    "test_batch_size":5,
+    "train_data_size":3,
+    "workers":4,
+    "epochs":1,
+    "data_size":{
+        "starting_index":0,
+        "ending_index":"5"
     }
-    
 }
