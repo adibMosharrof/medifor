@@ -21,6 +21,6 @@
     "epochs":1,
     "data_size":{
         "starting_index":0,
-        "ending_index":"5"
+        "ending_index":10
     }
 }
