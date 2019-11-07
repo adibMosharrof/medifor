@@ -1,10 +1,10 @@
 bulldozers
 /localization/tmp
-/localization/metrics/__pycache__/img_ref_builder.cpython-36.pyc
-/localization/metrics/__pycache__/medifordata.cpython-36.pyc
-/localization/metrics/__pycache__/metrics.cpython-36.pyc
-/localization/outputs
+/localization/outputs/
 /localization/data/
 /localization/metrics/__pycache__
 __pycache__
 temp
+
+/medifor/
+/MediScore/

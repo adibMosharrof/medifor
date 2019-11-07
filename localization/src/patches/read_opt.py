@@ -27,7 +27,7 @@ if __name__ == '__main__':
     freeze_support()
     starting_index = 0
     ending_index = 60
-    dir_path = 'C:/MyFiles/Study/research/localization/outputs/patches/128_1/target_image'
+    dir_path = '../../outputs/patches/128_1/target_image'
     
     t1 = time.perf_counter()
     read_all(dir_path,starting_index, ending_index)
