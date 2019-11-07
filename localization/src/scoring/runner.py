@@ -17,7 +17,8 @@ from shared.json_loader import JsonLoader
 from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
 from shared.medifordata import MediforData
-from shared.timing import Timing 
+from shared.timing import Timing
+from shared.path_utils import PathUtils
 
 class Runner():
     config_path = "../../configurations/scoring/"
@@ -49,7 +50,7 @@ class Runner():
     def start(self):
         env_path = self.env_json['path']
         sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_name"][self.model_name])
-        ref_data_path, image_ref_csv_path = PathUtils.get_image_ref_paths(self.config_json, self.env_json)
+        image_ref_csv_path, ref_data_path = PathUtils.get_image_ref_paths(self.config_json, self.env_json['path'])
 
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         irb = ImgRefBuilder(image_ref_csv_path)
