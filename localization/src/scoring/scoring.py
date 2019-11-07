@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('..')
 from PIL import Image
 import cv2 
 import numpy as np
@@ -27,12 +29,13 @@ class Scoring(object):
     
     def get_average_score(self, data):
         scores = 0
-        for d in data:
+        for i, d in enumerate(data):
             bw = ImageUtils.get_black_and_white_image(d.ref)
             normalized_ref = self.normalize_ref(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
             sys_image = ImageUtils.read_image(d.sys)
             scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
+            print(f'running average {scores/(i+1)}')
         return scores/len(data)
       
     def get_noscore_image(self, img):

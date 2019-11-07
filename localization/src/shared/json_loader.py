@@ -33,7 +33,7 @@ class JsonLoader:
         try:
           ending_index = int(env_json["data_size"]["ending_index"])
         except ValueError:
-          ending_index = None   
+          ending_index = -1   
         return starting_index, ending_index  
 
     @staticmethod

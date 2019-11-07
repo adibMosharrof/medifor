@@ -11,12 +11,12 @@
             "unet":"unet"
         }
     },
-    "threshold_step":0.3,
+    "threshold_step":0.1,
     "image_downscale_factor":4,
     "patch_shape":128,
     "train_batch_size":20,
     "test_batch_size":5,
-    "train_data_size":3,
+    "train_data_size":7,
     "workers":4,
     "epochs":1,
     "data_size":{
