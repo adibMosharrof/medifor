@@ -33,7 +33,8 @@ class PatchGenerator:
             bordered_img, border_vertical, border_horizontal, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
             target_image_out_dir = self.output_dir + 'target_image/'
             bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
-            
+            #patches, window_shape, original_img
+            self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
             for i, patch in enumerate(bordered_image_patches):
                 path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
                 ImageUtils.save_image(patch, path)
@@ -77,3 +78,9 @@ class PatchGenerator:
     def _handle_missing_indicator_image(self, shape):
         return np.full(shape, 255, dtype=np.float32)
     
+    def test_patch(self, patches, window_shape, original_img):
+        try:
+            recon = PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)
+        except ZeroDivisionError as err:
+            raise(err)
+#         ImageUtils.display_multiple(recon, original_img)

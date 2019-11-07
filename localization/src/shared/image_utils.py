@@ -79,7 +79,7 @@ class ImageUtils:
     def add_border(img, patch_shape, vertical=None, horizontal=None):
         vertical = vertical or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
         horizontal = horizontal or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
-        bordered = cv2.copyMakeBorder(img,top=vertical,bottom=vertical,left =horizontal,right=horizontal,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
+        bordered = cv2.copyMakeBorder(img,top=vertical,bottom=0,left=horizontal, right=0,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
         return bordered, vertical, horizontal
 
     @staticmethod     
@@ -87,7 +87,7 @@ class ImageUtils:
         quotient = img_size / patch_size
         if quotient % 1 == 0:
             return 0
-        border_size = (patch_size * math.ceil(quotient) - img_size)//2
+        border_size = patch_size * math.ceil(quotient) - img_size
         return border_size
         
     @staticmethod

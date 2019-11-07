@@ -7,7 +7,7 @@
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
     "patch_shape":"128",
-    "image_downscale_factor":4,
+    "image_downscale_factor":1,
     "data_size":{
         "starting_index":0,
         "ending_index":"all"
