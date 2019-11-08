@@ -28,6 +28,7 @@ class PatchGenerator:
                 patch_img_ref = self._create_img_patch(img_ref, targets_path)
             except ZeroDivisionError as err:
                 #not adding images that have division by zero
+                print("division by zero {img_ref.sys_mask_file_name}")
                 continue
             patch_img_refs.append(patch_img_ref)
         self.write_patch_img_refs_to_csv(patch_img_refs)
