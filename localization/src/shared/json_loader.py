@@ -40,8 +40,6 @@ class JsonLoader:
     def _get_hostname_file_name_suffix(config_path):
         return socket.gethostname(), config_path.split("/")[-2]
         
-
-
     @staticmethod
     def load(path):
         try:

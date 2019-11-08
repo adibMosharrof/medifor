@@ -16,11 +16,11 @@
     "patch_shape":128,
     "train_batch_size":60,
     "test_batch_size":5,
-    "train_data_size":250,
+    "train_data_size":80,
     "workers":4,
     "epochs":2,
     "data_size":{
         "starting_index":0,
-        "ending_index":300
+        "ending_index":100
     }
 }
