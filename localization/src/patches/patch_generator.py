@@ -24,7 +24,10 @@ class PatchGenerator:
     def create_img_patches(self, img_refs, targets_path):
         patch_img_refs = []
         for img_ref in img_refs:
-            patch_img_refs.append(self._create_img_patch(img_ref, targets_path))
+            patch_img_ref = self._create_img_patch(img_ref, targets_path)
+            if patch_img_ref is None:
+                continue
+            patch_img_refs.append(patch_img_ref)
         self.write_patch_img_refs_to_csv(patch_img_refs)
 
     def _create_img_patch(self, img_ref, targets_path):
@@ -33,8 +36,11 @@ class PatchGenerator:
             bordered_img, border_vertical, border_horizontal, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
             target_image_out_dir = self.output_dir + 'target_image/'
             bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
-            #patches, window_shape, original_img
-            self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
+            #removing the images that are producing reconstruction errors
+            try:
+                self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
+            except ZeroDivisionError as err:
+                return None
             for i, patch in enumerate(bordered_image_patches):
                 path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
                 ImageUtils.save_image(patch, path)
@@ -79,8 +85,5 @@ class PatchGenerator:
         return np.full(shape, 255, dtype=np.float32)
     
     def test_patch(self, patches, window_shape, original_img):
-        try:
-            recon = PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)
-        except ZeroDivisionError as err:
-            raise(err)
+        recon = PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)
 #         ImageUtils.display_multiple(recon, original_img)
