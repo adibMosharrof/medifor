@@ -24,34 +24,28 @@ class PatchGenerator:
     def create_img_patches(self, img_refs, targets_path):
         patch_img_refs = []
         for img_ref in img_refs:
-            patch_img_ref = self._create_img_patch(img_ref, targets_path)
-            if patch_img_ref is None:
+            try:
+                patch_img_ref = self._create_img_patch(img_ref, targets_path)
+            except ZeroDivisionError as err:
+                #not adding images that have division by zero
                 continue
             patch_img_refs.append(patch_img_ref)
         self.write_patch_img_refs_to_csv(patch_img_refs)
 
     def _create_img_patch(self, img_ref, targets_path):
         target_image_path = os.path.join(targets_path, "manipulation", "mask", img_ref.ref_mask_file_name) + ".png"
-        try:
-            bordered_img, border_vertical, border_horizontal, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
-            target_image_out_dir = self.output_dir + 'target_image/'
-            bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
-            #removing the images that are producing reconstruction errors
-            try:
-                self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
-            except ZeroDivisionError as err:
-                return None
-            for i, patch in enumerate(bordered_image_patches):
-                path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
-                ImageUtils.save_image(patch, path)
-            patch_img_ref = PatchImageRefFactory.create_img_ref(
-                img_ref.sys_mask_file_name, bordered_img.shape, 
-                patch_window_shape, img_ref.ref_mask_file_name, 
-                original_img_shape)
-            
-        except ValueError as err:
-            print(err)
-            raise
+        bordered_img, border_vertical, border_horizontal, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
+        target_image_out_dir = self.output_dir + 'target_image/'
+        bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
+        #removing the images that are producing reconstruction errors
+        for i, patch in enumerate(bordered_image_patches):
+            path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
+            ImageUtils.save_image(patch, path)
+        patch_img_ref = PatchImageRefFactory.create_img_ref(
+            img_ref.sys_mask_file_name, bordered_img.shape, 
+            patch_window_shape, img_ref.ref_mask_file_name, 
+            original_img_shape)
+        self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
             
         indicators = None
         for indicator_dir in self.indicator_directories:
