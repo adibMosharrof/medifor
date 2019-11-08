@@ -85,7 +85,7 @@ class PredictionRunner():
         train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches = self._get_test_train_data_size(
             self.env_json, patch_img_refs, starting_index, ending_index)
 
-        test_patch_img_refs = patch_img_refs[ending_index - test_data_size -1 :]
+        test_patch_img_refs = patch_img_refs[ending_index - test_data_size :]
         
         train_gen, test_gen = self._get_train_test_generators(
             train_batch_size, test_batch_size, test_data_size, indicator_directories, 
