@@ -147,8 +147,8 @@ class PredictionRunner():
         
     def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
-#             prediction = 255- (prediction*255)
-            prediction = prediction*255
+            prediction = 255- (prediction*255)
+#             prediction = prediction*255
             try:
                 img_from_patches = PatchUtils.get_image_from_patches(
                                         prediction, 
