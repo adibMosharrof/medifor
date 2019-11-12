@@ -57,4 +57,5 @@ class JsonLoader:
             return "openstack" 
         elif re.search("(?<=n).\d+", x) is not None:
             return "talapas" 
-
+        else:
+            ValueError(f"Need to configure the new hostname {hostname}")
