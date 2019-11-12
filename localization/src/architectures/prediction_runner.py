@@ -65,10 +65,10 @@ class PredictionRunner():
         model_name = self.config_json["default"]["model_name"]
         self.patch_shape = self.env_json['patch_shape']
         img_downscale_factor = self.env_json['image_downscale_factor']
-        patches_output_folder = self.env_json["path"]["outputs"] + "patches/"
+        output_folder = self.env_json["path"]["outputs"] + "predictions/"
         self.output_dir = FolderUtils.create_predictions_output_folder(
             model_name, self.patch_shape, img_downscale_factor, 
-            patches_output_folder)
+            output_folder)
         
         self.my_logger = LogUtils.init_log(self.output_dir)
         
@@ -154,8 +154,10 @@ class PredictionRunner():
                                         prediction, 
                                         patch_img_ref.bordered_img_shape,
                                         patch_img_ref.patch_window_shape)
+                img_without_border = ImageUtils.remove_border(
+                    img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
                 img_original_size = cv2.resize(
-                    img_from_patches, patch_img_ref.original_img_shape)
+                    img_without_border, patch_img_ref.original_img_shape)
                 file_name = f'{patch_img_ref.probe_file_id}.png'
                 file_path = self.output_dir+file_name
                 ImageUtils.save_image(img_original_size, file_path)

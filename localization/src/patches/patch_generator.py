@@ -27,7 +27,7 @@ class PatchGenerator:
             try:
                 patch_img_ref = self._create_img_patch(img_ref, targets_path)
             except ZeroDivisionError as err:
-                #not adding images that have division by zero
+                #not including images that have size less than the patch size
                 print(f"division by zero {img_ref.sys_mask_file_name}")
                 continue
             patch_img_refs.append(patch_img_ref)
@@ -35,17 +35,16 @@ class PatchGenerator:
 
     def _create_img_patch(self, img_ref, targets_path):
         target_image_path = os.path.join(targets_path, "manipulation", "mask", img_ref.ref_mask_file_name) + ".png"
-        bordered_img, border_vertical, border_horizontal, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
+        bordered_img, border_top, border_left, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
         target_image_out_dir = self.output_dir + 'target_image/'
         bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
-        #removing the images that are producing reconstruction errors
         for i, patch in enumerate(bordered_image_patches):
             path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
             ImageUtils.save_image(patch, path)
         patch_img_ref = PatchImageRefFactory.create_img_ref(
             img_ref.sys_mask_file_name, bordered_img.shape, 
             patch_window_shape, img_ref.ref_mask_file_name, 
-            original_img_shape)
+            original_img_shape, border_top, border_left)
         self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
             
         indicators = None
@@ -56,8 +55,8 @@ class PatchGenerator:
                 img, _, _, _ = ImageUtils.get_image_with_border(
                     img_path, self.patch_shape,
                     self.img_downscale_factor,
-                    vertical=border_vertical,
-                    horizontal=border_horizontal)
+                    top=border_top,
+                    left=border_left)
             except FileNotFoundError as err:
                 img = self._handle_missing_indicator_image(bordered_img.shape)
             finally:
@@ -72,7 +71,7 @@ class PatchGenerator:
         file_name = self.output_dir + 'patch_image_ref.csv'
         with open(file_name, 'w', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            writer.writerow(['ProbeFileID', 'BorderedImageShape', 'PatchWindowShape', 'ProbeMaskFileName', 'OriginalImageShape'])
+            writer.writerow(['ProbeFileID', 'BorderedImageShape', 'PatchWindowShape', 'ProbeMaskFileName', 'OriginalImageShape', 'BorderTop', 'BorderLeft'])
             writer.writerows(patch_img_refs)
         csv_file.close()
             
@@ -81,4 +80,3 @@ class PatchGenerator:
     
     def test_patch(self, patches, window_shape, original_img):
         recon = PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)
-#         ImageUtils.display_multiple(recon, original_img)

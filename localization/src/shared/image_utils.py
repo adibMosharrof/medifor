@@ -68,19 +68,23 @@ class ImageUtils:
         plt.show()
         
     @staticmethod
-    def get_image_with_border(path, patch_shape, image_downscale_factor, vertical=None, horizontal=None):
+    def get_image_with_border(path, patch_shape, image_downscale_factor, top=None, left=None):
 #         img = ImageUtils.read_image(path, normalize=True)
         original_img = ImageUtils.read_image(path)
         img = ImageUtils.shrink_image(original_img, image_downscale_factor)
-        bordered, vertical, horizontal = ImageUtils.add_border(img, patch_shape, vertical=vertical, horizontal=horizontal)
-        return bordered, vertical, horizontal, original_img.shape
+        bordered, top, left = ImageUtils.add_border(img, patch_shape, top=top, left=left)
+        return bordered, top, left, original_img.shape
         
     @staticmethod
-    def add_border(img, patch_shape, vertical=None, horizontal=None):
-        vertical = vertical or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
-        horizontal = horizontal or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
-        bordered = cv2.copyMakeBorder(img,top=vertical,bottom=0,left=horizontal, right=0,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
-        return bordered, vertical, horizontal
+    def add_border(img, patch_shape, top=None, left=None):
+        top = top or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
+        left = left or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
+        bordered = cv2.copyMakeBorder(img,top=top,bottom=0,left=left, right=0,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
+        return bordered, top, left
+    
+    @staticmethod
+    def remove_border(img, top, left):
+        return img[top:, left:].copy()
 
     @staticmethod     
     def get_border_pixels(img_size, patch_size):
