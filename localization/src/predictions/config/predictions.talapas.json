@@ -1,7 +1,7 @@
 {
     "path":{
-        "data" : "../../data/",
-        "outputs":"../../outputs/",
+        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
+        "outputs":"/home/ubuntu/adib/outputs/",
         "config":"../../configurations/predictions/",
         "model_sys_predictions":"../data/model_sys_predictions/",
         "metrics": "scoring/",
@@ -11,16 +11,16 @@
             "unet":"unet"
         }
     },
-    "threshold_step":0.4,
+    "threshold_step":0.1,
     "image_downscale_factor":4,
     "patch_shape":128,
-    "train_batch_size":30,
+    "train_batch_size":60,
     "test_batch_size":5,
-    "train_data_size":15,
+    "train_data_size":950,
     "workers":4,
-    "epochs":1,
+    "epochs":2,
     "data_size":{
         "starting_index":0,
-        "ending_index":20
+        "ending_index":1000
     }
 }

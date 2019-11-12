@@ -1,0 +1,28 @@
+{
+    "path":{
+        "data" : "../../data/",
+        "outputs":"../../outputs/",
+        "config":"../../configurations/predictions/",
+        "model_sys_predictions":"../data/model_sys_predictions/",
+        "metrics": "scoring/",
+        "target_mask":"targets/manipulation/mask/",
+        "image_ref_csv":"reference/manipulation/image_ref.csv",
+        "model_type":{
+            "unet":"unet"
+        }
+    },
+    "threshold_step":0.4,
+    "image_downscale_factor":4,
+    "patch_shape":128,
+    "train_batch_size":30,
+    "test_batch_size":5,
+    "train_data_size":15,
+    "workers":4,
+    "epochs":1,
+    "data_size":{
+        "starting_index":0,
+        "ending_index":20
+    },
+    "model_name":"unet",
+    "data":"MFC18_EvalPart1/"
+}
