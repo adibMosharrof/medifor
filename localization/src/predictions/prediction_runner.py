@@ -51,18 +51,10 @@ from patch_train_data_generator import PatchTrainDataGenerator
 from patch_test_data_generator import PatchTestDataGenerator
 
 class PredictionRunner():
-    config_path = "../../configurations/predictions/"
-    indicators_path = "../../data/MFC18_EvalPart1/indicators"
-    targets_path = "../../data/MFC18_EvalPart1/targets"
-    env_json = None
-    config_json = None
-    image_utils = None
-    image_size = 128
-    my_timing = None
     
     def __init__(self):
-        self.config_json, self.env_json , self.email_json =JsonLoader.load_config_env_email(self.config_path) 
-        model_name = self.config_json["default"]["model_name"]
+        self.env_json , self.email_json =JsonLoader.load_env_email("predictions") 
+        model_name = self.env_json["model_name"]
         self.patch_shape = self.env_json['patch_shape']
         img_downscale_factor = self.env_json['image_downscale_factor']
         output_folder = self.env_json["path"]["outputs"] + "predictions/"
@@ -74,7 +66,7 @@ class PredictionRunner():
         
     def run(self):
         my_logger = logging.getLogger()
-        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.config_json, self.env_json)
+        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.env_json)
         
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)

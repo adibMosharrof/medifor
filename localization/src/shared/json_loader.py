@@ -7,22 +7,18 @@ from json.decoder import JSONDecodeError
 class JsonLoader:
 
     @staticmethod
-    def load_config_env_email(config_path):
-        hostname, file_name_suffix = JsonLoader._get_hostname_file_name_suffix(config_path)
-        
-        config, env = JsonLoader.load_config_env(config_path)
-        email = JsonLoader.load(config_path + file_name_suffix + ".email.config.json")
+    def load_env_email(module_name):
+        env_name = JsonLoader.get_env_name()
+        env = JsonLoader.load_env(module_name)
+        email = JsonLoader.load(f"config/{module_name}.email.config.json")
             
-        return config, env, email    
+        return env, email    
 
     @staticmethod
-    def load_config_env(config_path):
-        hostname, file_name_suffix = JsonLoader._get_hostname_file_name_suffix(config_path)
-        config = JsonLoader.load(config_path + file_name_suffix + ".config.json")
-        
-        env_file_name = config['hostnames'][hostname]
-        env = JsonLoader.load(config_path + file_name_suffix + '.' + env_file_name)
-        return config, env
+    def load_env(module_name):
+        env_name = JsonLoader.get_env_name()
+        env = JsonLoader.load(f"config/{module_name}.{env_name}.json")
+        return env
     
     @staticmethod
     def get_data_size(env_json):
@@ -51,4 +47,14 @@ class JsonLoader:
         except JSONDecodeError as err:
             logging.getLogger().info(err)
             raise
-            
+                        
+    @staticmethod
+    def get_env_name():
+        hostname = socket.gethostname()
+        if hostname == "LAPTOP-DNMQC5VO":
+            return "local"
+        elif "uomlmedifor" in hostname:
+            return "openstack" 
+        elif re.search("(?<=n).\d+", x) is not None:
+            return "talapas" 
+
