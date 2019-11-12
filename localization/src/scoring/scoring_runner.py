@@ -31,9 +31,9 @@ class Runner():
     model_name = None
     
     def __init__(self):
-        self.config_json, self.env_json, self.email_json= JsonLoader.load_config_env_email(self.config_path)
+        self.env_json, self.email_json= JsonLoader.load_config_env_email("scoring")
 
-        self.model_name = self.config_json["default"]["model_name"]
+        self.model_name = self.env_json["model_name"]
         output_dir = FolderUtils.create_output_folder(self.model_name,self.env_json["path"]["outputs"])
         self.my_logger = LogUtils.init_log(output_dir)
         self.my_timing = Timing(self.my_logger)

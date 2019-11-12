@@ -16,5 +16,6 @@
         "starting_index":0,
         "ending_index":"2"
     },
+    "model_name":"unet",
     "data":"MFC18_EvalPart1/"
 }

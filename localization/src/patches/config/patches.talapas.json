@@ -11,5 +11,7 @@
     "data_size":{
         "starting_index":0,
         "ending_index":"all"
-    }
+    },
+    "model_name":"unet",
+    "data":"MFC18_EvalPart1/"
 }
