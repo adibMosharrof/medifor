@@ -16,12 +16,12 @@
     "patch_shape":128,
     "train_batch_size":30,
     "test_batch_size":5,
-    "train_data_size":15,
+    "train_data_size":8,
     "workers":4,
     "epochs":1,
     "data_size":{
         "starting_index":0,
-        "ending_index":20
+        "ending_index":10
     },
     "model_name":"unet",
     "data":"MFC18_EvalPart1/"

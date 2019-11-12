@@ -11,15 +11,14 @@ from patch_generator import PatchGenerator
 
 
 class PatchRunner:
-    config_path = "../../configurations/patches/"
     
     def __init__(self):
-        self.config_json, self.env_json = JsonLoader.load_config_env(self.config_path) 
+        self.env_json = JsonLoader.load_env("patches") 
         self.patch_shape = int(self.env_json["patch_shape"])
         self.img_downscale_factor = int(self.env_json['image_downscale_factor'])
         
     def start(self):
-        img_ref_csv_path, ref_data_path, targets_path, indicators_path = PathUtils.get_paths(self.config_json, self.env_json)
+        img_ref_csv_path, ref_data_path, targets_path, indicators_path = PathUtils.get_paths(self.env_json)
         irb = ImgRefBuilder(img_ref_csv_path)
 
         starting_index, ending_index = JsonLoader.get_data_size(self.env_json)

@@ -18,7 +18,7 @@ class PatchImageRef():
     def __iter__(self):
         return iter([self.probe_file_id, self.bordered_img_shape,
                     self.patch_window_shape, self.probe_mask_file_name, 
-                    self.original_img_shape, border_top, border_left])
+                    self.original_img_shape, self.border_top, self.border_left])
     
     
 class PatchImageRefFactory():

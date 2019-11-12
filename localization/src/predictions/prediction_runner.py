@@ -139,22 +139,19 @@ class PredictionRunner():
         
     def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
-            prediction = 255- (prediction*255)
-#             prediction = prediction*255
-            try:
-                img_from_patches = PatchUtils.get_image_from_patches(
-                                        prediction, 
-                                        patch_img_ref.bordered_img_shape,
-                                        patch_img_ref.patch_window_shape)
-                img_without_border = ImageUtils.remove_border(
-                    img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
-                img_original_size = cv2.resize(
-                    img_without_border, patch_img_ref.original_img_shape)
-                file_name = f'{patch_img_ref.probe_file_id}.png'
-                file_path = self.output_dir+file_name
-                ImageUtils.save_image(img_original_size, file_path)
-            except AssertionError as err:
-                a = 1
+#             prediction = 255- (prediction*255)
+            prediction = prediction*255
+            img_from_patches = PatchUtils.get_image_from_patches(
+                                    prediction, 
+                                    patch_img_ref.bordered_img_shape,
+                                    patch_img_ref.patch_window_shape)
+            img_without_border = ImageUtils.remove_border(
+                img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+            img_original_size = cv2.resize(
+                img_without_border, patch_img_ref.original_img_shape)
+            file_name = f'{patch_img_ref.probe_file_id}.png'
+            file_path = self.output_dir+file_name
+            ImageUtils.save_image(img_original_size, file_path)
                  
 
     def _get_score(self, img_refs, threshold_step, output_dir, ref_data_path):
