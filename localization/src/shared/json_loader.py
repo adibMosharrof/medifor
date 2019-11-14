@@ -56,7 +56,7 @@ class JsonLoader:
             return "local"
         elif "uomlmedifor" in hostname:
             return "openstack" 
-        elif re.search("(?<=n).\d+", x) is not None:
+        elif re.search("(?<=n).\d+", hostname) is not None:
             return "talapas" 
         else:
             ValueError(f"Need to configure the new hostname {hostname}")
