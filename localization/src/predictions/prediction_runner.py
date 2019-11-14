@@ -132,6 +132,8 @@ class PredictionRunner():
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         epochs = self.env_json["epochs"]
         workers = self.env_json["workers"]
+        if workers < 0:
+            workers = os.cpu_count()
         model.fit_generator(generator=train_gen,
                                 epochs=epochs,
                                 use_multiprocessing=True,
@@ -181,6 +183,9 @@ class PredictionRunner():
         if model_name == "unet":
             from architectures.unet import UNet
             return UNet()
+        elif model_name == "single_layer_nn":
+            from architectures.single_layer_nn import SingleLayerNN
+            return SingleLayerNN()
 
     def at_exit(self):
         self.my_timing.endlog()
