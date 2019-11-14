@@ -2,6 +2,7 @@ import json
 import socket
 import logging
 from json.decoder import JSONDecodeError
+import re
 
 
 class JsonLoader:
