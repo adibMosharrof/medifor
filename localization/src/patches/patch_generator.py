@@ -45,7 +45,6 @@ class PatchGenerator:
             img_ref.sys_mask_file_name, bordered_img.shape, 
             patch_window_shape, img_ref.ref_mask_file_name, 
             original_img_shape, border_top, border_left)
-        self.test_patch(bordered_image_patches, patch_window_shape, bordered_img)
             
         indicators = None
         for indicator_dir in self.indicator_directories:
@@ -79,4 +78,4 @@ class PatchGenerator:
         return np.full(shape, 255, dtype=np.float32)
     
     def test_patch(self, patches, window_shape, original_img):
-        recon = PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)
+        return PatchUtils.get_image_from_patches(patches, original_img.shape, window_shape)

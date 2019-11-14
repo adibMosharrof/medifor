@@ -19,4 +19,7 @@ class PatchUtils:
     @staticmethod
     def get_image_from_patches(patches, new_image_shape, patch_window_shape):
         recon_patch_windows = patches.reshape(patch_window_shape)
-        return unpatchify(recon_patch_windows, new_image_shape)
+        try:
+            return unpatchify(recon_patch_windows, new_image_shape)
+        except ZeroDivisionError as err:
+            return patches[0]
