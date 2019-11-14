@@ -33,9 +33,7 @@ import math
 import matplotlib.pyplot as plt
 
 sys.path.append('..')
-from unet import UNet
 from data_generator import DataGenerator
-# from medifor_prediction import MediforPrediction
 from scoring.img_ref_builder import ImgRefBuilder
 from scoring.scoring import Scoring
 from shared.image_utils import ImageUtils
@@ -83,16 +81,8 @@ class PredictionRunner():
             train_batch_size, test_batch_size, test_data_size, indicator_directories, 
             patches_path, self.patch_shape, num_training_patches, test_patch_img_refs)
         
-        unet = UNet()
-        model = unet.get_model(self.patch_shape, len(indicator_directories))
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
-        epochs = self.env_json["epochs"]
-        workers = self.env_json["workers"]
-        a = model.fit_generator(generator=train_gen,
-                                epochs=epochs,
-                                use_multiprocessing=True,
-                                workers= workers,
-                                )
+        arch = self._get_architecture()
+        model = self._train_model(arch, indicator_directories, train_gen)
         predictions = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
         recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
@@ -137,6 +127,18 @@ class PredictionRunner():
                 predictions.append(model.predict(x))
         return predictions
         
+    def _train_model(self, arch, indicator_directories, train_gen):
+        model = arch.get_model(self.patch_shape, len(indicator_directories))
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        epochs = self.env_json["epochs"]
+        workers = self.env_json["workers"]
+        model.fit_generator(generator=train_gen,
+                                epochs=epochs,
+                                use_multiprocessing=True,
+                                workers= workers,
+                                )
+        return model
+    
     def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
         for prediction , patch_img_ref in zip(predictions, patch_img_refs):
 #             prediction = 255- (prediction*255)
@@ -173,6 +175,12 @@ class PredictionRunner():
         test_data_size = ending_index-starting_index - train_data_size
         
         return train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches
+
+    def _get_architecture(self):
+        model_name = self.env_json['model_name']
+        if model_name == "unet":
+            from architectures.unet import UNet
+            return UNet()
 
     def at_exit(self):
         self.my_timing.endlog()
