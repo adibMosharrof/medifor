@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH --partition=long
+#SBATCH --job-name=predictions
+#SBATCH --output=talapas/prediction_runner.out
+#SBATCH --error=talapas/prediction_runner.err
+#SBATCH --account=uoml
+source activate adib
+python prediction_runner.py

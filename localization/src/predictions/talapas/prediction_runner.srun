@@ -1,8 +1,0 @@
-#!/bin/bash
-#SBATCH --partition=long
-#SBATCH --job-name=prediction_runner
-#SBATCH --output=prediction_runner.out
-#SBATCH --error=prediction_runner.err
-#SBATCH --account=uoml
-source activate adib
-python ../prediction_runner.py

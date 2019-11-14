@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=long
-#SBATCH --job-name=patch_runner
+#SBATCH --job-name=patches
 #SBATCH --output=talapas/patch_runner.out
 #SBATCH --error=talapas/patch_runner.err
 #SBATCH --account=uoml
