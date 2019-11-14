@@ -1,9 +1,7 @@
 {
     "path":{
-        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
-        "outputs":"/home/ubuntu/adib/outputs/",
-        "config":"../../configurations/scoring/",
-        "model_sys_predictions":"/home/ubuntu/adib/inputs/model_sys_predictions/",
+        "data" : "/uoml/medifor_data/",
+        "outputs":"/uoml/adib/outputs/",
         "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
@@ -15,5 +13,6 @@
     "data_size":{
         "starting_index":0,
         "ending_index":"all"
-    }
+    },
+    "data":"MFC18_EvalPart1/"
 }

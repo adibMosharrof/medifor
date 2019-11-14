@@ -2,9 +2,6 @@
     "path":{
         "data" : "../../data/",
         "outputs":"../../outputs/scoring/",
-        "config":"../../configurations/",
-        "model_sys_predictions":"../../data/model_sys_predictions/",
-        "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
         "model_name":{
@@ -16,6 +13,5 @@
         "starting_index":0,
         "ending_index":"2"
     },
-    "model_name":"unet",
     "data":"MFC18_EvalPart1/"
 }

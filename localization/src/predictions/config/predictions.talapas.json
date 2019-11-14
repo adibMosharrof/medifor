@@ -1,9 +1,7 @@
 {
     "path":{
-        "data" : "/home/ubuntu/dropbox/uoml2/medifor_local_large/",
-        "outputs":"/home/ubuntu/adib/outputs/",
-        "config":"../../configurations/predictions/",
-        "model_sys_predictions":"../data/model_sys_predictions/",
+        "data" : "/uoml/medifor_data/",
+        "outputs":"/uoml/adib/outputs/",
         "metrics": "scoring/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
@@ -17,12 +15,12 @@
     "train_batch_size":60,
     "test_batch_size":5,
     "train_data_size":950,
-    "workers":4,
+    "workers":-1,
     "epochs":2,
     "data_size":{
         "starting_index":0,
         "ending_index":1000
     },
-    "model_name":"unet",
+    "model_name":"single_layer_nn",
     "data":"MFC18_EvalPart1/"
 }
