@@ -47,15 +47,16 @@ from shared.medifordata import MediforData
 from patches.patch_image_ref import PatchImageRefFactory
 from patch_train_data_generator import PatchTrainDataGenerator
 from patch_test_data_generator import PatchTestDataGenerator
+from config.config_loader import ConfigLoader
 
 class PredictionRunner():
     
     def __init__(self):
-        self.env_json , self.email_json =JsonLoader.load_env_email("predictions") 
-        model_name = self.env_json["model_name"]
-        self.patch_shape = self.env_json['patch_shape']
-        img_downscale_factor = self.env_json['image_downscale_factor']
-        output_folder = self.env_json["path"]["outputs"] + "predictions/"
+        self.config , self.email_json =ConfigLoader.get_config()
+        model_name = self.config["model_name"]
+        self.patch_shape = self.config['patch_shape']
+        img_downscale_factor = self.config['image_downscale_factor']
+        output_folder = self.config["path"]["outputs"] + "predictions/"
         self.output_dir = FolderUtils.create_predictions_output_folder(
             model_name, self.patch_shape, img_downscale_factor, 
             output_folder)
@@ -64,16 +65,16 @@ class PredictionRunner():
         
     def run(self):
         my_logger = logging.getLogger()
-        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.env_json)
+        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.config)
         
-        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
+        starting_index, ending_index = JsonLoader.get_data_size(self.config)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)
         
         patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(
             patch_img_ref_path, starting_index, ending_index)
         
         train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches = self._get_test_train_data_size(
-            self.env_json, patch_img_refs, starting_index, ending_index)
+            self.config, patch_img_refs, starting_index, ending_index)
 
         test_patch_img_refs = patch_img_refs[ending_index - test_data_size :]
         
@@ -87,7 +88,7 @@ class PredictionRunner():
         recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
-        threshold_step = self.env_json['threshold_step']
+        threshold_step = self.config['threshold_step']
         score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
         
     def _get_train_test_generators(self, train_batch_size, test_batch_size, 
@@ -130,8 +131,8 @@ class PredictionRunner():
     def _train_model(self, arch, indicator_directories, train_gen):
         model = arch.get_model(self.patch_shape, len(indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
-        epochs = self.env_json["epochs"]
-        workers = self.env_json["workers"]
+        epochs = self.config["epochs"]
+        workers = self.config["workers"]
         if workers < 0:
             workers = os.cpu_count()
         model.fit_generator(generator=train_gen,
@@ -179,7 +180,7 @@ class PredictionRunner():
         return train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches
 
     def _get_architecture(self):
-        model_name = self.env_json['model_name']
+        model_name = self.config['model_name']
         if model_name == "unet":
             from architectures.unet import UNet
             return UNet()

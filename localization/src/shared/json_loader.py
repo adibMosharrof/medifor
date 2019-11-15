@@ -24,11 +24,11 @@ class JsonLoader:
     @staticmethod
     def get_data_size(env_json):
         try:
-          starting_index = int(env_json["data_size"]["starting_index"])
+          starting_index = int(env_json["starting_index"])
         except ValueError:
           starting_index = 0
         try:
-          ending_index = int(env_json["data_size"]["ending_index"])
+          ending_index = int(env_json["ending_index"])
         except ValueError:
           ending_index = -1   
         return starting_index, ending_index  

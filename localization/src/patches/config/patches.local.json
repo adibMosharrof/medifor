@@ -2,15 +2,12 @@
     "path":{
         "data" : "../../data/",
         "outputs":"../../outputs/",
-        "config":"../../configurations/patches/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
     "patch_shape":"128",
     "image_downscale_factor":4,
-    "data_size":{
-        "starting_index":0,
-        "ending_index":"10"
-    },
+    "starting_index":0,
+    "ending_index":"10",
     "data":"MFC18_EvalPart1/"
 }

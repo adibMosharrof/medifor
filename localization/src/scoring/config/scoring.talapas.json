@@ -10,9 +10,7 @@
         }
     },
     "threshold_step":0.03,
-    "data_size":{
-        "starting_index":0,
-        "ending_index":"all"
-    },
+    "starting_index":0,
+    "ending_index":"all",
     "data":"MFC18_EvalPart1/"
 }
