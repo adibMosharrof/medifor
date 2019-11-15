@@ -21,7 +21,7 @@ class ConfigLoader():
                     default=json_config['model_name'],help='Architecture Model Name')
  
         parser.add_argument('-e','--epochs', type=int,
-                    default=json_config['index'],help='Num Epochs')
+                    default=json_config['epochs'],help='Num Epochs')
 
         parser.add_argument('-w','--workers', type=int,
                     default=json_config['workers'],help='Num Worker')
