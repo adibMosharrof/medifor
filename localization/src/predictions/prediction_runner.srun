@@ -1,6 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=long
+#SBATCH --partition=longgpu
 #SBATCH --job-name=predictions
+#SBATCH --gres=gpu:1
 #SBATCH --output=/home/adibm/uoml/adib/outputs/predictions/talapas/%j.out
 #SBATCH --error=/home/adibm/uoml/adib/outputs/predictions/talapas/%j.err
 #SBATCH --account=uoml
