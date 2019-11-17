@@ -48,5 +48,5 @@ class ConfigLoader():
                     default=json_config['patch_shape'],help='Patch Shape')
 
         config = vars(parser.parse_args())
-        
-        return config, email
+        json_config.update(config)
+        return json_config, email

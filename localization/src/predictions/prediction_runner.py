@@ -89,7 +89,7 @@ class PredictionRunner():
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
         threshold_step = self.config['threshold_step']
-        score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
+#         score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
         
     def _get_train_test_generators(self, train_batch_size, test_batch_size, 
             test_data_size,indicator_directories, patches_path, patch_shape, 
