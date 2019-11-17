@@ -134,7 +134,7 @@ class PredictionRunner():
         epochs = self.config["epochs"]
         workers = self.config["workers"]
         if workers < 0:
-            workers = os.cpu_count()
+            workers = os.cpu_count()//2
         model.fit_generator(generator=train_gen,
                                 epochs=epochs,
                                 use_multiprocessing=True,
