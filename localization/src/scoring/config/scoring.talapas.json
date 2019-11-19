@@ -3,7 +3,6 @@
         "data" : "/home/adibm/uoml/medifor_data/",
         "outputs":"/home/adibm/uoml/adib/outputs/scoring",
         "outputs":"/home/adibm/uoml/adib/outputs/predictions",
-        "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
