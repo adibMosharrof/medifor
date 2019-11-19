@@ -7,7 +7,7 @@ class ConfigLoader():
     
     @staticmethod
     def get_config():
-        json_config, email = JsonLoader.load_env_email("predictions")
+        json_config, email = JsonLoader.load_config_email("predictions")
         
         parser = argparse.ArgumentParser(description='Train a model make predictions')
         

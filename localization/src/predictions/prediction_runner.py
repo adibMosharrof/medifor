@@ -52,7 +52,7 @@ from config.config_loader import ConfigLoader
 class PredictionRunner():
     
     def __init__(self):
-        self.config , self.email_json =ConfigLoader.get_config()
+        self.config , self.email_json = ConfigLoader.get_config()
         model_name = self.config["model_name"]
         self.patch_shape = self.config['patch_shape']
         img_downscale_factor = self.config['image_downscale_factor']
@@ -89,7 +89,9 @@ class PredictionRunner():
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
         threshold_step = self.config['threshold_step']
+        
 #         score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
+        print(self.output_dir)
         
     def _get_train_test_generators(self, train_batch_size, test_batch_size, 
             test_data_size,indicator_directories, patches_path, patch_shape, 

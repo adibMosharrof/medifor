@@ -3,20 +3,20 @@ import os
 class PathUtils:
     
     @staticmethod
-    def get_paths(env_json):
-        env_path = env_json['path']
-        data_path = env_path['data'] + env_json['data']
-        image_ref_csv, ref_data = PathUtils.get_image_ref_paths(env_path, data_path)
+    def get_paths(config):
+        config_path = config['path']
+        data_path = config_path['data'] + config['data']
+        image_ref_csv, ref_data = PathUtils.get_image_ref_paths(config_path, data_path)
         
-        targets = f"{env_path['data']}{env_json['data']}targets/"
-        indicators = f"{env_path['data']}{env_json['data']}indicators/"
+        targets = f"{config_path['data']}{config['data']}targets/"
+        indicators = f"{config_path['data']}{config['data']}indicators/"
         
         return image_ref_csv, ref_data, targets, indicators
     
     @staticmethod
-    def get_image_ref_paths(env_path, data_path):
-        image_ref_csv = data_path+ env_path['image_ref_csv']
-        ref_data = '{}{}'.format(data_path, env_path["target_mask"])
+    def get_image_ref_paths(config_path, data_path):
+        image_ref_csv = data_path+ config_path['image_ref_csv']
+        ref_data = '{}{}'.format(data_path, config_path["target_mask"])
         return image_ref_csv, ref_data
     
     @staticmethod

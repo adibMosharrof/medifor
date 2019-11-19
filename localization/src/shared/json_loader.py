@@ -8,15 +8,15 @@ import re
 class JsonLoader:
 
     @staticmethod
-    def load_env_email(module_name):
+    def load_config_email(module_name):
         env_name = JsonLoader.get_env_name()
-        env = JsonLoader.load_env(module_name)
+        config = JsonLoader.load_config(module_name)
         email = JsonLoader.load(f"config/{module_name}.email.config.json")
             
-        return env, email    
+        return config, email    
 
     @staticmethod
-    def load_env(module_name):
+    def load_config(module_name):
         env_name = JsonLoader.get_env_name()
         env = JsonLoader.load(f"config/{module_name}.{env_name}.json")
         return env

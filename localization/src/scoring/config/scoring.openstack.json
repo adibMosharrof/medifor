@@ -6,10 +6,7 @@
         "model_sys_predictions":"/home/ubuntu/adib/inputs/model_sys_predictions/",
         "metrics": "metrics/",
         "target_mask":"targets/manipulation/mask/",
-        "image_ref_csv":"reference/manipulation/image_ref.csv",
-        "model_name":{
-            "c8-lgb_local_40_nb_a":"c8-lgb_local_40_nb_a/mask/"
-        }
+        "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
     "threshold_step":0.03,
     "starting_index":0,

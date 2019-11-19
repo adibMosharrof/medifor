@@ -19,11 +19,12 @@ from shared.log_utils import LogUtils
 from shared.medifordata import MediforData
 from shared.timing import Timing
 from shared.path_utils import PathUtils
+from config.config_loader import ConfigLoader
 
-class Runner():
+class ScoringRunner():
     config_path = "../../configurations/scoring/"
     config_json = None
-    env_json = None
+    config = None
     email_json = None
     my_logger = None
     my_timing = None
@@ -31,10 +32,9 @@ class Runner():
     model_name = None
     
     def __init__(self):
-        self.env_json, self.email_json= JsonLoader.load_config_env_email("scoring")
-
-        self.model_name = self.env_json["model_name"]
-        output_dir = FolderUtils.create_output_folder(self.model_name,self.env_json["path"]["outputs"])
+        self.config , self.email_json = ConfigLoader.get_config()
+        self.model_name = self.config["model_name"]
+        output_dir = FolderUtils.create_output_folder(self.model_name,self.config["path"]["outputs"])
         self.my_logger = LogUtils.init_log(output_dir)
         self.my_timing = Timing(self.my_logger)
         self.log_configs()
@@ -45,14 +45,14 @@ class Runner():
         #self.emailsender.send(self.email_json)
      
     def log_configs(self):
-        self.my_logger.info("Threshold step: {0}".format(self.env_json["threshold_step"]))
+        self.my_logger.info("Threshold step: {0}".format(self.config["threshold_step"]))
 
     def start(self):
-        env_path = self.env_json['path']
-        sys_data_path = '{}{}'.format(env_path["model_sys_predictions"], env_path["model_name"][self.model_name])
-        image_ref_csv_path, ref_data_path = PathUtils.get_image_ref_paths(self.config_json, self.env_json['path'])
+        env_path = self.config['path']
+        sys_data_path = f"{env_path['predictions']}{self.config['predictions']}/"
+        image_ref_csv_path, ref_data_path, _, _ = PathUtils.get_paths(self.config)
 
-        starting_index, ending_index = JsonLoader.get_data_size(self.env_json)
+        starting_index, ending_index = JsonLoader.get_data_size(self.config)
         irb = ImgRefBuilder(image_ref_csv_path)
         img_refs = irb.get_img_ref(starting_index, ending_index)
         data = MediforData.get_data(img_refs, sys_data_path, ref_data_path)
@@ -62,20 +62,20 @@ class Runner():
         self.my_logger.info("Data Size {0}".format(len(data)))
         scorer = Scoring()
         try:
-            scorer.start(data, self.env_json["threshold_step"])
+            scorer.start(data, self.config["threshold_step"])
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
 
     def create_folder_for_output(self, model_name):
-        model_dir = '{}{}/'.format(self.env_json["path"]["outputs"], model_name)
+        model_dir = '{}{}/'.format(self.config["path"]["outputs"], model_name)
         output_folder_name = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_dir = model_dir+output_folder_name
         os.makedirs(output_dir)
         return output_dir
         
 if __name__ == '__main__':
-    r = Runner()
+    r = ScoringRunner()
     r.start()
     r.at_exit()
