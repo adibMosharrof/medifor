@@ -10,7 +10,7 @@
     "starting_index":1430,
     "ending_index":1432,
     "data":"MFC18_EvalPart1/",
-    "predictions":"",
+    "predictions":"single_layer_nn/128_4/server/20191118_095251",
     "model_name":"single_layer_nn"
 }
 

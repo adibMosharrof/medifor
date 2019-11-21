@@ -9,6 +9,9 @@
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
     "threshold_step":0.03,
-    "starting_index":0,
-    "ending_index":"all",
+    "starting_index":1430,
+    "ending_index":1500,
+    "data":"MFC18_EvalPart1/",
+    "predictions":"",
+    "model_name":"single_layer_nn"
 }

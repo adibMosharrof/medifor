@@ -90,7 +90,7 @@ class PredictionRunner():
         
         threshold_step = self.config['threshold_step']
         
-#         score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
+        score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
         print(self.output_dir)
         
     def _get_train_test_generators(self, train_batch_size, test_batch_size, 
@@ -165,7 +165,7 @@ class PredictionRunner():
         data = MediforData.get_data(img_refs, output_dir, ref_data_path)
         scorer = Scoring()
         try:
-            return scorer.start(data, threshold_step)
+            return scorer.start(data)
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)

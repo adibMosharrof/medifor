@@ -62,7 +62,7 @@ class ScoringRunner():
         self.my_logger.info("Data Size {0}".format(len(data)))
         scorer = Scoring()
         try:
-            scorer.start(data, self.config["threshold_step"])
+            scorer.start(data)
         except:
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
