@@ -26,9 +26,6 @@ class ConfigLoader():
         parser.add_argument('-w','--workers', type=int,
                     default=json_config['workers'],help='Num Worker')
         
-        parser.add_argument('-t','--threshold_step', type=int,
-                    default=json_config['threshold_step'],help='Threshold Step')
-        
         parser.add_argument('-trbs','--train_batch_size', type=int,
                     default=json_config['train_batch_size'],help='Training Batch Size')
         

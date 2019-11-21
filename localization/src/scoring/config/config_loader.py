@@ -20,9 +20,6 @@ class ConfigLoader():
         parser.add_argument('-mn','--model_name', type=str,
                     default=json_config['model_name'],help='Architecture Model Name')
  
-        parser.add_argument('-t','--threshold_step', type=int,
-                    default=json_config['threshold_step'],help='Threshold Step')
-        
         parser.add_argument('-d','--data', type=str,
                     default=json_config['data'],help='Dataset')
         

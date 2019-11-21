@@ -8,7 +8,6 @@
             "unet":"unet"
         }
     },
-    "threshold_step":0.1,
     "image_downscale_factor":4,
     "patch_shape":128,
     "train_batch_size":60,
