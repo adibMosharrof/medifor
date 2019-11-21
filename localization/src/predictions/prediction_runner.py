@@ -88,9 +88,8 @@ class PredictionRunner():
         recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
-        threshold_step = self.config['threshold_step']
         
-        score = self._get_score(img_refs, threshold_step, self.output_dir, ref_data_path)
+        score = self._get_score(img_refs, self.output_dir, ref_data_path)
         print(self.output_dir)
         
     def _get_train_test_generators(self, train_batch_size, test_batch_size, 
@@ -161,7 +160,7 @@ class PredictionRunner():
             ImageUtils.save_image(img_original_size, file_path)
                  
 
-    def _get_score(self, img_refs, threshold_step, output_dir, ref_data_path):
+    def _get_score(self, img_refs, output_dir, ref_data_path):
         data = MediforData.get_data(img_refs, output_dir, ref_data_path)
         scorer = Scoring()
         try:

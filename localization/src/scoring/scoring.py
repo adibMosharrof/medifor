@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shared.medifordata import MediforData
 from shared.image_utils import ImageUtils
-from mcc_binarized import MccBinarized
+from shared.mcc_binarized import MccBinarized
 import logging
 
 class Scoring(object):
