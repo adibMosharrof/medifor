@@ -54,6 +54,7 @@ class PredictionRunner():
     def __init__(self):
         self.config , self.email_json = ConfigLoader.get_config()
         model_name = self.config["model_name"]
+        print(model_name)
         self.patch_shape = self.config['patch_shape']
         img_downscale_factor = self.config['image_downscale_factor']
         output_folder = self.config["path"]["outputs"] + "predictions/"
