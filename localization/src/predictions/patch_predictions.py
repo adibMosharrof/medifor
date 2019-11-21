@@ -5,7 +5,7 @@ get model class
 train and test 
     splits
     execution
-reconstruct images from predictions    
+_reconstruct images from predictions    
 
 
 
@@ -40,24 +40,36 @@ from patches.patch_image_ref import PatchImageRefFactory
 from patch_train_data_generator import PatchTrainDataGenerator
 from patch_test_data_generator import PatchTestDataGenerator
 
+
 class PatchPredictions():
     
     def __init__(self, config):
-        self.config  = config
+        self.config = config
         model_name = self.config["model_name"]
         print(model_name)
         self.patch_shape = self.config['patch_shape']
         img_downscale_factor = self.config['image_downscale_factor']
         output_folder = self.config["path"]["outputs"] + "predictions/"
         self.output_dir = FolderUtils.create_predictions_output_folder(
-            model_name, self.patch_shape, img_downscale_factor, 
+            model_name, self.patch_shape, img_downscale_factor,
             output_folder)
         
         self.my_logger = LogUtils.init_log(self.output_dir)
         
+        self.patches_path, patch_img_ref_path, indicators_path, img_ref_csv, self.ref_data_path = PathUtils.get_paths_for_patches(self.config)
+        self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
+        
+        self.indicator_directories = PathUtils.get_indicator_directories(indicators_path)
+        self.patch_img_refs, self.ending_index = PatchImageRefFactory.get_img_refs_from_csv(
+            patch_img_ref_path, self.starting_index, self.ending_index)
+                
+        self.train_batch_size, self.test_batch_size, self.train_data_size, self.test_data_size, self.num_training_patches = self._get_test_train_data_size(
+            self.config, self.patch_img_refs, self.starting_index, self.ending_index)
+        
+        self.test_patch_img_refs = self.patch_img_refs[self.ending_index - self.test_data_size :]
+        
     def run(self):
         my_logger = logging.getLogger()
-        patches_path, patch_img_ref_path, indicators_path, img_ref_csv, ref_data_path = PathUtils.get_paths_for_patches(self.config)
         
         starting_index, ending_index = JsonLoader.get_data_size(self.config)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)
@@ -70,83 +82,65 @@ class PatchPredictions():
 
         test_patch_img_refs = patch_img_refs[ending_index - test_data_size :]
         
-        train_gen, test_gen = self._get_train_test_generators(
-            train_batch_size, test_batch_size, test_data_size, indicator_directories, 
+        train_gen, test_gen = self.get_data_generators(
+            train_batch_size, test_batch_size, test_data_size, indicator_directories,
             patches_path, self.patch_shape, num_training_patches, test_patch_img_refs)
         
         arch = self._get_architecture()
-        model = self._train_model(arch, indicator_directories, train_gen)
-        predictions = self._get_test_predictions(model, test_gen, test_data_size, test_batch_size)
-        recon = self._reconstruct_images_from_predictions(predictions, test_patch_img_refs)
+        model = self.train_model(arch, indicator_directories, train_gen)
+        predictions = self.make_predictions(model, test_gen, test_data_size, test_batch_size)
+        recon = self._reconstruct(predictions, test_patch_img_refs)
         img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
         
-        score = self._get_score(img_refs, self.output_dir, ref_data_path)
+        score = self.get_score(img_refs, self.output_dir, ref_data_path)
         print(self.output_dir)
         
-    def _get_train_test_generators(self, train_batch_size, test_batch_size, 
-            test_data_size,indicator_directories, patches_path, patch_shape, 
-            num_training_patches, test_patch_img_refs):
+    def get_data_generators(self):
         
         train_gen = PatchTrainDataGenerator(
-                        batch_size= train_batch_size,
-                        indicator_directories = indicator_directories,
-                        patches_path= patches_path,
+                        batch_size=self.train_batch_size,
+                        indicator_directories=self.indicator_directories,
+                        patches_path=self.patches_path,
                         patch_shape=self.patch_shape,
-                        num_patches = num_training_patches
+                        num_patches=self.num_training_patches
                         )
+        
         test_gen = PatchTestDataGenerator(
-                        batch_size= test_batch_size,
-                        indicator_directories = indicator_directories,
-                        patches_path= patches_path,
+                        batch_size=self.test_batch_size,
+                        indicator_directories=self.indicator_directories,
+                        patches_path=self.patches_path,
                         patch_shape=self.patch_shape,
-                        data_size = test_data_size,
-                        patch_img_refs = test_patch_img_refs
+                        data_size=self.test_data_size,
+                        patch_img_refs=self.test_patch_img_refs
                         )
         return train_gen, test_gen
         
-
-        
-    def _get_test_predictions(self, model, test_gen, data_size, batch_size):
-        predictions = []
-        for i in range(int(math.ceil(data_size/batch_size))):
-            x_list,y_list = test_gen.__getitem__(i)
-            for x in x_list:
-                predictions.append(model.predict(x))
-        return predictions
-        
-    def _train_model(self, arch, indicator_directories, train_gen):
-        model = arch.get_model(self.patch_shape, len(indicator_directories))
+    def train_model(self, train_gen):
+        arch = self._get_architecture()
+        model = arch.get_model(self.patch_shape, len(self.indicator_directories))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+        
         epochs = self.config["epochs"]
         workers = self.config["workers"]
-        if workers < 0:
-            workers = os.cpu_count()//2
+        
         model.fit_generator(generator=train_gen,
                                 epochs=epochs,
                                 use_multiprocessing=True,
-                                workers= workers,
+                                workers=workers,
                                 )
         return model
     
-    def _reconstruct_images_from_predictions(self, predictions, patch_img_refs):
-        for prediction , patch_img_ref in zip(predictions, patch_img_refs):
-#             prediction = 255- (prediction*255)
-            prediction = prediction*255
-            img_from_patches = PatchUtils.get_image_from_patches(
-                                    prediction, 
-                                    patch_img_ref.bordered_img_shape,
-                                    patch_img_ref.patch_window_shape)
-            img_without_border = ImageUtils.remove_border(
-                img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
-            img_original_size = cv2.resize(
-                img_without_border, patch_img_ref.original_img_shape)
-            file_name = f'{patch_img_ref.probe_file_id}.png'
-            file_path = self.output_dir+file_name
-            ImageUtils.save_image(img_original_size, file_path)
-                 
-
-    def _get_score(self, img_refs, output_dir, ref_data_path):
-        data = MediforData.get_data(img_refs, output_dir, ref_data_path)
+    def predict(self, model, test_gen):
+        predictions = []
+        for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
+            x_list, y_list = test_gen.__getitem__(i)
+            for x in x_list:
+                predictions.append(model.predict(x))
+        self._reconstruct(predictions)
+    
+    def get_score(self):
+        img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(self.test_patch_img_refs)
+        data = MediforData.get_data(img_refs, self.output_dir, self.ref_data_path)
         scorer = Scoring()
         try:
             return scorer.start(data)
@@ -155,13 +149,31 @@ class PatchPredictions():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)   
             
+    
+    def _reconstruct(self, predictions):
+        for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
+#             prediction = 255- (prediction*255)
+            prediction = prediction * 255
+            img_from_patches = PatchUtils.get_image_from_patches(
+                                    prediction,
+                                    patch_img_ref.bordered_img_shape,
+                                    patch_img_ref.patch_window_shape)
+            img_without_border = ImageUtils.remove_border(
+                img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+            img_original_size = cv2.resize(
+                img_without_border, patch_img_ref.original_img_shape)
+            file_name = f'{patch_img_ref.probe_file_id}.png'
+            file_path = self.output_dir + file_name
+            ImageUtils.save_image(img_original_size, file_path)
+
+
     def _get_test_train_data_size(self, env_json, patch_img_refs, starting_index, ending_index):
-        train_batch_size =env_json['train_batch_size']
+        train_batch_size = env_json['train_batch_size']
         test_batch_size = env_json['test_batch_size']
         train_data_size = env_json['train_data_size']
         num_training_patches = self._get_num_patches(patch_img_refs[:train_data_size])
         
-        test_data_size = ending_index-starting_index - train_data_size
+        test_data_size = ending_index - starting_index - train_data_size
         
         return train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches
     
@@ -180,6 +192,5 @@ class PatchPredictions():
         elif model_name == "single_layer_nn":
             from architectures.single_layer_nn import SingleLayerNN
             arch = SingleLayerNN()
-
-        return arch
+        return arch 
   
