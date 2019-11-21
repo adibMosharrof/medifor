@@ -26,6 +26,12 @@ class PatchTrainDataGenerator(Sequence):
         self.on_epoch_end()
         
     def __getitem__(self, index):
+        indicator_imgs, target_imgs = self.get_rows(index)
+        x = np.array(indicator_imgs).reshape(-1, self.patch_shape, self.patch_shape, len(self.indicator_directories) )
+        y = np.array(target_imgs).reshape(-1, self.patch_shape, self.patch_shape, 1)
+        return x,y
+        
+    def get_rows(self, index):
         starting_index = index*self.batch_size
         ending_index = (index+1)* self.batch_size
         
@@ -38,11 +44,7 @@ class PatchTrainDataGenerator(Sequence):
         target_imgs = []
         target_imgs_path = self.patches_path+ 'target_image'
         target_imgs = self._read_images_from_directory(target_imgs_path, starting_index, ending_index)
-        
-        x = np.array(indicator_imgs).reshape(-1, self.patch_shape, self.patch_shape, len(self.indicator_directories) )
-        y = np.array(target_imgs).reshape(-1, self.patch_shape, self.patch_shape, 1)
-        
-        return x,y
+        return indicator_imgs, target_imgs    
         
     def _read_images_from_directory(self, dir_path, starting_index, ending_index):
         img_names = os.listdir(dir_path)[starting_index:ending_index]
