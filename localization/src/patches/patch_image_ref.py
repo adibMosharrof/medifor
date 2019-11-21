@@ -1,6 +1,6 @@
 import csv
 from ast import literal_eval
-
+import math
 
 class PatchImageRef():
 
@@ -33,6 +33,8 @@ class PatchImageRefFactory():
     
     @staticmethod
     def get_img_refs_from_csv(csv_path, starting_index, ending_index):
+        if ending_index is -1:
+            ending_index = math.inf
         with open(csv_path, 'r') as f:
             reader = csv.reader(f)
             headers = next(reader)
@@ -50,4 +52,6 @@ class PatchImageRefFactory():
                     ))
                 if i is ending_index:
                     break
-        return patch_img_refs    
+        if ending_index == math.inf:
+            ending_index = len(patch_img_refs)
+        return patch_img_refs, ending_index

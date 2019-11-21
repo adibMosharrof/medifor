@@ -71,7 +71,7 @@ class PredictionRunner():
         starting_index, ending_index = JsonLoader.get_data_size(self.config)
         indicator_directories = PathUtils.get_indicator_directories(indicators_path)
         
-        patch_img_refs = PatchImageRefFactory.get_img_refs_from_csv(
+        patch_img_refs, ending_index = PatchImageRefFactory.get_img_refs_from_csv(
             patch_img_ref_path, starting_index, ending_index)
         
         train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches = self._get_test_train_data_size(
