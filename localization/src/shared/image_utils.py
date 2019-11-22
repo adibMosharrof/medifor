@@ -6,6 +6,7 @@ import logging
 import math
 from shared.log_utils import LogUtils
 
+
 class ImageUtils:
     
     my_logger = None
@@ -33,7 +34,7 @@ class ImageUtils:
     
     @staticmethod
     def save_image(img, path, error_message=None):
-        cv2.imwrite(path, img )
+        cv2.imwrite(path, img)
     
     @staticmethod
     def get_black_and_white_image(path):
@@ -52,9 +53,9 @@ class ImageUtils:
     @staticmethod
     def display_two(img1, img2):
         f = plt.figure()
-        f.add_subplot(1,2,1)
+        f.add_subplot(1, 2, 1)
         plt.imshow(img1)
-        f.add_subplot(1,2,2)
+        f.add_subplot(1, 2, 2)
         plt.imshow(img2)
         plt.show()
         
@@ -63,7 +64,7 @@ class ImageUtils:
         n = len(imgs)
         f = plt.figure()
         for i, img in enumerate(imgs):
-            f.add_subplot(1,n,i+1)
+            f.add_subplot(1, n, i + 1)
             plt.imshow(img)
         plt.show()
         
@@ -79,7 +80,7 @@ class ImageUtils:
     def add_border(img, patch_shape, top=None, left=None):
         top = top or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
         left = left or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
-        bordered = cv2.copyMakeBorder(img,top=top,bottom=0,left=left, right=0,borderType=cv2.BORDER_CONSTANT,value=[255,255,255])
+        bordered = cv2.copyMakeBorder(img, top=top, bottom=0, left=left, right=0, borderType=cv2.BORDER_CONSTANT, value=[255, 255, 255])
         return bordered, top, left
     
     @staticmethod
@@ -96,5 +97,5 @@ class ImageUtils:
         
     @staticmethod
     def shrink_image(img, image_downscale_factor):
-        return cv2.resize(img, (img.shape[1]//image_downscale_factor, img.shape[0]//image_downscale_factor))
+        return cv2.resize(img, (img.shape[1] // image_downscale_factor, img.shape[0] // image_downscale_factor))
         

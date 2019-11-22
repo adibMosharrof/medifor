@@ -1,7 +1,6 @@
 from sklearn.feature_extraction import image
 import numpy as np
 from numpy.lib import stride_tricks
-import tensorflow as tf
 from skimage.util.shape import view_as_windows
 from patchify import patchify, unpatchify 
 
