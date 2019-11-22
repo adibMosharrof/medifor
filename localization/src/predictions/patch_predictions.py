@@ -25,7 +25,6 @@ import math
 import matplotlib.pyplot as plt
 
 sys.path.append('..')
-from data_generator import DataGenerator
 from scoring.img_ref_builder import ImgRefBuilder
 from scoring.scoring import Scoring
 from shared.image_utils import ImageUtils
@@ -37,9 +36,10 @@ from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
 from shared.medifordata import MediforData
 from patches.patch_image_ref import PatchImageRefFactory
-from patch_train_data_generator import PatchTrainDataGenerator
-from patch_test_data_generator import PatchTestDataGenerator
-
+from data_generators.patch_train_data_generator import PatchTrainDataGenerator
+from data_generators.patch_test_data_generator import PatchTestDataGenerator
+from data_generators.pixel_train_data_generator import PixelTrainDataGenerator
+from data_generators.pixel_test_data_generator import PixelTestDataGenerator
 
 class PatchPredictions():
     
@@ -68,44 +68,23 @@ class PatchPredictions():
         
         self.test_patch_img_refs = self.patch_img_refs[self.ending_index - self.test_data_size :]
         
-    def run(self):
-        my_logger = logging.getLogger()
-        
-        starting_index, ending_index = JsonLoader.get_data_size(self.config)
-        indicator_directories = PathUtils.get_indicator_directories(indicators_path)
-        
-        patch_img_refs, ending_index = PatchImageRefFactory.get_img_refs_from_csv(
-            patch_img_ref_path, starting_index, ending_index)
-        
-        train_batch_size, test_batch_size, train_data_size, test_data_size, num_training_patches = self._get_test_train_data_size(
-            self.config, patch_img_refs, starting_index, ending_index)
-
-        test_patch_img_refs = patch_img_refs[ending_index - test_data_size :]
-        
-        train_gen, test_gen = self.get_data_generators(
-            train_batch_size, test_batch_size, test_data_size, indicator_directories,
-            patches_path, self.patch_shape, num_training_patches, test_patch_img_refs)
-        
-        arch = self._get_architecture()
-        model = self.train_model(arch, indicator_directories, train_gen)
-        predictions = self.make_predictions(model, test_gen, test_data_size, test_batch_size)
-        recon = self._reconstruct(predictions, test_patch_img_refs)
-        img_refs = ImgRefBuilder.get_img_ref_from_patch_ref(test_patch_img_refs)
-        
-        score = self.get_score(img_refs, self.output_dir, ref_data_path)
-        print(self.output_dir)
-        
     def get_data_generators(self):
-        
-        train_gen = PatchTrainDataGenerator(
+        train_gen = PixelTrainDataGenerator(
                         batch_size=self.train_batch_size,
                         indicator_directories=self.indicator_directories,
                         patches_path=self.patches_path,
                         patch_shape=self.patch_shape,
                         num_patches=self.num_training_patches
                         )
-        
-        test_gen = PatchTestDataGenerator(
+#         train_gen = PatchTrainDataGenerator(
+#                         batch_size=self.train_batch_size,
+#                         indicator_directories=self.indicator_directories,
+#                         patches_path=self.patches_path,
+#                         patch_shape=self.patch_shape,
+#                         num_patches=self.num_training_patches
+#                         )
+
+        test_gen = PixelTestDataGenerator(
                         batch_size=self.test_batch_size,
                         indicator_directories=self.indicator_directories,
                         patches_path=self.patches_path,

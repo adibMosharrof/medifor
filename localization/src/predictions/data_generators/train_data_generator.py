@@ -1,5 +1,4 @@
 import numpy as np
-import keras
 import random
 from tensorflow.python.keras.utils.data_utils import Sequence
 import os
@@ -13,7 +12,7 @@ import sys
 from shared.image_utils import ImageUtils
 from shared.patch_utils import PatchUtils
 
-class PatchTrainDataGenerator(Sequence):
+class TrainDataGenerator(Sequence):
     
     def __init__(self, batch_size=10, indicator_directories=[], 
                  shuffle=False, patches_path="", patch_shape=128, num_patches=8):
@@ -26,12 +25,6 @@ class PatchTrainDataGenerator(Sequence):
         self.on_epoch_end()
         
     def __getitem__(self, index):
-        indicator_imgs, target_imgs = self.get_rows(index)
-        x = np.array(indicator_imgs).reshape(-1, self.patch_shape, self.patch_shape, len(self.indicator_directories) )
-        y = np.array(target_imgs).reshape(-1, self.patch_shape, self.patch_shape, 1)
-        return x,y
-        
-    def get_rows(self, index):
         starting_index = index*self.batch_size
         ending_index = (index+1)* self.batch_size
         
