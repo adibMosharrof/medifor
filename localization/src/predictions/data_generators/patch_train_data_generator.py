@@ -21,4 +21,3 @@ class PatchTrainDataGenerator(TrainDataGenerator):
         x = np.array(indicator_imgs).reshape(-1, self.patch_shape, self.patch_shape, len(self.indicator_directories) )
         y = np.array(target_imgs).reshape(-1, self.patch_shape, self.patch_shape, 1)
         return x,y
-        

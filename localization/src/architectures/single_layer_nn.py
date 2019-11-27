@@ -1,7 +1,7 @@
 import numpy as np
-# import tensorflow as tf
-# from tensorflow import keras
-# tf.get_logger().setLevel('WARN')
+import tensorflow as tf
+from tensorflow import keras
+tf.get_logger().setLevel('WARN')
 
 class SingleLayerNN():
     

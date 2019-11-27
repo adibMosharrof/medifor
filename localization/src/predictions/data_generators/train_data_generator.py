@@ -8,13 +8,13 @@ from time import time
 import psutil
 import sys
 
-
 from shared.image_utils import ImageUtils
 from shared.patch_utils import PatchUtils
 
+
 class TrainDataGenerator(Sequence):
     
-    def __init__(self, batch_size=10, indicator_directories=[], 
+    def __init__(self, batch_size=10, indicator_directories=[],
                  shuffle=False, patches_path="", patch_shape=128, num_patches=8):
         self.batch_size = batch_size
         self.indicator_directories = indicator_directories
@@ -25,8 +25,8 @@ class TrainDataGenerator(Sequence):
         self.on_epoch_end()
         
     def __getitem__(self, index):
-        starting_index = index*self.batch_size
-        ending_index = (index+1)* self.batch_size
+        starting_index = index * self.batch_size
+        ending_index = (index + 1) * self.batch_size
         
         indicator_imgs = []
         for indicator_name in self.indicator_directories:
@@ -35,7 +35,7 @@ class TrainDataGenerator(Sequence):
             indicator_imgs.append(indicator_patches)
             
         target_imgs = []
-        target_imgs_path = self.patches_path+ 'target_image'
+        target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(target_imgs_path, starting_index, ending_index)
         return indicator_imgs, target_imgs    
         
@@ -53,4 +53,4 @@ class TrainDataGenerator(Sequence):
             random.shuffle(self.img_refs)
                     
     def __len__(self):
-        return int(np.ceil(self.num_patches/float(self.batch_size)))
+        return int(np.ceil(self.num_patches / float(self.batch_size)))

@@ -8,7 +8,7 @@ class PredictionRunner():
 
     def _get_handler(self, config):
         model_name = config['model_name']
-        if model_name in ["unet", "single_layer_nn"]:
+        if model_name in ["unet", "single_layer_nn", 'lr']:
             from patch_predictions import PatchPredictions
             return PatchPredictions(config)
         return None

@@ -74,15 +74,8 @@ class PatchPredictions():
                         indicator_directories=self.indicator_directories,
                         patches_path=self.patches_path,
                         patch_shape=self.patch_shape,
-                        num_patches=self.num_training_patches
+                        num_patches=self.num_training_patches,
                         )
-#         train_gen = PatchTrainDataGenerator(
-#                         batch_size=self.train_batch_size,
-#                         indicator_directories=self.indicator_directories,
-#                         patches_path=self.patches_path,
-#                         patch_shape=self.patch_shape,
-#                         num_patches=self.num_training_patches
-#                         )
 
         test_gen = PixelTestDataGenerator(
                         batch_size=self.test_batch_size,
@@ -92,29 +85,31 @@ class PatchPredictions():
                         data_size=self.test_data_size,
                         patch_img_refs=self.test_patch_img_refs
                         )
+        
         return train_gen, test_gen
         
     def train_model(self, train_gen):
         arch = self._get_architecture()
         model = arch.get_model(self.patch_shape, len(self.indicator_directories))
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
+#         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         
         epochs = self.config["epochs"]
         workers = self.config["workers"]
-        
         model.fit_generator(generator=train_gen,
                                 epochs=epochs,
                                 use_multiprocessing=True,
                                 workers=workers,
                                 )
+
         return model
     
     def predict(self, model, test_gen):
         predictions = []
         for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list = test_gen.__getitem__(i)
-            for x in x_list:
-                predictions.append(model.predict(x))
+#             for x in x_list:
+#                 predictions.append(model.predict(x))
+            predictions.append(model.predict(x_list))
         self._reconstruct(predictions)
     
     def get_score(self):
@@ -171,5 +166,9 @@ class PatchPredictions():
         elif model_name == "single_layer_nn":
             from architectures.single_layer_nn import SingleLayerNN
             arch = SingleLayerNN()
+        elif model_name == 'lr':
+            from architectures.lr import Lr
+            arch = Lr()
+            
         return arch 
   

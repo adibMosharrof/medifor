@@ -1,5 +1,6 @@
 import numpy as np
 from data_generators.test_data_generator import TestDataGenerator
+import itertools
 
 
 class PixelTestDataGenerator(TestDataGenerator):
@@ -26,8 +27,8 @@ class PixelTestDataGenerator(TestDataGenerator):
         y = []
         for patch_img_ref in patch_img_refs:
             _x, _y = self._get_row(patch_img_ref)
-            x.append(_x)
-            y.append(_y)
+            x = self.my_append(x, _x)
+            y = self.my_append(y,_y)
         return x, y
 
     def _get_row(self, patch_img_ref):
@@ -44,3 +45,10 @@ class PixelTestDataGenerator(TestDataGenerator):
                     x_inds.append(ind[i,j])
                 x.append(x_inds)
         return x,y
+    
+    def my_append(self, dest, new_item):
+        try:
+            dest = np.array(list(itertools.chain(dest, new_item)))
+        except TypeError:
+            dest = new_item
+        return dest 
