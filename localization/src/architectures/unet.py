@@ -47,4 +47,5 @@ class UNet():
         outputs = keras.layers.Conv2D(1, (1, 1), padding="same", activation="sigmoid")(u4)
         outputs = outputs[:,:,:,-1]
         model = keras.models.Model(inputs, outputs)
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         return model

@@ -17,6 +17,6 @@
     "epochs":1,
     "starting_index":0,
     "ending_index":2,
-    "model_name":"lr",
+    "model_name":"single_layer_nn",
     "data":"MFC18_EvalPart1/"
 }

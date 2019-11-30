@@ -12,4 +12,5 @@ class SingleLayerNN():
         outputs = keras.layers.Conv2D(1, (1, 1), padding="same", activation="sigmoid")(inputs)
         outputs = outputs[:,:,:,-1]
         model = keras.models.Model(inputs, outputs)
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
         return model
