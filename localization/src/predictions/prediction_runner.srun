@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=longgpu
+#SBATCH --partition=long
 #SBATCH --job-name=predictions
 #SBATCH --gres=gpu:1
 #SBATCH --output=/home/adibm/uoml/adib/outputs/predictions/talapas/%j.out
 #SBATCH --error=/home/adibm/uoml/adib/outputs/predictions/talapas/%j.err
 #SBATCH --account=uoml
 source activate adib
-python prediction_runner.py
+python prediction_runner.py -mn single_layer_nn
