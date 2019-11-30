@@ -2,25 +2,19 @@ import sys, os
 sys.path.append('..')
 
 from config.config_loader import ConfigLoader
+from patch_predictions import PatchPredictions
 
 
 class PredictionRunner():
 
-    def _get_handler(self, config):
-        model_name = config['model_name']
-        if model_name in ["unet", "single_layer_nn", 'lr']:
-            from patch_predictions import PatchPredictions
-            return PatchPredictions(config)
-        return None
-    
     def start(self):
         config , email_json = ConfigLoader.get_config()
-        prediction_handler = self._get_handler(config)
+        patch_pred = PatchPredictions(config)
         
-        train_gen, test_gen = prediction_handler.get_data_generators()
-        model = prediction_handler.train_model(train_gen)
-        prediction_handler.predict(model, test_gen)
-        score = prediction_handler.get_score()
+        train_gen, test_gen = patch_pred.get_data_generators()
+        model = patch_pred.train_model(train_gen)
+        patch_pred.predict(model, test_gen)
+        score = patch_pred.get_score()
         a = 1
 
 

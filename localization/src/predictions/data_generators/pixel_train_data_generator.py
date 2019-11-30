@@ -5,7 +5,7 @@ import math
 class PixelTrainDataGenerator(TrainDataGenerator):
     
     def __init__(self, batch_size=10, indicator_directories=[], 
-                 shuffle=False, patches_path="", patch_shape=128, num_patches=8, num_batch_patches = 2):
+                 shuffle=False, patches_path="", patch_shape=128, num_patches=8):
         self.num_patches = num_patches
         self.patch_shape = patch_shape
         self.batch_size = batch_size

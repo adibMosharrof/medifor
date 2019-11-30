@@ -36,10 +36,6 @@ from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
 from shared.medifordata import MediforData
 from patches.patch_image_ref import PatchImageRefFactory
-from data_generators.patch_train_data_generator import PatchTrainDataGenerator
-from data_generators.patch_test_data_generator import PatchTestDataGenerator
-from data_generators.pixel_train_data_generator import PixelTrainDataGenerator
-from data_generators.pixel_test_data_generator import PixelTestDataGenerator
 
 class PatchPredictions():
     
@@ -69,7 +65,8 @@ class PatchPredictions():
         self.test_patch_img_refs = self.patch_img_refs[self.ending_index - self.test_data_size :]
         
     def get_data_generators(self):
-        train_gen = PixelTrainDataGenerator(
+        train, test = self._get_data_generator_names()
+        train_gen = train(
                         batch_size=self.train_batch_size,
                         indicator_directories=self.indicator_directories,
                         patches_path=self.patches_path,
@@ -77,7 +74,7 @@ class PatchPredictions():
                         num_patches=self.num_training_patches,
                         )
 
-        test_gen = PixelTestDataGenerator(
+        test_gen = test(
                         batch_size=self.test_batch_size,
                         indicator_directories=self.indicator_directories,
                         patches_path=self.patches_path,
@@ -100,7 +97,6 @@ class PatchPredictions():
                                 use_multiprocessing=True,
                                 workers=workers,
                                 )
-
         return model
     
     def predict(self, model, test_gen):
@@ -158,6 +154,22 @@ class PatchPredictions():
             num_patches += window_shape[0] * window_shape[1]
         return num_patches    
     
+    def _get_data_generator_names(self):
+        model_name = self.config['model_name']
+        train = None
+        test = None 
+        if model_name in ["single_layer_nn", "unet"]:
+            from data_generators.patch_train_data_generator import PatchTrainDataGenerator
+            from data_generators.patch_test_data_generator import PatchTestDataGenerator
+            train = PatchTrainDataGenerator
+            test = PatchTestDataGenerator
+        elif model_name in ["lr"]:
+            from data_generators.pixel_train_data_generator import PixelTrainDataGenerator
+            from data_generators.pixel_test_data_generator import PixelTestDataGenerator
+            train = PixelTrainDataGenerator
+            test = PixelTestDataGenerator
+        return train, test
+                
     def _get_architecture(self):
         model_name = self.config['model_name']
         if model_name == "unet":
