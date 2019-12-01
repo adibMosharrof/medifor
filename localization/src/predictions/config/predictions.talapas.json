@@ -13,7 +13,7 @@
     "train_batch_size":5,
     "test_batch_size":5,
     "train_data_size":2000,
-    "workers":8,
+    "workers":4,
     "epochs":2,
     "starting_index":0,
     "ending_index":-1,
