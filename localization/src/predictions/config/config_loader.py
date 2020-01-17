@@ -23,6 +23,9 @@ class ConfigLoader():
         parser.add_argument('-e','--epochs', type=int,
                     default=json_config['epochs'],help='Num Epochs')
 
+        parser.add_argument('-m','--multiprocessing', type=bool,
+                    default=json_config['multiprocessing'],help='Multiprocessing')
+
         parser.add_argument('-w','--workers', type=int,
                     default=json_config['workers'],help='Num Worker')
         

@@ -10,13 +10,14 @@
     },
     "image_downscale_factor":4,
     "patch_shape":128,
-    "train_batch_size":100,
+    "train_batch_size":50,
     "test_batch_size":5,
     "train_data_size":2000,
-    "workers":2,
+    "workers":1,
     "epochs":2,
     "starting_index":0,
     "ending_index":-1,
-    "model_name":"single_layer_nn",
-    "data":"MFC18_EvalPart1/"
+    "model_name":"unet",
+    "data":"MFC18_EvalPart1/",
+    "multiprocessing":false
 }

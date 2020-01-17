@@ -92,11 +92,19 @@ class PatchPredictions():
         
         epochs = self.config["epochs"]
         workers = self.config["workers"]
-        model.fit_generator(generator=train_gen,
+        multiprocessing = self.config["multiprocessing"]
+        if multiprocessing:
+            model.fit_generator(generator=train_gen,
                                 epochs=epochs,
                                 use_multiprocessing=True,
                                 workers=workers,
                                 )
+        else:
+            model.fit_generator(generator=train_gen,
+                                epochs=epochs,
+                                use_multiprocessing=False
+                                )
+            
         return model
     
     def predict(self, model, test_gen):
@@ -122,8 +130,8 @@ class PatchPredictions():
     
     def _reconstruct(self, predictions):
         for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
-#             prediction = 255- (prediction*255)
-            prediction = prediction * 255
+            prediction = 255- (prediction*255)
+#             prediction = prediction * 255
             img_from_patches = PatchUtils.get_image_from_patches(
                                     prediction,
                                     patch_img_ref.bordered_img_shape,

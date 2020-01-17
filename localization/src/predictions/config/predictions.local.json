@@ -12,11 +12,12 @@
     "patch_shape":128,
     "train_batch_size":20,
     "test_batch_size":5,
-    "train_data_size":1,
+    "train_data_size":3,
     "workers":1,
     "epochs":1,
     "starting_index":0,
-    "ending_index":2,
+    "ending_index":4,
     "model_name":"single_layer_nn",
-    "data":"MFC18_EvalPart1/"
+    "data":"MFC18_EvalPart1/",
+    "multiprocessing":false
 }
