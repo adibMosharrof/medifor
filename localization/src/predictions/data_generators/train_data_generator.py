@@ -15,14 +15,14 @@ from shared.patch_utils import PatchUtils
 class TrainDataGenerator(Sequence):
     
     def __init__(self, batch_size=10, indicator_directories=[],
-                 shuffle=False, patches_path="", patch_shape=128, num_patches=8, dilate_y=False):
+                 shuffle=False, patches_path="", patch_shape=128, num_patches=8, patch_tuning=None):
         self.batch_size = batch_size
         self.indicator_directories = indicator_directories
         self.shuffle = shuffle
         self.patches_path = patches_path
         self.patch_shape = patch_shape
         self.num_patches = num_patches
-        self.dilate_y = dilate_y
+        self.patch_tuning = patch_tuning
         self.on_epoch_end()
         
     def __getitem__(self, index):
@@ -39,8 +39,10 @@ class TrainDataGenerator(Sequence):
         target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(target_imgs_path, starting_index, ending_index)
         
-        if self.dilate_y:
+        if self.patch_tuning['dilate_y']:
             target_imgs = self.dilate(target_imgs)
+        elif self.patch_tuning['patch_black']:
+            target_imgs = self.patch_black(target_imgs)
         return indicator_imgs, target_imgs    
         
     def _read_images_from_directory(self, dir_path, starting_index, ending_index):
@@ -60,6 +62,16 @@ class TrainDataGenerator(Sequence):
             dilated_imgs.append(dilated_img)
 #             ImageUtils.display_multiple(img, dilated_img)
         return dilated_imgs
+
+    def patch_black(self, imgs):
+        patch_black = []
+        for img in imgs:
+            if len(np.nonzero( img < 255)[0]):
+                new_img= np.zeros(img.shape)
+                patch_black.append(new_img) 
+            else:
+                patch_black.append(img)
+        return patch_black
     
     def on_epoch_end(self):
         if self.shuffle is True:    

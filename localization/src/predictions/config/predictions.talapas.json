@@ -20,5 +20,8 @@
     "model_name":"single_layer_nn",
     "data":"MFC18_EvalPart1/",
     "multiprocessing":false,
-    "dilate_y":true
+    "patch_tuning":{
+        "dilate_y":false,
+        "patch_black":false
+    }
 }

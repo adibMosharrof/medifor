@@ -39,7 +39,10 @@ class ConfigLoader():
                     default=json_config['train_data_size'],help='Number of images to train on')
 
         parser.add_argument('-dy','--dilate_y', type=str,
-                    default=json_config['dilate_y'],help='Dilate y')
+                    default=json_config['patch_tuning']['dilate_y'],help='Dilate y')
+
+        parser.add_argument('-pb','--patch_black', type=str,
+                    default=json_config['patch_tuning']['patch_black'],help='Patch Black')    
 
         parser.add_argument('-d','--data', type=str,
                     default=json_config['data'],help='Dataset')

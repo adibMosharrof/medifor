@@ -19,7 +19,7 @@ class TestDataGenerator(Sequence):
     def __init__(self,
                 batch_size=3, indicator_directories=[],
                 shuffle=False, patches_path="", patch_shape=128,
-                data_size=8, patch_img_refs=[], dilate_y=False):
+                data_size=8, patch_img_refs=[], patch_tuning=False):
         
         self.batch_size = batch_size
         self.indicator_directories = indicator_directories
@@ -28,7 +28,7 @@ class TestDataGenerator(Sequence):
         self.patch_shape = patch_shape
         self.data_size = data_size
         self.patch_img_refs = patch_img_refs
-        self.dilate_y = dilate_y
+        self.patch_tuning = patch_tuning
         self.on_epoch_end()
         
     def __getitem__(self, patch_img_ref):
