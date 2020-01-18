@@ -19,5 +19,6 @@
     "ending_index":4,
     "model_name":"single_layer_nn",
     "data":"MFC18_EvalPart1/",
-    "multiprocessing":false
+    "multiprocessing":false,
+    "dilate_y":true
 }

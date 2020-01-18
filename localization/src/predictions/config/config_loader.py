@@ -38,6 +38,9 @@ class ConfigLoader():
         parser.add_argument('-tds','--train_data_size', type=int,
                     default=json_config['train_data_size'],help='Number of images to train on')
 
+        parser.add_argument('-dy','--dilate_y', type=str,
+                    default=json_config['dilate_y'],help='Dilate y')
+
         parser.add_argument('-d','--data', type=str,
                     default=json_config['data'],help='Dataset')
 

@@ -7,14 +7,15 @@ class PatchTestDataGenerator(TestDataGenerator):
     def __init__(self,
                 batch_size=3, indicator_directories=[],
                 shuffle=False, patches_path="", patch_shape=128,
-                data_size=8, patch_img_refs=[]):
+                data_size=8, patch_img_refs=[], dilate_y=False):
         
        super().__init__(batch_size=batch_size,
                         indicator_directories=indicator_directories,
                         patches_path=patches_path,
                         patch_shape=patch_shape,
                         data_size=data_size,
-                        patch_img_refs=patch_img_refs) 
+                        patch_img_refs=patch_img_refs,
+                        dilate_y = dilate_y) 
         
     def __getitem__(self, index):
         patch_img_refs = self.patch_img_refs[index * self.batch_size:(index + 1) * self.batch_size]   

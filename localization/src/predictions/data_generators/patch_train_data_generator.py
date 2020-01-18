@@ -12,9 +12,9 @@ from data_generators.train_data_generator import TrainDataGenerator
 class PatchTrainDataGenerator(TrainDataGenerator):
     
     def __init__(self, batch_size=10, indicator_directories=[], 
-                 shuffle=False, patches_path="", patch_shape=128, num_patches=8):
+                 shuffle=False, patches_path="", patch_shape=128, num_patches=8,dilate_y=False):
         super().__init__(batch_size, indicator_directories, 
-                 shuffle, patches_path, patch_shape, num_patches)
+                 shuffle, patches_path, patch_shape, num_patches, dilate_y = dilate_y)
         
     def __getitem__(self, index):
         indicator_imgs, target_imgs = super().__getitem__(index) 

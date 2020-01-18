@@ -15,13 +15,14 @@ from shared.patch_utils import PatchUtils
 class TrainDataGenerator(Sequence):
     
     def __init__(self, batch_size=10, indicator_directories=[],
-                 shuffle=False, patches_path="", patch_shape=128, num_patches=8):
+                 shuffle=False, patches_path="", patch_shape=128, num_patches=8, dilate_y=False):
         self.batch_size = batch_size
         self.indicator_directories = indicator_directories
         self.shuffle = shuffle
         self.patches_path = patches_path
         self.patch_shape = patch_shape
         self.num_patches = num_patches
+        self.dilate_y = dilate_y
         self.on_epoch_end()
         
     def __getitem__(self, index):
@@ -37,6 +38,9 @@ class TrainDataGenerator(Sequence):
         target_imgs = []
         target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(target_imgs_path, starting_index, ending_index)
+        
+        if self.dilate_y:
+            target_imgs = self.dilate(target_imgs)
         return indicator_imgs, target_imgs    
         
     def _read_images_from_directory(self, dir_path, starting_index, ending_index):
@@ -47,6 +51,15 @@ class TrainDataGenerator(Sequence):
             img = ImageUtils.read_image(img_path)
             imgs.append(img)
         return imgs
+    
+    def dilate(self, imgs):
+        dilated_imgs = []
+        for img in imgs:
+            kernel = np.ones((5,5),np.uint8)
+            dilated_img = cv2.erode(img,kernel,iterations = 2)
+            dilated_imgs.append(dilated_img)
+#             ImageUtils.display_multiple(img, dilated_img)
+        return dilated_imgs
     
     def on_epoch_end(self):
         if self.shuffle is True:    
