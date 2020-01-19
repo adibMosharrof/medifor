@@ -51,15 +51,6 @@ class ImageUtils:
         return cv2.resize(img, size_tuple)
     
     @staticmethod
-    def display_two(img1, img2):
-        f = plt.figure()
-        f.add_subplot(1, 2, 1)
-        plt.imshow(img1)
-        f.add_subplot(1, 2, 2)
-        plt.imshow(img2)
-        plt.show()
-        
-    @staticmethod
     def display_multiple(*imgs):
         n = len(imgs)
         f = plt.figure()
