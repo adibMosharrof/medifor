@@ -142,6 +142,7 @@ class PatchPredictions():
                                     patch_img_ref.bordered_img_shape,
                                     patch_img_ref.patch_window_shape)
             except:
+                print("failed reconstruction")
                 img_from_patches = np.ones(patch_img_ref.bordered_img_shape)
             img_without_border = ImageUtils.remove_border(
                     img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
