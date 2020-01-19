@@ -115,9 +115,8 @@ class PatchPredictions():
         predictions = []
         for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list = test_gen.__getitem__(i)
-#             for x in x_list:
-#                 predictions.append(model.predict(x))
-            predictions.append(model.predict(x_list))
+            for x in x_list:
+                predictions.append(model.predict(x))
         self._reconstruct(predictions)
     
     def get_score(self):
