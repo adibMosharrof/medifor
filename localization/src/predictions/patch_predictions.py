@@ -136,12 +136,15 @@ class PatchPredictions():
         for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
 #             prediction = 255- (prediction*255)
             prediction = prediction * 255
-            img_from_patches = PatchUtils.get_image_from_patches(
+            try:
+                img_from_patches = PatchUtils.get_image_from_patches(
                                     prediction,
                                     patch_img_ref.bordered_img_shape,
                                     patch_img_ref.patch_window_shape)
+            except:
+                img_from_patches = np.ones(patch_img_ref.bordered_img_shape)
             img_without_border = ImageUtils.remove_border(
-                img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+                    img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
             img_original_size = cv2.resize(
                 img_without_border, patch_img_ref.original_img_shape)
             file_name = f'{patch_img_ref.probe_file_id}.png'
