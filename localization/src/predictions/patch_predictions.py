@@ -21,7 +21,8 @@ import numpy as np
 import multiprocessing
 from datetime import datetime
 import math
-
+from tensorflow.keras.models import load_model
+import itertools
 import matplotlib.pyplot as plt
 
 sys.path.append('..')
@@ -90,6 +91,11 @@ class PatchPredictions():
         return train_gen, test_gen
         
     def train_model(self, train_gen):
+#         try:
+#             model = load_model('my_model.h5')
+#             return model
+#         except:
+#             model = None
         arch = self._get_architecture()
         model = arch.get_model(self.patch_shape, len(self.indicator_directories))
 #         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
@@ -108,7 +114,7 @@ class PatchPredictions():
                                 epochs=epochs,
                                 use_multiprocessing=False
                                 )
-            
+#         model.save('my_model.h5')    
         return model
     
     def predict(self, model, test_gen):
@@ -199,3 +205,9 @@ class PatchPredictions():
             
         return arch 
   
+    def my_append(self, dest, new_item):
+        try:
+            dest = np.array(list(itertools.chain(dest, new_item)))
+        except TypeError:
+            dest = new_item
+        return dest 
