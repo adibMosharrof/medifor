@@ -55,4 +55,12 @@ class ConfigLoader():
 
         config = vars(parser.parse_args())
         json_config.update(config)
+        ConfigLoader.print_config(json_config)
         return json_config, email
+    
+    @staticmethod
+    def print_config(config):
+        print(f"traing data size {config.train_data_size}" )
+        print(f"test data size {config.ending_index - config.starting_index - config.train_data_size}" )
+        print(f"Model name {config.model_name")
+        

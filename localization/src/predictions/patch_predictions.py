@@ -7,8 +7,6 @@ train and test
     execution
 _reconstruct images from predictions    
 
-
-
 '''
 import sys, os
 from pathlib import Path
