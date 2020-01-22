@@ -62,5 +62,5 @@ class ConfigLoader():
     def print_config(config):
         print(f"traing data size {config.train_data_size}" )
         print(f"test data size {config.ending_index - config.starting_index - config.train_data_size}" )
-        print(f"Model name {config.model_name")
+        print(f"Model name {config.model_name}")
         
