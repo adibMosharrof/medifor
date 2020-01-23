@@ -54,6 +54,11 @@ class ConfigLoader():
                     default=json_config['patch_shape'],help='Patch Shape')
 
         config = vars(parser.parse_args())
+        
+        config['patch_tuning'] = {'dilate_y':bool(config['dilate_y']), 'patch_black':bool(config['patch_black'])}
+        for param in ["patch_black", "dilate_y"]:
+            del config[param]
+            
         json_config.update(config)
         ConfigLoader.print_config(json_config)
         return json_config, email
@@ -63,4 +68,5 @@ class ConfigLoader():
         print(f"traing data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
+        print(f"Patch tuning {config['patch_tuning']}")
         
