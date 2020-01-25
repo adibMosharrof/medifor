@@ -10,7 +10,6 @@ _reconstruct images from predictions
 '''
 import sys, os
 from pathlib import Path
-import graphviz
 import json
 import logging
 import cv2
@@ -64,8 +63,6 @@ class PatchPredictions():
         self.test_patch_img_refs = self.patch_img_refs[self.ending_index - self.test_data_size :]
         
     def get_data_generators(self):
-        print(self.config['patch_tuning'])
-        
         train, test = self._get_data_generator_names()
         train_gen = train(
                         batch_size=self.train_batch_size,
@@ -94,6 +91,7 @@ class PatchPredictions():
 #             return model
 #         except:
 #             model = None
+            
         arch = self._get_architecture()
         model = arch.get_model(self.patch_shape, len(self.indicator_directories))
 #         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["acc"])
@@ -139,22 +137,41 @@ class PatchPredictions():
         for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
 #             prediction = 255- (prediction*255)
             prediction = prediction * 255
-            try:
-                img_from_patches = PatchUtils.get_image_from_patches(
-                                    prediction,
-                                    patch_img_ref.bordered_img_shape,
-                                    patch_img_ref.patch_window_shape)
-            except:
-                print("failed reconstruction")
-                img_from_patches = np.ones(patch_img_ref.bordered_img_shape)
-            img_without_border = ImageUtils.remove_border(
-                    img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+            
+           
+            if self.config['model_name'] in ["single_layer_nn", "unet"]:
+                img = self._reconstruct_image_from_patches(predictions, patch_img_ref)
+            else:
+                img = prediction
+#             try:
+#                 img_from_patches = PatchUtils.get_image_from_patches(
+#                                     prediction,
+#                                     patch_img_ref.bordered_img_shape,
+#                                     patch_img_ref.patch_window_shape)
+#             except:
+#                 print("failed reconstruction")
+#                 img_from_patches = np.ones(patch_img_ref.bordered_img_shape)
+#             img_without_border = ImageUtils.remove_border(
+#                     img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+#             img_original_size = cv2.resize(
+#                 img_without_border, patch_img_ref.original_img_shape)
+            
             img_original_size = cv2.resize(
-                img_without_border, patch_img_ref.original_img_shape)
+                img, patch_img_ref.original_img_shape)
+            
             file_name = f'{patch_img_ref.probe_file_id}.png'
             file_path = self.output_dir + file_name
             ImageUtils.save_image(img_original_size, file_path)
 
+    def _reconstruct_image_from_patches(self, predictions, patch_img_ref):
+        img_from_patches = PatchUtils.get_image_from_patches(
+                                    prediction,
+                                    patch_img_ref.bordered_img_shape,
+                                    patch_img_ref.patch_window_shape)
+        img_without_border = ImageUtils.remove_border(
+                img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
+        
+    
 
     def _get_test_train_data_size(self, env_json, patch_img_refs, starting_index, ending_index):
         train_batch_size = env_json['train_batch_size']
