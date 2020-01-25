@@ -8,7 +8,7 @@ class PixelTestDataGenerator(TestDataGenerator):
     def __init__(self,
                 batch_size=3, indicator_directories=[],
                 shuffle=False, patches_path="", patch_shape=128,
-                data_size=8, patch_img_refs=[]):
+                data_size=8, patch_img_refs=[],patch_tuning=None):
         
         self.indicator_directories = indicator_directories
         self.patch_shape = patch_shape
@@ -18,7 +18,7 @@ class PixelTestDataGenerator(TestDataGenerator):
                         patches_path=patches_path,
                         patch_shape=patch_shape,
                         data_size=data_size,
-                        patch_img_refs=patch_img_refs) 
+                        patch_img_refs=patch_img_refs,patch_tuning=patch_tuning) 
         
     def __getitem__(self, index):
         patch_img_refs = self.patch_img_refs[index * self.batch_size:(index + 1) * self.batch_size]   
@@ -27,9 +27,11 @@ class PixelTestDataGenerator(TestDataGenerator):
         y = []
         for patch_img_ref in patch_img_refs:
             _x, _y = self._get_row(patch_img_ref)
-            x = self.my_append(x, _x)
-            y = self.my_append(y,_y)
-        return x, y
+#             x = self.my_append(x, _x)
+#             y = self.my_append(y,_y)
+            x.append(_x)
+            y.append(_y)
+        return np.array(x), np.array(y)
 
     def _get_row(self, patch_img_ref):
         x_patches, y_patches = super().__getitem__(patch_img_ref)
@@ -44,7 +46,7 @@ class PixelTestDataGenerator(TestDataGenerator):
                 for ind in _x:
                     x_inds.append(ind[i,j])
                 x.append(x_inds)
-        return x,y
+        return np.array(x),np.array(y)
     
     def my_append(self, dest, new_item):
         try:
