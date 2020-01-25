@@ -8,25 +8,25 @@ class UNet():
     def __init__(self):
         a = 1
     
-    def down_block(self,x, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def down_block(self,x, filters, kernel_size=(5, 5), padding="same", strides=1):
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(x)
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
         p = keras.layers.MaxPool2D((2, 2), (2, 2))(c)
         return c, p
 
-    def up_block(self,x, skip, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def up_block(self,x, skip, filters, kernel_size=(5, 5), padding="same", strides=1):
         us = keras.layers.UpSampling2D((2, 2))(x)
         concat = keras.layers.Concatenate()([us, skip])
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(concat)
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
         return c
     
-    def bottleneck(self,x, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def bottleneck(self,x, filters, kernel_size=(5, 5), padding="same", strides=1):
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(x)
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
         return c
     
-    def get_model(self, image_size, num_indicators, layers=3):
+    def get_model(self, image_size, num_indicators, layers=2):
         f = np.around(np.geomspace(image_size/2**(layers-1), image_size, num=layers)).astype('uint8')
 #         f = [8, 16, 32, 64, 128]
         inputs = keras.layers.Input((image_size, image_size, num_indicators))
