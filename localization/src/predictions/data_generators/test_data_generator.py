@@ -19,7 +19,7 @@ class TestDataGenerator(Sequence):
     def __init__(self,
                 batch_size=3, indicator_directories=[],
                 shuffle=False, patches_path="", patch_shape=128,
-                data_size=8, patch_img_refs=[], patch_tuning=False):
+                data_size=8, patch_img_refs=[], patch_tuning=None):
         
         self.batch_size = batch_size
         self.indicator_directories = indicator_directories

@@ -5,12 +5,12 @@ import math
 class PixelTrainDataGenerator(TrainDataGenerator):
     
     def __init__(self, batch_size=10, indicator_directories=[], 
-                 shuffle=False, patches_path="", patch_shape=128, num_patches=8):
+                 shuffle=False, patches_path="", patch_shape=128, num_patches=8,patch_tuning=None):
         self.num_patches = num_patches
         self.patch_shape = patch_shape
         self.batch_size = batch_size
         super().__init__(batch_size, indicator_directories, 
-                 shuffle, patches_path, patch_shape, num_patches)
+                 shuffle, patches_path, patch_shape, num_patches,patch_tuning=patch_tuning)
         
     def __getitem__(self, index):
         starting_index = index*self.batch_size
