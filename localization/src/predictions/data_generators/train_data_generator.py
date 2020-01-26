@@ -40,7 +40,8 @@ class TrainDataGenerator(Sequence):
         target_imgs = self._read_images_from_directory(target_imgs_path, starting_index, ending_index)
         
         if self.patch_tuning['dilate_y']:
-            target_imgs = self.dilate(target_imgs)
+            for img in target_imgs:
+                target_imgs.append(ImageUtils.dilate(img))
         elif self.patch_tuning['patch_black']:
             target_imgs = self.patch_black(target_imgs)
         return indicator_imgs, target_imgs    
@@ -53,15 +54,6 @@ class TrainDataGenerator(Sequence):
             img = ImageUtils.read_image(img_path)
             imgs.append(img)
         return imgs
-    
-    def dilate(self, imgs):
-        dilated_imgs = []
-        for img in imgs:
-            kernel = np.ones((5,5),np.uint8)
-            dilated_img = cv2.erode(img,kernel,iterations = 2)
-            dilated_imgs.append(dilated_img)
-#             ImageUtils.display_multiple(img, dilated_img)
-        return dilated_imgs
 
     def patch_black(self, imgs):
         patch_black = []

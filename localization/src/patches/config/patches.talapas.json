@@ -9,5 +9,10 @@
     "image_downscale_factor":4,
     "starting_index":0,
     "ending_index":"all",
-    "data":"MFC18_EvalPart1/"
+    "data":"MFC18_EvalPart1/",
+    "tuning":{
+        "dilate_y": false,
+        "black_border_y": false,
+        "dilate_y_black_border_y":false
+    }
 }

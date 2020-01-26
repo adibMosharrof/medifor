@@ -10,10 +10,10 @@ class FolderUtils:
         return FolderUtils.make_dir(output_dir)
     
     @staticmethod
-    def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators):
-        output_dir_path = '{}{}_{}'.format(output_path, patch_shape, img_downscale_factor)
+    def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning):
+        output_dir_path = FolderUtils._get_patch_output_folder_name(output_path, patch_shape, img_downscale_factor, tuning)
         output_dir =  FolderUtils.make_dir(output_dir_path)
-        for indicator in indicators:
+        for indicator in indicators:    
             FolderUtils.make_dir(FolderUtils.make_dir(output_dir+ indicator))
         FolderUtils.make_dir(output_dir+ 'target_image')
         return output_dir
@@ -27,6 +27,15 @@ class FolderUtils:
     @staticmethod
     def _get_timestamp():
         return datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    @staticmethod
+    def _get_patch_output_folder_name(output_path, patch_shape,img_downscale_factor, tuning):
+        name = ''
+        for key, value in tuning.items():
+            if value is True:
+                name = key +'/'
+        return '{}{}{}_{}'.format(output_path,name, patch_shape, img_downscale_factor)
+        
     
     @staticmethod
     def make_dir(path):

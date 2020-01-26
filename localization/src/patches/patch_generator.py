@@ -14,12 +14,13 @@ from patch_image_ref import PatchImageRefFactory
 
 class PatchGenerator:
     
-    def __init__(self, output_dir, indicators_path, patch_shape, img_downscale_factor):
+    def __init__(self, output_dir, indicators_path, patch_shape, img_downscale_factor, tuning):
         self.output_dir = output_dir
         self.patch_shape = patch_shape, patch_shape
         self.indicators_path = indicators_path
         self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
         self.img_downscale_factor = img_downscale_factor
+        self.tuning = tuning
         
     def create_img_patches(self, img_refs, targets_path):
         patch_img_refs = []
@@ -35,7 +36,14 @@ class PatchGenerator:
 
     def _create_img_patch(self, img_ref, targets_path):
         target_image_path = os.path.join(targets_path, "manipulation", "mask", img_ref.ref_mask_file_name) + ".png"
-        bordered_img, border_top, border_left, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor)
+        
+        border_value = [255,255,255]
+        if self.tuning['black_border_y'] is True or self.tuning['dilate_y_black_border_y'] is True:
+            border_value = [0,0,0]
+        
+        bordered_img, border_top, border_left, original_img_shape = ImageUtils.get_image_with_border(target_image_path, self.patch_shape, self.img_downscale_factor, border_value= border_value)
+        if self.tuning["dilate_y"] is True:
+            diluted_target = ImageUtils.dilate(bordered_img)
         target_image_out_dir = self.output_dir + 'target_image/'
         bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
         for i, patch in enumerate(bordered_image_patches):

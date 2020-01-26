@@ -60,18 +60,18 @@ class ImageUtils:
         plt.show()
         
     @staticmethod
-    def get_image_with_border(path, patch_shape, image_downscale_factor, top=None, left=None):
+    def get_image_with_border(path, patch_shape, image_downscale_factor, border_value=[255,255,255], top=None, left=None):
 #         img = ImageUtils.read_image(path, normalize=True)
         original_img = ImageUtils.read_image(path)
         img = ImageUtils.shrink_image(original_img, image_downscale_factor)
-        bordered, top, left = ImageUtils.add_border(img, patch_shape, top=top, left=left)
+        bordered, top, left = ImageUtils.add_border(img, patch_shape, border_value=border_value, top=top, left=left)
         return bordered, top, left, original_img.shape
         
     @staticmethod
-    def add_border(img, patch_shape, top=None, left=None):
+    def add_border(img, patch_shape, border_value=[255,255,255], top=None, left=None):
         top = top or ImageUtils.get_border_pixels(img.shape[0], patch_shape[0])
         left = left or ImageUtils.get_border_pixels(img.shape[1], patch_shape[1])
-        bordered = cv2.copyMakeBorder(img, top=top, bottom=0, left=left, right=0, borderType=cv2.BORDER_CONSTANT, value=[255, 255, 255])
+        bordered = cv2.copyMakeBorder(img, top=top, bottom=0, left=left, right=0, borderType=cv2.BORDER_CONSTANT, value=border_value)
         return bordered, top, left
     
     @staticmethod
@@ -90,3 +90,8 @@ class ImageUtils:
     def shrink_image(img, image_downscale_factor):
         return cv2.resize(img, (img.shape[1] // image_downscale_factor, img.shape[0] // image_downscale_factor))
         
+    @staticmethod
+    def dilate(img):
+        kernel = np.ones((15,15),np.uint8)
+        dilated_img = cv2.erode(img,kernel,iterations = 3)
+        return dilated_img
