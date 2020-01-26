@@ -8,7 +8,7 @@
     "patch_shape":"128",
     "image_downscale_factor":4,
     "starting_index":0,
-    "ending_index":"all",
+    "ending_index":-1,
     "data":"MFC18_EvalPart1/",
     "tuning":{
         "dilate_y": false,
