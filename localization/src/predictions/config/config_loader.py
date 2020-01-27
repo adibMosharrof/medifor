@@ -81,7 +81,7 @@ class ConfigLoader():
     def _get_patch_data_type(code):
         dict = {
             "dy":"dilate_y/",
-            "bb":"border_black/",
+            "bb":"black_border_y/",
             "dybb":"dilate_y_black_border_y/",
             "d":""
         }
