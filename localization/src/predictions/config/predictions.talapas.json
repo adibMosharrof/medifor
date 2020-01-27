@@ -23,5 +23,6 @@
     "patch_tuning":{
         "dilate_y":false,
         "patch_black":false
-    }
+    },
+    "patch_data_type":""    
 }

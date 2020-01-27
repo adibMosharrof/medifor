@@ -22,7 +22,7 @@ class PathUtils:
     @staticmethod
     def get_paths_for_patches(env_json):
         env_path = env_json['path']
-        patches = f"{env_path['outputs']}patches/{env_json['patch_shape']}_{env_json['image_downscale_factor']}/"
+        patches = f"{env_path['outputs']}patches/{env_json['patch_data_type']}{env_json['patch_shape']}_{env_json['image_downscale_factor']}/"
         patch_img_ref_csv = f"{patches}patch_image_ref.csv"
         indicators = f"{env_path['data']}{env_json['data']}indicators/"
         data_path = env_path['data'] + env_json['data']

@@ -52,8 +52,14 @@ class ConfigLoader():
         
         parser.add_argument('-ps','--patch_shape', type=int,
                     default=json_config['patch_shape'],help='Patch Shape')
+        
+        parser.add_argument('-pdt','--patch_data_type', type=str,
+                    default=json_config['patch_data_type'],help='Patch Data Type')
+        
 
         config = vars(parser.parse_args())
+        
+        config['patch_data_type'] = ConfigLoader._get_patch_data_type(config["patch_data_type"])
         
         config['patch_tuning'] = {'dilate_y':bool(config['dilate_y']), 'patch_black':bool(config['patch_black'])}
         for param in ["patch_black", "dilate_y"]:
@@ -65,8 +71,19 @@ class ConfigLoader():
     
     @staticmethod
     def print_config(config):
+        print(f"Patch data type {config['patch_data_type'] or 'default'}" )
         print(f"traing data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
         print(f"Patch tuning {config['patch_tuning']}")
+    
+    @staticmethod
+    def _get_patch_data_type(code):
+        dict = {
+            "dy":"dilate_y/",
+            "bb":"border_black/",
+            "dybb":"dilate_y_black_border_y/",
+            "d":""
+        }
+        return dict[code]
         
