@@ -140,7 +140,7 @@ class PatchPredictions():
             
            
             if self.config['model_name'] in ["single_layer_nn", "unet"]:
-                img = self._reconstruct_image_from_patches(predictions, patch_img_ref)
+                img = self._reconstruct_image_from_patches(prediction, patch_img_ref)
             else:
                 img = prediction
 #             try:
@@ -163,7 +163,7 @@ class PatchPredictions():
             file_path = self.output_dir + file_name
             ImageUtils.save_image(img_original_size, file_path)
 
-    def _reconstruct_image_from_patches(self, predictions, patch_img_ref):
+    def _reconstruct_image_from_patches(self, prediction, patch_img_ref):
         img_from_patches = PatchUtils.get_image_from_patches(
                                     prediction,
                                     patch_img_ref.bordered_img_shape,
