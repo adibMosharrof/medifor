@@ -171,7 +171,7 @@ class PatchPredictions():
         img_without_border = ImageUtils.remove_border(
                 img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
         
-    
+        return img_without_border
 
     def _get_test_train_data_size(self, env_json, patch_img_refs, starting_index, ending_index):
         train_batch_size = env_json['train_batch_size']
