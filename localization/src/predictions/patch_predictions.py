@@ -204,7 +204,7 @@ class PatchPredictions():
             
         return arch 
     
-    def _fit_NN_model(self, model):
+    def _fit_nn_model(self, model):
         epochs = self.config["epochs"]
         workers = self.config["workers"]
         
