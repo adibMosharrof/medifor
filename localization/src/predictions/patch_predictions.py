@@ -132,7 +132,7 @@ class PatchPredictions():
     def _reconstruct(self, predictions):
         for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
 #             prediction = 255- (prediction*255)
-            prediction = prediction * 255
+#             prediction = prediction * 255
             
             if self._isNN():
                 img = self._reconstruct_image_from_patches(prediction, patch_img_ref)
