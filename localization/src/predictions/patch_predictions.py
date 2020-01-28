@@ -40,7 +40,6 @@ class PatchPredictions():
     def __init__(self, config):
         self.config = config
         model_name = self.config["model_name"]
-        print(model_name)
         self.patch_shape = self.config['patch_shape']
         img_downscale_factor = self.config['image_downscale_factor']
         output_folder = self.config["path"]["outputs"] + "predictions/"
@@ -174,7 +173,6 @@ class PatchPredictions():
         return num_patches    
     
     def _get_data_generator_names(self):
-        model_name = self.config['model_name']
         train = None
         test = None 
         if self._isNN():
@@ -182,7 +180,7 @@ class PatchPredictions():
             from data_generators.patch_test_data_generator import PatchTestDataGenerator
             train = PatchTrainDataGenerator
             test = PatchTestDataGenerator
-        elif model_name in ["lr"]:
+        else:
             from data_generators.pixel_train_data_generator import PixelTrainDataGenerator
             from data_generators.pixel_test_data_generator import PixelTestDataGenerator
             train = PixelTrainDataGenerator
@@ -200,6 +198,9 @@ class PatchPredictions():
         elif model_name == 'lr':
             from architectures.lr import Lr
             arch = Lr()
+        elif model_name == 'mlp':
+            from architectures.mlp import Mlp
+            arch = Mlp()
             
         return arch 
     

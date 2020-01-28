@@ -17,7 +17,7 @@
     "epochs":1,
     "starting_index":0,
     "ending_index": 10,
-    "model_name":"lr",
+    "model_name":"mlp",
     "data":"MFC18_EvalPart1/",
     "multiprocessing":false,
     "patch_tuning":{
