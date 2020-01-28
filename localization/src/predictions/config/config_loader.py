@@ -83,7 +83,7 @@ class ConfigLoader():
             "dy":"dilate_y/",
             "bb":"black_border_y/",
             "dybb":"dilate_y_black_border_y/",
-            "d":""
+            "":""
         }
         return dict[code]
         

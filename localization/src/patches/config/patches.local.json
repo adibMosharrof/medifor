@@ -1,18 +1,18 @@
 {
     "path":{
-        "data" : "../../data/",
+        "data" : "../../data/original/",
         "outputs":"../../outputs/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
-    "patch_shape":"128",
-    "image_downscale_factor":4,
+    "patch_shape":"64",
+    "image_downscale_factor":40,
     "starting_index":0,
     "ending_index":"10",
     "data":"MFC18_EvalPart1/",
     "tuning":{
         "dilate_y": false,
         "black_border_y": false,
-        "dilate_y_black_border_y":true
+        "dilate_y_black_border_y":false
     }
 }
