@@ -72,10 +72,10 @@ class ConfigLoader():
     @staticmethod
     def print_config(config):
 
-        print(f"patch size_image downscale {config['patch_shape']'_'config['image_downscale_factor']}" )
+        print(f"patch size_image downscale {config['patch_shape']}_{config['image_downscale_factor']}" )
         print(f"Patch data type {config['patch_data_type'] or 'default'}" )
-        print(f"traing batch size {config['train_batch_size']}" )
-        print(f"traing data size {config['train_data_size']}" )
+        print(f"training batch size {config['train_batch_size']}" )
+        print(f"training data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
         print(f"Patch tuning {config['patch_tuning']}")
