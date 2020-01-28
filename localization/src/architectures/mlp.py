@@ -11,5 +11,5 @@ class Mlp():
         
         mlp_grid = {'hidden_layer_sizes': hidden_layer_sizes, 'activation': activation, 'solver': solver}
         model = MLPClassifier((100,))
-        model = GridSearchCV(model, mlp_grid, cv=2, scoring=None, verbose=2, n_jobs=4)
+        model = GridSearchCV(model, mlp_grid, cv=2, scoring=None, verbose=2)
         return model
