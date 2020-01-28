@@ -1,6 +1,6 @@
 {
     "path":{
-        "data" : "../../data/",
+        "data" : "../../data/original/",
         "outputs":"../../outputs/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
@@ -17,7 +17,7 @@
     "epochs":1,
     "starting_index":0,
     "ending_index": 10,
-    "model_name":"unet",
+    "model_name":"lr",
     "data":"MFC18_EvalPart1/",
     "multiprocessing":false,
     "patch_tuning":{
