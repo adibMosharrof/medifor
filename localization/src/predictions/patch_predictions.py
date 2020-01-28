@@ -64,6 +64,9 @@ class PatchPredictions():
         
     def get_data_generators(self):
         train, test = self._get_data_generator_names()
+        if not self._isNN():
+            self.train_batch_size = self.num_training_patches
+            self.test_batch_size = self.test_data_size
         train_gen = train(
                         batch_size=self.train_batch_size,
                         indicator_directories=self.indicator_directories,
@@ -98,27 +101,21 @@ class PatchPredictions():
         
         epochs = self.config["epochs"]
         workers = self.config["workers"]
-        multiprocessing = self.config["multiprocessing"]
-        if multiprocessing:
-            model.fit_generator(generator=train_gen,
-                                epochs=epochs,
-                                use_multiprocessing=True,
-                                workers=workers,
-                                )
-        else:
-            model.fit_generator(generator=train_gen,
-                                epochs=epochs,
-                                use_multiprocessing=False
-                                )
-#         model.save('my_model.h5')    
-        return model
+        
+        if self._isNN(): 
+            return self._fit_nn_model(model)
+        return self._fit_sklearn_model(model, train_gen)
     
     def predict(self, model, test_gen):
         predictions = []
         for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list = test_gen.__getitem__(i)
             for x in x_list:
-                predictions.append(model.predict(x))
+                if self._isNN():
+                    pred = model.predict(x)
+                else:
+                    pred = model.predict_proba(x)
+                predictions.append(pred)
         self._reconstruct(predictions)
     
     def get_score(self):
@@ -138,24 +135,10 @@ class PatchPredictions():
 #             prediction = 255- (prediction*255)
             prediction = prediction * 255
             
-           
-            if self.config['model_name'] in ["single_layer_nn", "unet"]:
+            if self._isNN():
                 img = self._reconstruct_image_from_patches(prediction, patch_img_ref)
             else:
                 img = prediction
-#             try:
-#                 img_from_patches = PatchUtils.get_image_from_patches(
-#                                     prediction,
-#                                     patch_img_ref.bordered_img_shape,
-#                                     patch_img_ref.patch_window_shape)
-#             except:
-#                 print("failed reconstruction")
-#                 img_from_patches = np.ones(patch_img_ref.bordered_img_shape)
-#             img_without_border = ImageUtils.remove_border(
-#                     img_from_patches, patch_img_ref.border_top, patch_img_ref.border_left)
-#             img_original_size = cv2.resize(
-#                 img_without_border, patch_img_ref.original_img_shape)
-            
             img_original_size = cv2.resize(
                 img, patch_img_ref.original_img_shape)
             
@@ -194,7 +177,7 @@ class PatchPredictions():
         model_name = self.config['model_name']
         train = None
         test = None 
-        if model_name in ["single_layer_nn", "unet"]:
+        if self._isNN():
             from data_generators.patch_train_data_generator import PatchTrainDataGenerator
             from data_generators.patch_test_data_generator import PatchTestDataGenerator
             train = PatchTrainDataGenerator
@@ -219,6 +202,35 @@ class PatchPredictions():
             arch = Lr()
             
         return arch 
+    
+    def _fit_NN_model(self, model):
+        epochs = self.config["epochs"]
+        workers = self.config["workers"]
+        
+        multiprocessing = self.config["multiprocessing"]
+        if multiprocessing:
+            model.fit_generator(generator=train_gen,
+                                epochs=epochs,
+                                use_multiprocessing=True,
+                                workers=workers,
+                                )
+        else:
+            model.fit_generator(generator=train_gen,
+                                epochs=epochs,
+                                use_multiprocessing=False
+                                )
+#         model.save('my_model.h5')    
+        return model
+    
+    def _fit_sklearn_model(self, model, train_gen):
+        x, y = train_gen.__getitem__(0)
+        return model.fit(x,y)
+    
+    def _isNN(self):
+        if self.config['model_name'] in ['single_layer_nn', 'unet']:
+            return True
+        return False
+  
   
     def my_append(self, dest, new_item):
         try:
