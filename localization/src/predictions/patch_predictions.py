@@ -102,7 +102,7 @@ class PatchPredictions():
         workers = self.config["workers"]
         
         if self._isNN(): 
-            return self._fit_nn_model(model)
+            return self._fit_nn_model(model,train_gen)
         return self._fit_sklearn_model(model, train_gen)
     
     def predict(self, model, test_gen):
@@ -204,7 +204,7 @@ class PatchPredictions():
             
         return arch 
     
-    def _fit_nn_model(self, model):
+    def _fit_nn_model(self, model, train_gen):
         epochs = self.config["epochs"]
         workers = self.config["workers"]
         
