@@ -86,11 +86,11 @@ class PixelPredictions():
         
     def _reconstruct(self, predictions):
         for prediction , img_ref in zip(predictions, self.test_img_refs):
-#             prediction = 255- (prediction*255)
-            prediction = prediction * 255
-            img = prediction.reshape(img_ref.img_height, img_ref.img_width)
+            prediction = 255- (prediction*255)
+#             prediction = prediction * 255
+            img = prediction.reshape(img_ref.img_width, img_ref.img_height)
             img_original_size = cv2.resize(
-                img, (img_ref.img_orig_height, img_ref.img_orig_width))
+                img, (img_ref.img_orig_width, img_ref.img_orig_height))
             
             file_name = f'{img_ref.probe_file_id}.png'
             file_path = self.output_dir + file_name
