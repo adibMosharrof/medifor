@@ -1,6 +1,6 @@
 {
     "path":{
-        "data" : "/home/adibm/uoml/medifor_data/original/",
+        "data" : "/home/adibm/uoml/medifor_data/",
         "outputs":"/home/adibm/uoml/adib/outputs/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
@@ -8,6 +8,8 @@
             "unet":"unet"
         }
     },
+    "data_year":"MFC18_EvalPart1/",
+    "data_prefix":"original/",
     "image_downscale_factor":4,
     "patch_shape":128,
     "train_batch_size":20,
@@ -18,7 +20,6 @@
     "starting_index":0,
     "ending_index":75,
     "model_name":"single_layer_nn",
-    "data":"MFC18_EvalPart1/",
     "multiprocessing":false,
     "patch_tuning":{
         "dilate_y":false,

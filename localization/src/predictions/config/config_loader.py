@@ -44,8 +44,8 @@ class ConfigLoader():
         parser.add_argument('-pb','--patch_black', type=str,
                     default=json_config['patch_tuning']['patch_black'],help='Patch Black')    
 
-        parser.add_argument('-d','--data', type=str,
-                    default=json_config['data'],help='Dataset')
+        parser.add_argument('-d','--data_year', type=str,
+                    default=json_config['data_year'],help='Dataset')
 
         parser.add_argument('-idf','--image_downscale_factor', type=int,
                     default=json_config['image_downscale_factor'],help='Image Downscale Factor')

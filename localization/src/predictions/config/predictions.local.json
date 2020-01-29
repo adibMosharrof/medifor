@@ -1,6 +1,6 @@
 {
     "path":{
-        "data" : "../../data/original/",
+        "data" : "../../data/",
         "outputs":"../../outputs/",
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv",
@@ -8,17 +8,18 @@
             "unet":"unet"
         }
     },
-    "image_downscale_factor":4,
-    "patch_shape":128,
-    "train_batch_size":20,
+    "data_year":"MFC18_EvalPart1/",
+    "data_prefix":"original/",
+    "image_downscale_factor":40,
+    "patch_shape":64,
+    "train_batch_size":10,
     "test_batch_size":2,
     "train_data_size":5,
     "workers":1,
     "epochs":1,
     "starting_index":0,
     "ending_index": 10,
-    "model_name":"mlp",
-    "data":"MFC18_EvalPart1/",
+    "model_name":"lr",
     "multiprocessing":false,
     "patch_tuning":{
         "dilate_y":false,
