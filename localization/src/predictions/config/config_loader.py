@@ -55,6 +55,12 @@ class ConfigLoader():
         
         parser.add_argument('-pdt','--patch_data_type', type=str,
                     default=json_config['patch_data_type'],help='Patch Data Type')
+
+        parser.add_argument('-dp','--data_prefix', type=str,
+                    default=json_config['data_prefix'],help='Data Prefix')
+
+        parser.add_argument('-cd','--csv_data', type=str,
+                    default=json_config['csv_data'],help='Csv Data')
         
 
         config = vars(parser.parse_args())
@@ -74,6 +80,9 @@ class ConfigLoader():
 
         print(f"patch size_image downscale {config['patch_shape']}_{config['image_downscale_factor']}" )
         print(f"Patch data type {config['patch_data_type'] or 'default'}" )
+        print(f"CSV Data {config['csv_data']}" )
+        print(f"Data prefix {config['data_prefix']}" )
+        
         print(f"training batch size {config['train_batch_size']}" )
         print(f"training data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )

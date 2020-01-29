@@ -11,6 +11,7 @@
     "data_year":"MFC18_EvalPart1/",
     "data_prefix":"original/",
     "image_downscale_factor":4,
+    "csv_data":"",
     "patch_shape":128,
     "train_batch_size":20,
     "test_batch_size":2,
@@ -19,7 +20,7 @@
     "epochs":1,
     "starting_index":0,
     "ending_index":75,
-    "model_name":"single_layer_nn",
+    "model_name":"lr",
     "multiprocessing":false,
     "patch_tuning":{
         "dilate_y":false,
