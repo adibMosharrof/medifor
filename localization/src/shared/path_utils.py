@@ -34,3 +34,10 @@ class PathUtils:
         return [name for name in os.listdir(indicators_path)
             if os.path.isdir(os.path.join(indicators_path, name))]    
     
+    @staticmethod
+    def get_csv_data_path(config):
+        return f"{config['path']['data']}{config['data_prefix']}{config['data_year']}csv_data/{config['data_year'][:-1]}{config['csv_data']}.csv"
+    
+    @staticmethod
+    def get_index_csv_path(config):
+        return f"{config['path']['data']}{config['data_prefix']}{config['data_year']}indexes/index.csv"

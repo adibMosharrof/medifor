@@ -1,6 +1,7 @@
 import os
 import socket
 import sys
+sys.path.append('..')
 import json
 from PIL import Image
 import cv2 
@@ -13,6 +14,8 @@ import math
 import logging
 from typing import overload, List
 from pythonlangutil.overload import Overload, signature
+from shared.path_utils import PathUtils
+
 
 class ImgRefBuilder:
     image_ref_csv_path = None
@@ -71,13 +74,35 @@ class ImgRefBuilder:
     def extract_ref_mask_file_name(self, text):
         return re.search("(?<=reference\/manipulation-image\/mask\/).*(?=.ccm.png)", text).group()
 
+    def add_image_width_height(self, img_refs, config):
+        index_csv_path = PathUtils.get_index_csv_path(config)
+        with open(index_csv_path, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            headers = next(reader)
+            img_id_col_index = headers.index('image_id')
+            img_height_col_index = headers.index('image_height_original')
+            img_width_col_index = headers.index('image_width_original')
+            counter = 0
+            for row in reader:
+                img_ref = [i for i in img_refs if i.probe_file_id == row[img_id_col_index]]
+                if len(img_ref) > 0:
+                    img_ref[0].img_height = int(row[img_height_col_index])
+                    img_ref[0].img_width = int(row[img_width_col_index])
+                    counter +=1
+                    if counter == len(img_refs):
+                        break
+                
+        
+
 class ImgRefs:
-    sys_mask_file_name = None
-    ref_mask_file_name = None
+    probe_file_id = None
+    probe_mask_file_name = None
+    img_height=None
+    img_width = None
         
     def __init__(self,sys, ref):
-        self.sys_mask_file_name = sys
-        self.ref_mask_file_name = ref    
+        self.probe_file_id = sys
+        self.probe_mask_file_name = ref    
 
         
     

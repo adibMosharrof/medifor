@@ -10,6 +10,13 @@ class FolderUtils:
         return FolderUtils.make_dir(output_dir)
     
     @staticmethod
+    def create_predictions_pixel_output_folder(model_name, data_prefix, output_path):
+        timestamp = FolderUtils._get_timestamp()
+        output_dir_path = f'{output_path}{model_name}/{data_prefix}/{timestamp}'
+        return FolderUtils.make_dir(output_dir_path)
+    
+    
+    @staticmethod
     def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning):
         output_dir_path = FolderUtils._get_patch_output_folder_name(output_path, patch_shape, img_downscale_factor, tuning)
         output_dir =  FolderUtils.make_dir(output_dir_path)

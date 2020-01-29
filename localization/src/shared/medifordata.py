@@ -3,8 +3,8 @@ class MediforData():
     sys = None
     
     def __init__(self, img_ref, sys_data_path, ref_data_path):
-        self.sys = sys_data_path + img_ref.sys_mask_file_name + ".png"
-        self.ref = ref_data_path + img_ref.ref_mask_file_name +".png"
+        self.sys = sys_data_path + img_ref.probe_file_id + ".png"
+        self.ref = ref_data_path + img_ref.probe_mask_file_name +".png"
         
     @staticmethod    
     def get_data(img_refs, sys_data_path, ref_data_path):
