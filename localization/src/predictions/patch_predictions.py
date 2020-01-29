@@ -20,6 +20,7 @@ from datetime import datetime
 import math
 from tensorflow.keras.models import load_model
 import itertools
+import gc
 import matplotlib.pyplot as plt
 
 sys.path.append('..')
@@ -63,7 +64,7 @@ class PatchPredictions():
         
     def get_data_generators(self):
         train, test = self._get_data_generator_names()
-        if not self._isNN():
+        if not self._is_nn():
             self.train_batch_size = self.num_training_patches
             self.test_batch_size = self.test_data_size
         train_gen = train(
@@ -101,7 +102,7 @@ class PatchPredictions():
         epochs = self.config["epochs"]
         workers = self.config["workers"]
         
-        if self._isNN(): 
+        if self._is_nn(): 
             return self._fit_nn_model(model,train_gen)
         return self._fit_sklearn_model(model, train_gen)
     
@@ -110,11 +111,13 @@ class PatchPredictions():
         for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list = test_gen.__getitem__(i)
             for x in x_list:
-                if self._isNN():
+                if self._is_nn():
                     pred = model.predict(x)
                 else:
                     pred = model.predict_proba(x)
                 predictions.append(pred)
+        del model
+        gc.collect()
         self._reconstruct(predictions)
     
     def get_score(self):
@@ -131,10 +134,10 @@ class PatchPredictions():
     
     def _reconstruct(self, predictions):
         for prediction , patch_img_ref in zip(predictions, self.test_patch_img_refs):
-#             prediction = 255- (prediction*255)
+            prediction = 255- (prediction*255)
 #             prediction = prediction * 255
             
-            if self._isNN():
+            if self._is_nn():
                 img = self._reconstruct_image_from_patches(prediction, patch_img_ref)
             else:
                 img = prediction
@@ -175,7 +178,7 @@ class PatchPredictions():
     def _get_data_generator_names(self):
         train = None
         test = None 
-        if self._isNN():
+        if self._is_nn():
             from data_generators.patch_train_data_generator import PatchTrainDataGenerator
             from data_generators.patch_test_data_generator import PatchTestDataGenerator
             train = PatchTrainDataGenerator
@@ -227,7 +230,7 @@ class PatchPredictions():
         x, y = train_gen.__getitem__(0)
         return model.fit(x,y)
     
-    def _isNN(self):
+    def _is_nn(self):
         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
