@@ -4,6 +4,7 @@ sys.path.append('..')
 import math
 import gc
 import cv2
+import numpy as np
 from shared.path_utils import PathUtils
 from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
@@ -53,9 +54,9 @@ class PixelPredictions():
         test_gen = CsvPixelTestDataGenerator(
                         test_starting_index = self.ending_index,
                         data_size=self.test_data_size,
-                        csv_path = csv_path
+                        csv_path = csv_path,
+                        img_refs = self.test_img_refs
                         )
-
         return train_gen, test_gen
     
     def train_model(self, train_gen):
@@ -69,14 +70,15 @@ class PixelPredictions():
         model = arch.get_model(None, None)
         
         x, y = train_gen.__getitem__(0)
-        return model.fit(x,y)
+        model= model.fit(x,y)
+        return model
                          
     def predict(self, model, test_gen):
         predictions = []
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
             x_list, y_list = test_gen.__getitem__(i)
             for x in x_list:
-                pred = model.predict_proba(x)
+                pred = model.predict_proba(x)[:,1]
                 predictions.append(pred)
         del model
         gc.collect()
@@ -84,11 +86,11 @@ class PixelPredictions():
         
     def _reconstruct(self, predictions):
         for prediction , img_ref in zip(predictions, self.test_img_refs):
-            prediction = 255- (prediction*255)
-#             prediction = prediction * 255
-            img = prediction
+#             prediction = 255- (prediction*255)
+            prediction = prediction * 255
+            img = prediction.reshape(img_ref.img_height, img_ref.img_width)
             img_original_size = cv2.resize(
-                img, (img_ref.img_height, img_ref.img_width))
+                img, (img_ref.img_orig_height, img_ref.img_orig_width))
             
             file_name = f'{img_ref.probe_file_id}.png'
             file_path = self.output_dir + file_name

@@ -80,23 +80,31 @@ class ImgRefBuilder:
             reader = csv.reader(f, delimiter=',')
             headers = next(reader)
             img_id_col_index = headers.index('image_id')
-            img_height_col_index = headers.index('image_height_original')
-            img_width_col_index = headers.index('image_width_original')
+            
+            img_orig_height_col_index = headers.index('image_height_original')
+            img_orig_width_col_index = headers.index('image_width_original')
+            img_height_col_index = headers.index('image_height')
+            img_width_col_index = headers.index('image_width')
             counter = 0
             for row in reader:
-                img_ref = [i for i in img_refs if i.probe_file_id == row[img_id_col_index]]
-                if len(img_ref) > 0:
-                    img_ref[0].img_height = int(row[img_height_col_index])
-                    img_ref[0].img_width = int(row[img_width_col_index])
-                    counter +=1
-                    if counter == len(img_refs):
-                        break
-                
+                img_ref = next((i for i in img_refs if i.probe_file_id == row[img_id_col_index]),None)
+                if img_ref == None :
+                    continue
+                img_ref.img_orig_height = int(float(row[img_orig_height_col_index]))
+                img_ref.img_orig_width = int(float(row[img_orig_width_col_index]))
+                img_ref.img_height = int(float(row[img_height_col_index]))
+                img_ref.img_width = int(float(row[img_width_col_index]))
+                counter +=1
+                if counter == len(img_refs):
+                    break
+            
         
 
 class ImgRefs:
     probe_file_id = None
     probe_mask_file_name = None
+    img_orig_height=None
+    img_orig_width = None
     img_height=None
     img_width = None
         
