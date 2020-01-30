@@ -5,6 +5,7 @@ import math
 import gc
 import cv2
 import numpy as np
+from PIL import Image
 from shared.path_utils import PathUtils
 from shared.folder_utils import FolderUtils
 from shared.log_utils import LogUtils
@@ -83,9 +84,9 @@ class PixelPredictions():
             
             for i, x in enumerate(x_list):
                 try:
-#                     pred= model.predict_proba(x)[:,1]
-                    x = np.array(x)
-                    pred = model.predict(x)
+                    pred= model.predict_proba(x)[:,1]
+#                     x = np.array(x)
+#                     pred = model.predict(x)
                 except:
                     counter +=1
                     pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
@@ -102,10 +103,14 @@ class PixelPredictions():
             img = prediction.reshape(img_ref.img_width, img_ref.img_height)
             img_original_size = cv2.resize(
                 img, (img_ref.img_orig_width, img_ref.img_orig_height))
-            
+#             img = Image.fromarray(img).convert("L") 
+#             img_original_size = img.resize(
+#                 (img_ref.img_orig_width, img_ref.img_orig_height), Image.ANTIALIAS)
+
             file_name = f'{img_ref.probe_file_id}.png'
             file_path = self.output_dir + file_name
             ImageUtils.save_image(img_original_size, file_path)
+#             img_original_size.save(file_path)
                                   
     def get_score(self):
         img_refs = self.test_img_refs
