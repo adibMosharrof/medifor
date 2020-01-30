@@ -84,9 +84,9 @@ class PixelPredictions():
             
             for i, x in enumerate(x_list):
                 try:
-                    pred= model.predict_proba(x)[:,1]
-#                     x = np.array(x)
-#                     pred = model.predict(x)
+#                     pred= model.predict_proba(x)[:,1]
+                    x = np.array(x)
+                    pred = model.predict(x)
                 except:
                     counter +=1
                     pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
