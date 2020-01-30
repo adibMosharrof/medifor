@@ -57,8 +57,8 @@ class PixelPredictions():
                         csv_path = csv_path,
                         img_refs = self.test_img_refs
                         )
-        a,b = train_gen.__getitem__(0)
-        q,w = test_gen.__getitem__(0)
+#         a,b = train_gen.__getitem__(0)
+#         q,w = test_gen.__getitem__(0)
         return train_gen, test_gen
     
     def train_model(self, train_gen):
@@ -69,10 +69,10 @@ class PixelPredictions():
 #             model = None
             
         arch = self._get_architecture()
-        model = arch.get_model(None, None)
         
         x, y = train_gen.__getitem__(0)
-        model= model.fit(x,y)
+        model = arch.get_model(None,x.shape[1])
+        model.fit(x,y)
         return model
                          
     def predict(self, model, test_gen):
@@ -83,7 +83,9 @@ class PixelPredictions():
             
             for i, x in enumerate(x_list):
                 try:
-                    pred= model.predict_proba(x)[:,1]
+#                     pred= model.predict_proba(x)[:,1]
+                    x = np.array(x)
+                    pred = model.predict(x)
                 except:
                     counter +=1
                     pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
