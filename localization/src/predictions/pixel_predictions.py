@@ -57,6 +57,8 @@ class PixelPredictions():
                         csv_path = csv_path,
                         img_refs = self.test_img_refs
                         )
+        a,b = train_gen.__getitem__(0)
+        q,w = test_gen.__getitem__(0)
         return train_gen, test_gen
     
     def train_model(self, train_gen):
@@ -75,11 +77,18 @@ class PixelPredictions():
                          
     def predict(self, model, test_gen):
         predictions = []
+        counter = 0
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
             x_list, y_list = test_gen.__getitem__(i)
-            for x in x_list:
-                pred = model.predict_proba(x)[:,1]
+            
+            for i, x in enumerate(x_list):
+                try:
+                    pred= model.predict_proba(x)[:,1]
+                except:
+                    counter +=1
+                    pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
                 predictions.append(pred)
+        print(f"Num of missing images {counter}")
         del model
         gc.collect()
         self._reconstruct(predictions)
