@@ -41,8 +41,6 @@ class CsvPixelTestDataGenerator(Sequence):
             reader = csv.reader(f, delimiter=',')
             header = next(reader)
             index_image_id = header.index('image_id')
-            _x = []
-            _y = []
             for row in reader:
                 index = next((i for i, img_ref in enumerate(self.img_refs) if img_ref.probe_file_id == row[index_image_id] ), None ) 
                 if index == None:

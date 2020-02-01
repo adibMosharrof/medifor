@@ -17,21 +17,22 @@ from shared.medifordata import MediforData
 
 from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
 from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
+from data_generators.csv_nn_data_generator import CsvNnDataGenerator
 
 class PixelPredictions():
     
     def __init__(self, config):
         self.config = config
-        model_name = self.config["model_name"]
+        self.model_name = self.config["model_name"]
         img_downscale_factor = self.config['image_downscale_factor']
         output_folder = self.config["path"]["outputs"] + "predictions/"
         self.output_dir = FolderUtils.create_predictions_pixel_output_folder(
-            model_name,
+            self.model_name,
             self.config['data_prefix'],
             output_folder)
         
         self.my_logger = LogUtils.init_log(self.output_dir)
-
+        self.patch_shape= self.config['patch_shape']
         img_ref_csv_path, self.ref_data_path, targets, indicators = PathUtils.get_paths(self.config)
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
         self.train_data_size = self.config['train_data_size']
@@ -40,19 +41,36 @@ class PixelPredictions():
         irb = ImgRefBuilder(img_ref_csv_path)
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
         irb.add_image_width_height(img_refs, self.config)
-        self.train_img_refs = img_refs[self.starting_index:self.train_data_size]
-        self.test_img_refs = img_refs[self.train_data_size:self.ending_index]
+        self.train_img_refs = img_refs[:self.train_data_size]
+        self.test_img_refs = img_refs[self.train_data_size:]
         
     def get_data_generators(self):
         
         csv_path = PathUtils.get_csv_data_path(self.config)
         
-        train_gen = CsvPixelTrainDataGenerator(
+        if self.model_name in ['unet']:
+            
+            train_gen = CsvNnDataGenerator(
                         data_size=self.train_data_size,
+                        test_starting_index = self.starting_index,
+                        csv_path = csv_path,
+                        img_refs = self.train_img_refs,
+                        patch_shape = self.patch_shape
+                        )
+            test_gen = CsvNnDataGenerator(
+                        data_size=self.test_data_size,
+                        test_starting_index = self.train_data_size+ self.starting_index,
+                        csv_path = csv_path,
+                        img_refs = self.test_img_refs,
+                        patch_shape = self.patch_shape
+                        )
+        else:
+            train_gen = CsvPixelTrainDataGenerator(
+                         data_size=self.train_data_size,
                         csv_path = csv_path
                         )
-
-        test_gen = CsvPixelTestDataGenerator(
+ 
+            test_gen = CsvPixelTestDataGenerator(
                         test_starting_index = self.ending_index,
                         data_size=self.test_data_size,
                         csv_path = csv_path,
@@ -69,10 +87,10 @@ class PixelPredictions():
 #         except:
 #             model = None
             
-        arch = self._get_architecture()
         
         x, y = train_gen.__getitem__(0)
-        model = arch.get_model(None,x.shape[1])
+        arch = self._get_architecture()
+        model = arch.get_model(self.patch_shape,x.shape[3])
         model.fit(x,y)
         return model
                          
@@ -84,9 +102,9 @@ class PixelPredictions():
             
             for i, x in enumerate(x_list):
                 try:
-                    pred= model.predict_proba(x)[:,1]
-#                     x = np.array(x)
-#                     pred = model.predict(x)
+#                     pred= model.predict_proba(x)[:,1]
+                    x = np.array(x)
+                    pred = model.predict(x)
                 except:
                     counter +=1
                     pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
@@ -131,5 +149,7 @@ class PixelPredictions():
         elif model_name == 'mlp':
             from architectures.mlp import Mlp
             arch = Mlp()
-            
+        elif model_name == 'unet':
+            from architectures.unet import UNet
+            arch = UNet()    
         return arch        
