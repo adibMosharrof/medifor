@@ -88,7 +88,8 @@ class PixelPredictions():
 #             model = None
             
         
-        x, y = train_gen.__getitem__(0)
+#         x, y = train_gen.__getitem__(0)
+        x, y = test_gen.__getitem__(0)
         arch = self._get_architecture()
         model = arch.get_model(self.patch_shape,x.shape[3])
         model.fit(x,y)
