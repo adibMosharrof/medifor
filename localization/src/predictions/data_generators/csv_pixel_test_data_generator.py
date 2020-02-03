@@ -25,8 +25,8 @@ class CsvPixelTestDataGenerator(Sequence):
         self.on_epoch_end()
         
     def __getitem__(self, index):
-        ending_index = self.test_starting_index + self.data_size
-        starting_index = self.test_starting_index
+#         ending_index = self.test_starting_index + self.data_size
+#         starting_index = self.test_starting_index
         #create a numpy array of the shape [data_size, 1]
         #from img ref get the image id and use it as the keys
         #add data to the above array. do an image id check 

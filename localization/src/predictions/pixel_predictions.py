@@ -89,9 +89,12 @@ class PixelPredictions():
             
         
 #         x, y = train_gen.__getitem__(0)
-        x, y = test_gen.__getitem__(0)
+        x, y = train_gen.__getitem__(0)
         arch = self._get_architecture()
-        model = arch.get_model(self.patch_shape,x.shape[3])
+        if self.model_name in ['lr']:
+            model = arch.get_model(self.patch_shape,x.shape[1])
+        else:
+            model = arch.get_model(self.patch_shape,x.shape[3])
         model.fit(x,y)
         return model
                          
@@ -103,9 +106,9 @@ class PixelPredictions():
             
             for i, x in enumerate(x_list):
                 try:
-#                     pred= model.predict_proba(x)[:,1]
-                    x = np.array(x)
-                    pred = model.predict(x)
+                    pred= model.predict_proba(x)[:,1]
+#                     x = np.array(x)
+#                     pred = model.predict(x)
                 except:
                     counter +=1
                     pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)

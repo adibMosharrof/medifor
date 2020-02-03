@@ -19,8 +19,8 @@ class PredictionRunner():
         train_gen, test_gen = pred.get_data_generators()
         model = pred.train_model(train_gen)
         
-#         pred.predict(model, test_gen)
-        pred.predict(model, train_gen)
+        pred.predict(model, test_gen)
+#         pred.predict(model, train_gen)
         score = pred.get_score()
 
 if __name__ == '__main__':

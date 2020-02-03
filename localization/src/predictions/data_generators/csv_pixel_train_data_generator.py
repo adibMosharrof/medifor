@@ -16,10 +16,11 @@ from shared.patch_utils import PatchUtils
 class CsvPixelTrainDataGenerator(Sequence):
     
     def __init__(self, data_size=10,
-                 shuffle=False, csv_path=None):
+                 shuffle=False, csv_path=None, img_refs = None):
         self.data_size = data_size
         self.shuffle = shuffle
         self.csv_path = csv_path
+        self.img_refs = img_refs
         self.on_epoch_end()
         
     def __getitem__(self, index):
