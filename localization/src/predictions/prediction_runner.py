@@ -16,12 +16,11 @@ class PredictionRunner():
         else:
             pred = PixelPredictions(config)
         
-        train_gen, test_gen = pred.get_data_generators()
-        model = pred.train_model(train_gen)
+#         train_gen, test_gen = pred.get_data_generators()
         
-        pred.predict(model, test_gen)
+        pred.train_predict()
 #         pred.predict(model, train_gen)
-        score = pred.get_score()
+#         score = pred.get_score()
 
 if __name__ == '__main__':
     m = PredictionRunner()

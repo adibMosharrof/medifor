@@ -44,6 +44,14 @@ class PixelPredictions():
         self.train_img_refs = img_refs[:self.train_data_size]
         self.test_img_refs = img_refs[self.train_data_size:]
         
+    def train_predict(self):
+        train_gen, test_gen = self.get_data_generators()
+
+        model = self.train_model(train_gen)
+        
+        self.predict(model, test_gen)
+        score = self.get_score()
+    
     def get_data_generators(self):
         
         csv_path = PathUtils.get_csv_data_path(self.config)
