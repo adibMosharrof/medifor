@@ -75,10 +75,13 @@ class CsvPixelTrainDataGenerator(Sequence):
 #         exclude = ['image_id', 'pixel_id', 'label']
 #         x_cols = [i for i,x in enumerate(header) if x not in exclude]
         index = [i for i, _y in enumerate(y) if len(_y) == 0 ]
-        for i in index:
-            del y[i]
-            del x[i]
-            del self.img_refs[i]
+        for i in sorted(index, reverse=True):
+            try:
+                del y[i]
+                del x[i]
+                del self.img_refs[i]
+            except:
+                a=1
         a=  np.concatenate(x, axis=0)
         b= np.concatenate(y, axis=0)
         return a,b
