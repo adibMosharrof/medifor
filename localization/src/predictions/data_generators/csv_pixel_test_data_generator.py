@@ -52,8 +52,14 @@ class CsvPixelTestDataGenerator(Sequence):
         
 #         exclude = ['image_id', 'pixel_id', 'label']
 #         x_cols = [i for i,x in enumerate(header) if x not in exclude]
-        
-        return np.array(x), np.array(y)
+        index = [i for i, _y in enumerate(y) if len(_y) == 0 ]
+        for i in index:
+            del y[i]
+            del x[i]
+            del self.img_refs[i]
+#         a= np.concatenate(x, axis=0)
+#         b= np.concatenate(y, axis=0)
+        return x, y
     
     #img_ref = [i for i in img_refs if i.probe_file_id == row[img_id_col_index]]
     

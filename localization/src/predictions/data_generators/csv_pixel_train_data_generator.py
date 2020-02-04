@@ -74,8 +74,16 @@ class CsvPixelTrainDataGenerator(Sequence):
                     print(index)
 #         exclude = ['image_id', 'pixel_id', 'label']
 #         x_cols = [i for i,x in enumerate(header) if x not in exclude]
-        
-        return np.concatenate(x, axis=0), np.concatenate(y, axis=0)
+        index = [i for i, _y in enumerate(y) if len(_y) == 0 ]
+        for i in index:
+            del y[i]
+            del x[i]
+            del self.img_refs[i]
+        a=  np.concatenate(x, axis=0)
+        b= np.concatenate(y, axis=0)
+        return a,b
+#         return np.array(x).reshape(-1,27), np.array(y).reshape(-1)
+#         return np.array(x).reshape(-1,27), np.array(y).reshape(-1)
 
     
     def on_epoch_end(self):
