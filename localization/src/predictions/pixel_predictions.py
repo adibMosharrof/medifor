@@ -16,6 +16,8 @@ from shared.json_loader import JsonLoader
 from shared.image_utils import ImageUtils
 from shared.medifordata import MediforData
 
+from sklearn.preprocessing import MinMaxScaler
+
 from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
 from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
 from data_generators.csv_nn_data_generator import CsvNnDataGenerator
@@ -121,7 +123,7 @@ class PixelPredictions():
         predictions = []
         counter = 0
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
-            x_list, y_list, ids = test_gen.__getitem__(i)
+            x_list, y_list = test_gen.__getitem__(i)
             
             for i, x in enumerate(x_list):
                 try:
@@ -135,13 +137,14 @@ class PixelPredictions():
         print(f"Num of missing images {counter}")
         del model
         gc.collect()
-        self._reconstruct(predictions, ids)
+        self._reconstruct(predictions)
         
-    def _reconstruct(self, predictions, ids):
+    def _reconstruct(self, predictions):
         counter = 0
         for prediction , img_ref in zip(predictions, self.test_img_refs):
-            prediction = 255- (prediction*255)
+#             prediction = 255- (prediction*255)
 #             prediction = prediction * 255
+            prediction = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction))
             try:
                 img = prediction.reshape(img_ref.img_width, img_ref.img_height)
                 img_original_size = cv2.resize(
