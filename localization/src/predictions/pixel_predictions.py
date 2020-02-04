@@ -144,7 +144,7 @@ class PixelPredictions():
         for prediction , img_ref in zip(predictions, self.test_img_refs):
 #             prediction = 255- (prediction*255)
 #             prediction = prediction * 255
-            prediction = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction))
+            prediction = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
                 img = prediction.reshape(img_ref.img_width, img_ref.img_height)
                 img_original_size = cv2.resize(
