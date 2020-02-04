@@ -45,12 +45,22 @@ class PixelPredictions():
         self.test_img_refs = img_refs[self.train_data_size:]
         
     def train_predict(self):
-        train_gen, test_gen = self.get_data_generators()
-
-        model = self.train_model(train_gen)
-        
-        self.predict(model, test_gen)
-        score = self.get_score()
+        score =[] 
+        for i in range(2):
+            if i == 1:
+                print('flipping train and test set')
+                temp = self.train_img_refs
+                self.train_img_refs = self.test_img_refs
+                self.test_img_refs = temp
+                temp = self.train_data_size
+                self.train_data_size = self.test_data_size
+                self.test_data_size = temp 
+            train_gen, test_gen = self.get_data_generators()
+            model = self.train_model(train_gen)
+            self.predict(model, test_gen)
+            score.append(self.get_score())
+        avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
+        print(f'average score is : {avg_score}')
     
     def get_data_generators(self):
         
@@ -75,7 +85,8 @@ class PixelPredictions():
         else:
             train_gen = CsvPixelTrainDataGenerator(
                          data_size=self.train_data_size,
-                        csv_path = csv_path
+                        csv_path = csv_path,
+                        img_refs = self.train_img_refs
                         )
  
             test_gen = CsvPixelTestDataGenerator(
