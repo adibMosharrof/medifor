@@ -74,20 +74,24 @@ class CsvPixelTestDataGenerator(Sequence):
         grouped = filtered_df.groupby('image_id')
         x = []
         y = []
+        image_ids = []
         for image_id, group in grouped:
             x.append(group[x_cols].values)
             y.append(group['label'].values)
+            image_ids.append(image_id)
 
         indexes = [i for i, x in enumerate(self.img_refs) if x.probe_file_id not in grouped.groups]
         for i in sorted(indexes, reverse=True):
             try:
                 print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
                 del self.img_refs[i]
+#                 del image_ids[i]
             except IndexError as e:
                 a = 1
         
         return np.array(x),np.array(y) 
-    
+
+#     def add_missing_
     
     def on_epoch_end(self):
         if self.shuffle is True:    

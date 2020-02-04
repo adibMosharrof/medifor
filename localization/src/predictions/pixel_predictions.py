@@ -121,7 +121,7 @@ class PixelPredictions():
         predictions = []
         counter = 0
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
-            x_list, y_list = test_gen.__getitem__(i)
+            x_list, y_list, ids = test_gen.__getitem__(i)
             
             for i, x in enumerate(x_list):
                 try:
@@ -135,15 +135,20 @@ class PixelPredictions():
         print(f"Num of missing images {counter}")
         del model
         gc.collect()
-        self._reconstruct(predictions)
+        self._reconstruct(predictions, ids)
         
-    def _reconstruct(self, predictions):
+    def _reconstruct(self, predictions, ids):
+        counter = 0
         for prediction , img_ref in zip(predictions, self.test_img_refs):
             prediction = 255- (prediction*255)
 #             prediction = prediction * 255
-            img = prediction.reshape(img_ref.img_width, img_ref.img_height)
-            img_original_size = cv2.resize(
+            try:
+                img = prediction.reshape(img_ref.img_width, img_ref.img_height)
+                img_original_size = cv2.resize(
                 img, (img_ref.img_orig_width, img_ref.img_orig_height))
+            except:
+                counter +=1
+                img_original_size = np.zeros(img_ref.img_orig_width, img_ref.img_orig_height)
 #             img = Image.fromarray(img).convert("L") 
 #             img_original_size = img.resize(
 #                 (img_ref.img_orig_width, img_ref.img_orig_height), Image.ANTIALIAS)
@@ -152,6 +157,7 @@ class PixelPredictions():
             file_path = self.output_dir + file_name
             ImageUtils.save_image(img_original_size, file_path)
 #             img_original_size.save(file_path)
+        print(f'Number of errors {counter}') 
                                   
     def get_score(self):
         img_refs = self.test_img_refs
