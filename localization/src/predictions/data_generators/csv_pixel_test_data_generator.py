@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import random
 from tensorflow.python.keras.utils.data_utils import Sequence
 import os
@@ -31,41 +32,54 @@ class CsvPixelTestDataGenerator(Sequence):
         #from img ref get the image id and use it as the keys
         #add data to the above array. do an image id check 
         #on the data that u are reading from the csv file
+#         x = []
+#         y = []
+#         for i in range(self.data_size):
+#             x.append([])
+#             y.append([])
+#         header = None
+#         with open(self.csv_path, 'r') as f:
+#             reader = csv.reader(f, delimiter=',')
+#             header = next(reader)
+#             index_image_id = header.index('image_id')
+#             for row in reader:
+#                 index = next((i for i, img_ref in enumerate(self.img_refs) if img_ref.probe_file_id == row[index_image_id] ), None ) 
+#                 if index == None:
+#                     continue    
+#                 x[index].append(np.array(row[:-3]).astype(np.float))
+#                 y[index].append(float(row[-3]))
+#                 if y[-1] != None and len(y[-1]) == (self.img_refs[-1].img_width * self.img_refs[-1].img_height): 
+#                     break
+#         
+# #         exclude = ['image_id', 'pixel_id', 'label']
+# #         x_cols = [i for i,x in enumerate(header) if x not in exclude]
+#         index = [i for i, _y in enumerate(y) if len(_y) == 0 ]
+# 
+#         for i in sorted(index, reverse=True):
+#             try:
+#                 del y[i]
+#                 del x[i]
+#                 del self.img_refs[i]
+#             except IndexError as e:
+#                 a = 1
+# #         a= np.concatenate(x, axis=0)
+# #         b= np.concatenate(y, axis=0)
+#         return x, y
+        df = pd.read_csv(self.csv_path)
+        exclude = ['image_id', 'pixel_id', 'label']
+        filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in self.img_refs] )]
+        exclude = ['image_id', 'pixel_id', 'label']
+        
+        x_cols = [x for x in filtered_df.columns if x not in exclude]
+        grouped = filtered_df.groupby('image_id')
         x = []
         y = []
-        for i in range(self.data_size):
-            x.append([])
-            y.append([])
-        header = None
-        with open(self.csv_path, 'r') as f:
-            reader = csv.reader(f, delimiter=',')
-            header = next(reader)
-            index_image_id = header.index('image_id')
-            for row in reader:
-                index = next((i for i, img_ref in enumerate(self.img_refs) if img_ref.probe_file_id == row[index_image_id] ), None ) 
-                if index == None:
-                    continue    
-                x[index].append(np.array(row[:-3]).astype(np.float))
-                y[index].append(float(row[-3]))
-                if y[-1] != None and len(y[-1]) == (self.img_refs[-1].img_width * self.img_refs[-1].img_height): 
-                    break
+        for image_id, group in grouped:
+            x.append(group[x_cols].values)
+            y.append(group['label'].values)
         
-#         exclude = ['image_id', 'pixel_id', 'label']
-#         x_cols = [i for i,x in enumerate(header) if x not in exclude]
-        index = [i for i, _y in enumerate(y) if len(_y) == 0 ]
-
-        for i in sorted(index, reverse=True):
-            try:
-                del y[i]
-                del x[i]
-                del self.img_refs[i]
-            except:
-                a = 1
-#         a= np.concatenate(x, axis=0)
-#         b= np.concatenate(y, axis=0)
-        return x, y
+        return np.array(x),np.array(y) 
     
-    #img_ref = [i for i in img_refs if i.probe_file_id == row[img_id_col_index]]
     
     def on_epoch_end(self):
         if self.shuffle is True:    
