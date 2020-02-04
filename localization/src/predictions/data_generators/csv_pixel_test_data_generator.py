@@ -77,6 +77,13 @@ class CsvPixelTestDataGenerator(Sequence):
         for image_id, group in grouped:
             x.append(group[x_cols].values)
             y.append(group['label'].values)
+
+        indexes = [i for i, x in enumerate(self.img_refs) if x.probe_file_id not in grouped.groups]
+        for i in sorted(indexes, reverse=True):
+            try:
+                del self.img_refs[i]
+            except IndexError as e:
+                a = 1
         
         return np.array(x),np.array(y) 
     
