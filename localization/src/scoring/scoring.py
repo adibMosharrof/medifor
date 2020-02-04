@@ -32,8 +32,9 @@ class Scoring(object):
             normalized_ref = self.flip(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
             sys_image = ImageUtils.read_image(d.sys)
-            scores += self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
-            print(f'running average {scores/(i+1)}')
+            score = self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
+            scores += score
+            print(f'running average {round(scores/(i+1),5)} current {round(score,5)}')
         return scores/len(data)
       
     def get_noscore_image(self, img):
