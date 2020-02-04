@@ -74,11 +74,11 @@ class CsvPixelTestDataGenerator(Sequence):
         grouped = filtered_df.groupby('image_id')
         x = []
         y = []
-        image_ids = []
+        ids = []
         for image_id, group in grouped:
             x.append(group[x_cols].values)
             y.append(group['label'].values)
-            image_ids.append(image_id)
+            ids.append(image_id)
 
         indexes = [i for i, x in enumerate(self.img_refs) if x.probe_file_id not in grouped.groups]
         for i in sorted(indexes, reverse=True):
@@ -89,7 +89,7 @@ class CsvPixelTestDataGenerator(Sequence):
             except IndexError as e:
                 a = 1
         
-        return np.array(x),np.array(y) 
+        return np.array(x),np.array(y) , ids
 
 #     def add_missing_
     
