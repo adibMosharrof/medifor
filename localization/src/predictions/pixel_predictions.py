@@ -5,6 +5,7 @@ import math
 import gc
 import cv2
 import numpy as np
+import pandas as pd
 from PIL import Image
 from shared.path_utils import PathUtils
 from shared.folder_utils import FolderUtils
@@ -45,7 +46,7 @@ class PixelPredictions():
         self.test_img_refs = img_refs[self.train_data_size:]
         
     def train_predict(self):
-        score =[] 
+        score =[]
         for i in range(2):
             if i == 1:
                 print('flipping train and test set')
@@ -95,8 +96,8 @@ class PixelPredictions():
                         csv_path = csv_path,
                         img_refs = self.test_img_refs
                         )
-#         a,b = train_gen.__getitem__(0)
 #         q,w = test_gen.__getitem__(0)
+#         a,b = train_gen.__getitem__(0)
         return train_gen, test_gen
     
     def train_model(self, train_gen):
@@ -107,7 +108,6 @@ class PixelPredictions():
 #             model = None
             
         
-#         x, y = train_gen.__getitem__(0)
         x, y = train_gen.__getitem__(0)
         arch = self._get_architecture()
         if self.model_name in ['lr']:
