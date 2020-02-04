@@ -81,6 +81,7 @@ class CsvPixelTestDataGenerator(Sequence):
         indexes = [i for i, x in enumerate(self.img_refs) if x.probe_file_id not in grouped.groups]
         for i in sorted(indexes, reverse=True):
             try:
+                print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
                 del self.img_refs[i]
             except IndexError as e:
                 a = 1
