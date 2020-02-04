@@ -123,11 +123,11 @@ class PixelPredictions():
         predictions = []
         counter = 0
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
-            x_list, y_list = test_gen.__getitem__(i)
+            x_list, y_list, ids = test_gen.__getitem__(i)
             
-            for i, x in enumerate(x_list):
+            for id, x in zip(ids, x_list):
                 try:
-                    pred= model.predict_proba(x)[:,1]
+                    pred= (model.predict_proba(x)[:,1],id) 
 #                     x = np.array(x)
 #                     pred = model.predict(x)
                 except:
@@ -137,21 +137,22 @@ class PixelPredictions():
         print(f"Num of missing images {counter}")
         del model
         gc.collect()
-        self._reconstruct(predictions)
+        self._reconstruct(predictions, ids)
         
-    def _reconstruct(self, predictions):
+    def _reconstruct(self, predictions, ids):
         counter = 0
-        for prediction , img_ref in zip(predictions, self.test_img_refs):
+        for (prediction, id) in predictions:
 #             prediction = 255- (prediction*255)
 #             prediction = prediction * 255
-            prediction = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
+            img_ref = next((x for x in self.test_img_refs if x.probe_file_id == id), None)
+            pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
-                img = prediction.reshape(img_ref.img_width, img_ref.img_height)
+                img = pred.reshape(img_ref.img_width, img_ref.img_height)
                 img_original_size = cv2.resize(
                 img, (img_ref.img_orig_width, img_ref.img_orig_height))
             except:
                 counter +=1
-                img_original_size = np.zeros(img_ref.img_orig_width, img_ref.img_orig_height)
+                img_original_size = np.zeros((img_ref.img_orig_width, img_ref.img_orig_height))
 #             img = Image.fromarray(img).convert("L") 
 #             img_original_size = img.resize(
 #                 (img_ref.img_orig_width, img_ref.img_orig_height), Image.ANTIALIAS)
