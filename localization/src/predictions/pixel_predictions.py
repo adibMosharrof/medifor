@@ -41,6 +41,7 @@ class PixelPredictions():
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
         self.train_data_size = self.config['train_data_size']
         self.test_data_size = self.ending_index - self.starting_index - self.train_data_size
+        self.train_batch_size = self.config['train_batch_size']
         
         irb = ImgRefBuilder(img_ref_csv_path)
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
@@ -126,7 +127,8 @@ class PixelPredictions():
             train_gen = CsvPixelTrainDataGenerator(
                          data_size=self.train_data_size,
                         csv_path = csv_path,
-                        img_refs = self.train_img_refs
+                        img_refs = self.train_img_refs,
+                        batch_size = self.train_batch_size
                         )
  
             test_gen = CsvPixelTestDataGenerator(
@@ -146,15 +148,17 @@ class PixelPredictions():
 #         except:
 #             model = None
             
-        
+        epochs = self.config["epochs"]
+        workers = self.config["workers"]
         arch = self._get_architecture()
+        x, y = train_gen.__getitem__(0)
         if self.model_name in ['lr']:
-            x, y = train_gen.__getitem__(0)
             model = arch.get_model(self.patch_shape,x.shape[1])
+            
         else:
-            x, y, _ = train_gen.__getitem__(0)
             model = arch.get_model(self.patch_shape,x.shape[3])
-        model.fit(x,y)
+#         model.fit(x,y)
+        model.fit_generator(generator = train_gen, epochs=epochs)
         return model
                          
     def predict(self, model, test_gen):
@@ -162,12 +166,14 @@ class PixelPredictions():
         counter = 0
         for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
             x_list, y_list, ids = test_gen.__getitem__(i)
-            
+                
             for id, x in zip(ids, x_list):
                 try:
-#                     pred= (model.predict_proba(x)[:,1],id) 
-                    x = np.array([x])
-                    pred = (model.predict(x), id)
+                    if self._is_nn():
+                        x = np.array(x)
+                        pred = (model.predict(x), id)
+                    else:
+                        pred= (model.predict_proba(x)[:,1],id) 
                 except:
                     counter +=1
                     pred = (np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width), id)
@@ -185,13 +191,10 @@ class PixelPredictions():
             img_ref = next((x for x in self.test_img_refs if x.probe_file_id == id), None)
             pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
-#                 img = pred.reshape(img_ref.img_height, img_ref.img_width)
-                img = pred.reshape(prediction.shape[1], prediction.shape[1])
+                img = pred.reshape(img_ref.img_height, img_ref.img_width)
+#                 img = pred.reshape(prediction.shape[1], prediction.shape[1])
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
-#                 img = Image.fromarray(np.reshape(pred, (img_ref.img_height, img_ref.img_width))).convert("L")
-#                 img_original_size = img.resize((img_ref.img_orig_width, img_ref.img_orig_height), Image.ANTIALIAS)
-#                 img.save(full_img_path)
             except:
                 counter +=1
                 img_original_size = np.zeros((img_ref.img_orig_width, img_ref.img_orig_height))
@@ -215,7 +218,13 @@ class PixelPredictions():
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
-               
+      
+    def _is_nn(self):
+        if self.config['model_name'] in ['single_layer_nn', 'unet', 'lr']:
+#         if self.config['model_name'] in ['single_layer_nn', 'unet']:
+            return True
+        return False
+             
     def _get_architecture(self):
         model_name = self.config['model_name']
         if model_name == 'lr':

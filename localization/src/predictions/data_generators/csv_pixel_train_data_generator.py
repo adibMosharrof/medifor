@@ -17,17 +17,19 @@ from shared.patch_utils import PatchUtils
 class CsvPixelTrainDataGenerator(Sequence):
     
     def __init__(self, data_size=10,
-                 shuffle=False, csv_path=None, img_refs = None):
+                 shuffle=False, csv_path=None, img_refs = None, batch_size= 5):
         self.data_size = data_size
         self.shuffle = shuffle
         self.csv_path = csv_path
         self.img_refs = img_refs
+        self.batch_size = batch_size
         self.on_epoch_end()
         
     def __getitem__(self, index):
-        starting_index = index * self.data_size
-        ending_index = (index + 1) * self.data_size
-
+        starting_index = index * self.batch_size
+        ending_index = (index + 1) * self.batch_size
+#         img_refs = self.img_refs[index * self.batch_size:(index + 1) * self.batch_size]
+        img_refs = self.img_refs
 #         x = []
 #         y = []
 #         for i in range(self.data_size):
@@ -67,13 +69,13 @@ class CsvPixelTrainDataGenerator(Sequence):
         df = pd.read_csv(self.csv_path)
 #         return df
         exclude = ['image_id', 'pixel_id', 'label']
-        filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in self.img_refs] )]
+        filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in img_refs] )]
         exclude = ['image_id', 'pixel_id', 'label']
         x_cols = [x for x in filtered_df.columns if x not in exclude]
         
         x = filtered_df[x_cols].values
         y = filtered_df['label'].values
-        return x,y
+        return np.array(x).astype(float),np.array(y).astype(float)
 
     
     def on_epoch_end(self):
@@ -81,4 +83,4 @@ class CsvPixelTrainDataGenerator(Sequence):
             random.shuffle(self.img_refs)
                     
     def __len__(self):
-        return self.data_size
+        return int(np.ceil(self.data_size / float(self.batch_size)))

@@ -6,13 +6,14 @@ class Lr():
     
     def get_model(self, image_size, num_indicators, layers=1):
         
-        return LogisticRegression()
+#         return LogisticRegression()
         
         
         model = Sequential()
-        model.add(Dense(1, input_dim=num_indicators, activation='sigmoid'))
+        model.add(Dense(1, input_dim=num_indicators, activation='relu'))
         model.compile(optimizer='sgd',
-              loss='binary_crossentropy',
+#             loss='mean_squared_error',
+            loss='binary_crossentropy',
               metrics=['accuracy'])
         
         return model

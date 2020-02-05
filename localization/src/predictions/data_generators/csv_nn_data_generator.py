@@ -35,7 +35,7 @@ class CsvNnDataGenerator(CsvPixelTestDataGenerator):
         x = []
         y = []
         for _x, _y, id in zip(x_list, y_list, ids):
-            img_ref = img_ref = next((x for x in self.img_refs if x.probe_file_id == id), None)
+            img_ref = next((x for x in self.img_refs if x.probe_file_id == id), None)
             _y = np.array(_y).astype(float).reshape(img_ref.img_height, img_ref.img_width)
             y.append(cv2.resize(_y, (self.patch_shape, self.patch_shape)))
             x.append(self._reshape_resize_x(np.array(_x), img_ref))
