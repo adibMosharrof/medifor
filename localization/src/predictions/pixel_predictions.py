@@ -17,6 +17,7 @@ from shared.image_utils import ImageUtils
 from shared.medifordata import MediforData
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import LogisticRegression
 
 from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
 from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
@@ -64,12 +65,48 @@ class PixelPredictions():
             score.append(self.get_score())
         avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
         print(f'average score is : {avg_score}')
+#         path = PathUtils.get_index_csv_path(self.config)
+#         index_df = pd.read_csv(path) 
+#         train_gen, test_gen = self.get_data_generators()
+#         train_df = train_gen.__getitem__(0)
+#         test_df = test_gen.__getitem__(0)
+#         exclude = ['image_id', 'pixel_id', 'label']
+#         indicators = [x for x in test_df.columns if x not in exclude]
+#         X_train = train_df[indicators].values
+#         y_train = train_df['label'].values
+#         model =LogisticRegression() 
+#         model = model.fit(X_train, y_train)
+#         model = self.train_model(train_gen)
+         
+#         X_test = test_df[indicators].values
+#         y_test = test_df['label'].values
+#          
+#         y_score = model.predict_proba(X_test)[:, 1]
+#         test_df['y_score'] = y_score
+        
+#         self.predict(model, test_gen)
+         
+#         for i, (image_id, image_df) in enumerate(test_df.groupby('image_id')):
+#             y = image_df['y_score'].values * 255
+#             y = 255 - y.astype(np.uint8)
+#             full_img_path = self.output_dir + image_id + '.png'
+#             # get width and height and original width and height
+#             r = index_df[index_df['image_id'] == image_id]
+#             width, height = int(r['image_width'].values[0]), int(r['image_height'].values[0])
+#             width_og, height_og = int(r['image_width_original'].values[0]), int(r['image_height_original'].values[0])
+#          
+#             # reshape predictions, then resize to its original dimensions
+#             img = Image.fromarray(np.reshape(y, (height, width)))
+#             img = img.resize((width_og, height_og), Image.ANTIALIAS)
+#             img.save(full_img_path)
+#         score = self.get_score()
+#         print(score)
     
     def get_data_generators(self):
         
         csv_path = PathUtils.get_csv_data_path(self.config)
         
-        if self.model_name in ['unet']:
+        if self.model_name in ['unet', 'single_layer_nn']:
             
             train_gen = CsvNnDataGenerator(
                         data_size=self.train_data_size,
@@ -110,11 +147,12 @@ class PixelPredictions():
 #             model = None
             
         
-        x, y = train_gen.__getitem__(0)
         arch = self._get_architecture()
         if self.model_name in ['lr']:
+            x, y = train_gen.__getitem__(0)
             model = arch.get_model(self.patch_shape,x.shape[1])
         else:
+            x, y, _ = train_gen.__getitem__(0)
             model = arch.get_model(self.patch_shape,x.shape[3])
         model.fit(x,y)
         return model
@@ -128,11 +166,11 @@ class PixelPredictions():
             for id, x in zip(ids, x_list):
                 try:
                     pred= (model.predict_proba(x)[:,1],id) 
-#                     x = np.array(x)
-#                     pred = model.predict(x)
+#                     x = np.array([x])
+#                     pred = (model.predict(x), id)
                 except:
                     counter +=1
-                    pred = np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width)
+                    pred = (np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width), id)
                 predictions.append(pred)
         print(f"Num of missing images {counter}")
         del model
@@ -147,9 +185,13 @@ class PixelPredictions():
             img_ref = next((x for x in self.test_img_refs if x.probe_file_id == id), None)
             pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
-                img = pred.reshape(img_ref.img_width, img_ref.img_height)
+                img = pred.reshape(img_ref.img_height, img_ref.img_width)
+#                 img = pred.reshape(prediction.shape[1], prediction.shape[1])
                 img_original_size = cv2.resize(
-                img, (img_ref.img_orig_width, img_ref.img_orig_height))
+                    img, (img_ref.img_orig_width, img_ref.img_orig_height))
+#                 img = Image.fromarray(np.reshape(pred, (img_ref.img_height, img_ref.img_width))).convert("L")
+#                 img_original_size = img.resize((img_ref.img_orig_width, img_ref.img_orig_height), Image.ANTIALIAS)
+#                 img.save(full_img_path)
             except:
                 counter +=1
                 img_original_size = np.zeros((img_ref.img_orig_width, img_ref.img_orig_height))
@@ -185,4 +227,7 @@ class PixelPredictions():
         elif model_name == 'unet':
             from architectures.unet import UNet
             arch = UNet()    
+        elif model_name == 'single_layer_nn':
+            from architectures.single_layer_nn import SingleLayerNN
+            arch = SingleLayerNN()    
         return arch        

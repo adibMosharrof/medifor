@@ -63,7 +63,9 @@ class CsvPixelTrainDataGenerator(Sequence):
 #         b= np.concatenate(y, axis=0)
 #         return a,b
 
+#         self.csv_path = 'C:/MyFiles/Study/research/localization/data/original/MFC18_EvalPart1/csv_data/MFC18_EvalPart1.csv'
         df = pd.read_csv(self.csv_path)
+#         return df
         exclude = ['image_id', 'pixel_id', 'label']
         filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in self.img_refs] )]
         exclude = ['image_id', 'pixel_id', 'label']
