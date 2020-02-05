@@ -11,13 +11,12 @@ class PredictionRunner():
     def start(self):
         config , email_json = ConfigLoader.get_config()
         #patch_pred = PatchPredictions(config)
-        if config['model_name'] in ['single_layer_nn']:
+        if config['model_name'] in []:
             pred = PatchPredictions(config)
         else:
             pred = PixelPredictions(config)
         
 #         train_gen, test_gen = pred.get_data_generators()
-        
         pred.train_predict()
 #         pred.predict(model, train_gen)
 #         score = pred.get_score()

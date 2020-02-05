@@ -30,22 +30,23 @@ class CsvNnDataGenerator(CsvPixelTestDataGenerator):
 
     def __getitem__(self, index):
         
-        x_list , y_list = super().__getitem__(index)
+        x_list , y_list, ids = super().__getitem__(index)
         num_indicators = len(x_list[0][0])
         x = []
         y = []
-        for _x, _y, img_ref in zip(x_list, y_list, self.img_refs):
-            _y = np.array(_y).reshape(img_ref.img_width, img_ref.img_height)
+        for _x, _y, id in zip(x_list, y_list, ids):
+            img_ref = img_ref = next((x for x in self.img_refs if x.probe_file_id == id), None)
+            _y = np.array(_y).astype(float).reshape(img_ref.img_height, img_ref.img_width)
             y.append(cv2.resize(_y, (self.patch_shape, self.patch_shape)))
             x.append(self._reshape_resize_x(np.array(_x), img_ref))
             
         x = np.array(x).reshape(-1, self.patch_shape, self.patch_shape, num_indicators )
         y = np.array(y).reshape(-1, self.patch_shape, self.patch_shape, 1)
-        return x, y
+        return x, y, ids
     
     def _reshape_resize_x(self, x, img_ref):
         x_list = []
-        x = x.reshape(x.shape[1], img_ref.img_width, img_ref.img_height)
+        x = x.astype(float).reshape(x.shape[1], img_ref.img_height, img_ref.img_width)
         for _x in x:
            x_list.append(cv2.resize(_x, (self.patch_shape, self.patch_shape))) 
         return np.array(x_list)

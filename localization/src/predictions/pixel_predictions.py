@@ -165,9 +165,9 @@ class PixelPredictions():
             
             for id, x in zip(ids, x_list):
                 try:
-                    pred= (model.predict_proba(x)[:,1],id) 
-#                     x = np.array([x])
-#                     pred = (model.predict(x), id)
+#                     pred= (model.predict_proba(x)[:,1],id) 
+                    x = np.array([x])
+                    pred = (model.predict(x), id)
                 except:
                     counter +=1
                     pred = (np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width), id)
@@ -185,8 +185,8 @@ class PixelPredictions():
             img_ref = next((x for x in self.test_img_refs if x.probe_file_id == id), None)
             pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
-                img = pred.reshape(img_ref.img_height, img_ref.img_width)
-#                 img = pred.reshape(prediction.shape[1], prediction.shape[1])
+#                 img = pred.reshape(img_ref.img_height, img_ref.img_width)
+                img = pred.reshape(prediction.shape[1], prediction.shape[1])
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
 #                 img = Image.fromarray(np.reshape(pred, (img_ref.img_height, img_ref.img_width))).convert("L")
