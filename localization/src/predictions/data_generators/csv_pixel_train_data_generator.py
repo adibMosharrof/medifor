@@ -76,7 +76,7 @@ class CsvPixelTrainDataGenerator(Sequence):
         
         x = filtered_df[x_cols].values
         y = filtered_df['label'].values
-        return np.array(x).astype(float),np.array(y).astype(float)
+        return np.array(x).astype(float),np.array(y).astype(float), None
 
     
     def on_epoch_end(self):

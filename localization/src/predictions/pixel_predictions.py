@@ -40,16 +40,14 @@ class PixelPredictions():
         img_ref_csv_path, self.ref_data_path, targets, indicators = PathUtils.get_paths(self.config)
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
         self.train_data_size = self.config['train_data_size']
-        self.validation_data_size = self.config['validation_data_size']
-        self.test_data_size = self.ending_index - self.starting_index - self.train_data_size - self.validation_data_size
+        self.test_data_size = self.ending_index - self.starting_index - self.train_data_size 
         self.train_batch_size = self.config['train_batch_size']
         
         irb = ImgRefBuilder(img_ref_csv_path)
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
         irb.add_image_width_height(img_refs, self.config)
         self.train_img_refs = img_refs[:self.train_data_size]
-        self.validation_img_refs = img_refs[self.train_data_size:self.train_data_size+ self.validation_data_size]
-        self.test_img_refs = img_refs[self.train_data_size+ self.validation_data_size:]
+        self.test_img_refs = img_refs[self.train_data_size:]
         
     def train_predict(self):
         score =[]
@@ -109,18 +107,22 @@ class PixelPredictions():
         
         csv_path = PathUtils.get_csv_data_path(self.config)
         df = pd.read_csv(csv_path)
-        if self.model_name in ['unet', 'single_layer_nn']:
+        if self.model_name in ['unet']:
             
             train_gen = CsvNnDataGenerator(
                         data_size=self.train_data_size,
-                        test_starting_index = self.starting_index,
                         data = df,
                         img_refs = self.train_img_refs,
                         patch_shape = self.patch_shape
                         )
             test_gen = CsvNnDataGenerator(
                         data_size=self.test_data_size,
-                        test_starting_index = self.train_data_size+ self.starting_index,
+                        data= df,
+                        img_refs = self.test_img_refs,
+                        patch_shape = self.patch_shape
+                        )
+            valid_gen = CsvNnDataGenerator(
+                        data_size=self.test_data_size,
                         data= df,
                         img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape
@@ -133,14 +135,13 @@ class PixelPredictions():
                         batch_size = self.train_batch_size
                         )
             valid_gen = CsvPixelTrainDataGenerator(
-                        data_size=self.train_data_size,
+                        data_size=self.test_data_size,
                         data= df,
-                        img_refs = self.train_img_refs,
+                        img_refs = self.test_img_refs,
                         batch_size = self.train_batch_size
                         )
  
             test_gen = CsvPixelTestDataGenerator(
-                        test_starting_index = self.ending_index,
                         data_size=self.test_data_size,
                         data = df,
                         img_refs = self.test_img_refs
@@ -159,14 +160,16 @@ class PixelPredictions():
         epochs = self.config["epochs"]
         workers = self.config["workers"]
         arch = self._get_architecture()
-        x, y = train_gen.__getitem__(0)
-        if self.model_name in ['lr']:
-            model = arch.get_model(self.patch_shape,x.shape[1])
+        x, y, ids = train_gen.__getitem__(0)
+        if self.model_name in ['lr', 'nn']:
+            model = arch.get_model(self.patch_shape,x.shape[1], config=self.config)
             
         else:
             model = arch.get_model(self.patch_shape,x.shape[3])
 #         model.fit(x,y)
-        model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers )
+#         class_weight = np.array([0.5,0.5])
+#         model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers , class_weight=class_weight)
+        model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers)
         return model
                          
     def predict(self, model, test_gen):
@@ -228,7 +231,7 @@ class PixelPredictions():
             sys.exit(error_msg)
       
     def _is_nn(self):
-        if self.config['model_name'] in ['single_layer_nn', 'unet', 'lr']:
+        if self.config['model_name'] in ['nn', 'unet', 'lr']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
@@ -244,7 +247,7 @@ class PixelPredictions():
         elif model_name == 'unet':
             from architectures.unet import UNet
             arch = UNet()    
-        elif model_name == 'single_layer_nn':
-            from architectures.single_layer_nn import SingleLayerNN
-            arch = SingleLayerNN()    
+        elif model_name == 'nn':
+            from architectures.nn import Nn
+            arch = Nn()    
         return arch        

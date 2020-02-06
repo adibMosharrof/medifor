@@ -17,9 +17,8 @@ from shared.patch_utils import PatchUtils
 class CsvPixelTestDataGenerator(Sequence):
     
     def __init__(self, data_size=10,
-                 shuffle=False, test_starting_index=None, data=None, img_refs=None):
+                 shuffle=False, data=None, img_refs=None):
         self.data_size = data_size
-        self.test_starting_index = test_starting_index
         self.shuffle = shuffle
         self.data= data
         self.img_refs = img_refs

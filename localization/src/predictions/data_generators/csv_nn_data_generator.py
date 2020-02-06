@@ -21,10 +21,10 @@ from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenera
 class CsvNnDataGenerator(CsvPixelTestDataGenerator):
         
     def __init__(self, data_size=10,
-                 shuffle=False, test_starting_index=None, csv_path=None, img_refs=None, patch_shape=(None, None)):
+                 shuffle=False, test_starting_index=None, csv_path=None, img_refs=None,data= None, patch_shape=(None, None)):
         
-        super().__init__(data_size, test_starting_index = test_starting_index,csv_path = csv_path,
-                   img_refs = img_refs
+        super().__init__(data_size,
+                   img_refs = img_refs, data=data
                    )
         self.patch_shape = patch_shape
 

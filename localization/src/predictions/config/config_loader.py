@@ -38,9 +38,6 @@ class ConfigLoader():
         parser.add_argument('-tds','--train_data_size', type=int,
                     default=json_config['train_data_size'],help='Number of images to train on')
 
-        parser.add_argument('-vds','--validation_data_size', type=int,
-                    default=json_config['validation_data_size'],help='Number of images to train on')
-
         parser.add_argument('-dy','--dilate_y', type=str,
                     default=json_config['patch_tuning']['dilate_y'],help='Dilate y')
 
@@ -64,6 +61,9 @@ class ConfigLoader():
 
         parser.add_argument('-cd','--csv_data', type=str,
                     default=json_config['csv_data'],help='Csv Data')
+
+        parser.add_argument('-nnl','--nn_layers', type=int,
+                    default=json_config['nn_layers'],help='Patch Shape')
         
 
         config = vars(parser.parse_args())
@@ -81,17 +81,17 @@ class ConfigLoader():
     @staticmethod
     def print_config(config):
 
-        print(f"patch size_image downscale {config['patch_shape']}_{config['image_downscale_factor']}" )
-        print(f"Patch data type {config['patch_data_type'] or 'default'}" )
-        print(f"CSV Data {config['csv_data']}" )
+#         print(f"patch size_image downscale {config['patch_shape']}_{config['image_downscale_factor']}" )
+#         print(f"Patch data type {config['patch_data_type'] or 'default'}" )
+#         print(f"CSV Data {config['csv_data']}" )
         print(f"Data prefix {config['data_prefix']}" )
         
         print(f"training batch size {config['train_batch_size']}" )
         print(f"training data size {config['train_data_size']}" )
-        print(f"validation data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
-        print(f"Patch tuning {config['patch_tuning']}")
+        print(f"Nn layers {config['nn_layers']}")
+#         print(f"Patch tuning {config['patch_tuning']}")
     
     @staticmethod
     def _get_patch_data_type(code):
