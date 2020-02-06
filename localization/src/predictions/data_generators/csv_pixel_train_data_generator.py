@@ -17,10 +17,10 @@ from shared.patch_utils import PatchUtils
 class CsvPixelTrainDataGenerator(Sequence):
     
     def __init__(self, data_size=10,
-                 shuffle=False, csv_path=None, img_refs = None, batch_size= 5):
+                 shuffle=False, data=None, img_refs = None, batch_size= 5):
         self.data_size = data_size
         self.shuffle = shuffle
-        self.csv_path = csv_path
+        self.data = data 
         self.img_refs = img_refs
         self.batch_size = batch_size
         self.on_epoch_end()
@@ -66,8 +66,9 @@ class CsvPixelTrainDataGenerator(Sequence):
 #         return a,b
 
 #         self.csv_path = 'C:/MyFiles/Study/research/localization/data/original/MFC18_EvalPart1/csv_data/MFC18_EvalPart1.csv'
-        df = pd.read_csv(self.csv_path)
+#         df = pd.read_csv(self.csv_path)
 #         return df
+        df = self.data
         exclude = ['image_id', 'pixel_id', 'label']
         filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in img_refs] )]
         exclude = ['image_id', 'pixel_id', 'label']
