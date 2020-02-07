@@ -9,6 +9,7 @@ from time import time
 import psutil
 import sys
 import csv
+from sklearn.utils import shuffle
 
 from shared.image_utils import ImageUtils
 from shared.patch_utils import PatchUtils
@@ -17,7 +18,7 @@ from shared.patch_utils import PatchUtils
 class CsvPixelTrainDataGenerator(Sequence):
     
     def __init__(self, data_size=10,
-                 shuffle=False, data=None, img_refs = None, batch_size= 5):
+                 shuffle=True, data=None, img_refs = None, batch_size= 5):
         self.data_size = data_size
         self.shuffle = shuffle
         self.data = data 
@@ -29,7 +30,7 @@ class CsvPixelTrainDataGenerator(Sequence):
         starting_index = index * self.batch_size
         ending_index = (index + 1) * self.batch_size
 #         img_refs = self.img_refs[index * self.batch_size:(index + 1) * self.batch_size]
-        img_refs = self.img_refs
+        img_refs = self.img_refs[starting_index:ending_index]
 #         x = []
 #         y = []
 #         for i in range(self.data_size):
@@ -71,6 +72,7 @@ class CsvPixelTrainDataGenerator(Sequence):
         df = self.data
         exclude = ['image_id', 'pixel_id', 'label']
         filtered_df = df[df['image_id'].isin( [i.probe_file_id for i in img_refs] )]
+#         filtered_df = filtered_df.sample(frac=1).reset_index(drop=True)
         exclude = ['image_id', 'pixel_id', 'label']
         x_cols = [x for x in filtered_df.columns if x not in exclude]
         
