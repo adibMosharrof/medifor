@@ -18,7 +18,7 @@
     "train_data_size":150,
     "validation_data_size":20,
     "workers":1,
-    "epochs":4,
+    "epochs":8,
     "starting_index":0,
     "ending_index":300,
     "model_name":"lr",

@@ -82,7 +82,8 @@ class CsvPixelTrainDataGenerator(Sequence):
 
     
     def on_epoch_end(self):
-        if self.shuffle is True:    
+        if self.shuffle is True:
+#             self.data = self.data.sample(frac=1).reset_index(drop=True)    
             random.shuffle(self.img_refs)
                     
     def __len__(self):
