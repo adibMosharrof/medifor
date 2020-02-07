@@ -64,6 +64,9 @@ class ConfigLoader():
 
         parser.add_argument('-nnl','--nn_layers', type=int,
                     default=json_config['nn_layers'],help='Patch Shape')
+
+        parser.add_argument('-i','--iterations', type=int,
+                    default=json_config['iterations'],help='Patch Shape')
         
 
         config = vars(parser.parse_args())

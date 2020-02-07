@@ -50,22 +50,31 @@ class PixelPredictions():
         self.test_img_refs = img_refs[self.train_data_size:]
         
     def train_predict(self):
-        score =[]
-        for i in range(2):
-            if i == 1:
-                print('flipping train and test set')
-                temp = self.train_img_refs
-                self.train_img_refs = self.test_img_refs
-                self.test_img_refs = temp
-                temp = self.train_data_size
-                self.train_data_size = self.test_data_size
-                self.test_data_size = temp 
-            train_gen, test_gen, valid_gen = self.get_data_generators()
-            model = self.train_model(train_gen, valid_gen)
-            self.predict(model, test_gen)
-            score.append(self.get_score())
-        avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
-        print(f'average score is : {avg_score}')
+        avg_scores = []
+        for it in range(self.config['iterations']):
+            print(f'running iteration {it}')
+            score =[]
+            for i in range(2):
+                if i == 1:
+                    print('flipping train and test set')
+                    temp = self.train_img_refs
+                    self.train_img_refs = self.test_img_refs
+                    self.test_img_refs = temp
+                    temp = self.train_data_size
+                    self.train_data_size = self.test_data_size
+                    self.test_data_size = temp 
+                train_gen, test_gen, valid_gen = self.get_data_generators()
+                model = self.train_model(train_gen, valid_gen)
+                self.predict(model, test_gen)
+                score.append(self.get_score())
+            avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
+            avg_scores.append(avg_score)
+
+        for i, avg_score in enumerate(avg_scores):
+            print(f'average score for iteration {i} : {avg_score}')
+        print(f'max score {max(avg_scores)}')
+        print(f'avg score over iterations {np.mean(avg_scores)}')
+             
 #         path = PathUtils.get_index_csv_path(self.config)
 #         index_df = pd.read_csv(path) 
 #         train_gen, test_gen = self.get_data_generators()
