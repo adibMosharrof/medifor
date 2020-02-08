@@ -17,7 +17,7 @@
     "test_batch_size":2,
     "train_data_size":150,
     "validation_data_size":20,
-    "workers":3,
+    "workers":6,
     "epochs":8,
     "starting_index":0,
     "ending_index":300,
@@ -28,6 +28,6 @@
         "patch_black":false
     },
     "patch_data_type":"",
-    "nn_layers":5,
-    "iterations":4 
+    "nn_layers":6,
+    "iterations":15
 }
