@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential 
 from keras.layers import Dense, Activation 
+from keras.regularizers import l1
 tf.get_logger().setLevel('WARN')
 
 class Nn():
@@ -12,12 +13,16 @@ class Nn():
         layers = config['nn_layers']
 
         model = Sequential()
-        model.add(Dense(num_indicators, input_dim=num_indicators, activation='sigmoid'))
+        model.add(Dense(num_indicators, input_dim=num_indicators, activation='linear', activity_regularizer=l1(config['regularization'])))
+        model.add(Activation('sigmoid'))
         
         for i in range(layers):
-            model.add(Dense(int(num_indicators/(i+1)*2), activation='sigmoid'))
+            model.add(Dense(int(num_indicators/(i+1)*2),
+                        activation='linear', activity_regularizer=l1(config['regularization'])))           
+            model.add(Activation('sigmoid'))
         
-        model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(1, activation='linear', activity_regularizer=l1(config['regularization'])))
+        model.add(Activation('sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])        
         
         return model

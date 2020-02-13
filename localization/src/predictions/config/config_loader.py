@@ -68,6 +68,8 @@ class ConfigLoader():
         parser.add_argument('-i','--iterations', type=int,
                     default=json_config['iterations'],help='Patch Shape')
         
+        parser.add_argument('-r','--regularization', type=float,
+                    default=json_config['regularization'],help='Patch Shape')
 
         config = vars(parser.parse_args())
         
@@ -89,11 +91,14 @@ class ConfigLoader():
 #         print(f"CSV Data {config['csv_data']}" )
         print(f"Data prefix {config['data_prefix']}" )
         
+        
         print(f"training batch size {config['train_batch_size']}" )
         print(f"training data size {config['train_data_size']}" )
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
         print(f"Nn layers {config['nn_layers']}")
+        print(f"Num iterations {config['iterations']}" )
+        print(f"Regularization {config['regularization']}" )
 #         print(f"Patch tuning {config['patch_tuning']}")
     
     @staticmethod
