@@ -71,6 +71,9 @@ class ConfigLoader():
         parser.add_argument('-r','--regularization', type=float,
                     default=json_config['regularization'],help='Patch Shape')
 
+        parser.add_argument('-lr','--learning_rate', type=float,
+                    default=json_config['learning_rate'],help='Patch Shape')
+
         config = vars(parser.parse_args())
         
         config['patch_data_type'] = ConfigLoader._get_patch_data_type(config["patch_data_type"])
@@ -99,6 +102,7 @@ class ConfigLoader():
         print(f"Nn layers {config['nn_layers']}")
         print(f"Num iterations {config['iterations']}" )
         print(f"Regularization {config['regularization']}" )
+        print(f"Learning Rate {config['learning_rate']}" )
 #         print(f"Patch tuning {config['patch_tuning']}")
     
     @staticmethod

@@ -4,6 +4,7 @@ from tensorflow import keras
 from keras.models import Sequential 
 from keras.layers import Dense, Activation 
 from keras.regularizers import l1
+from keras.optimizers import SGD
 tf.get_logger().setLevel('WARN')
 
 class Nn():
@@ -23,7 +24,10 @@ class Nn():
         
         model.add(Dense(1, activation='linear', activity_regularizer=l1(config['regularization'])))
         model.add(Activation('sigmoid'))
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])        
+        
+#         opt = keras.optimizers.Adam(learning_rate=config['learning_rate'], beta_1=0.9, beta_2=0.999, amsgrad=False)
+        opt= SGD(lr=config['learning_rate'], momentum=0.9, decay=1e-2/config['epochs'])
+        model.compile(loss='binary_crossentropy', optimizer=opt,  metrics=['accuracy'])        
         
         return model
 
