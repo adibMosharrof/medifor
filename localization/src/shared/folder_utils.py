@@ -13,7 +13,8 @@ class FolderUtils:
     def create_predictions_pixel_output_folder(model_name, data_prefix, output_path):
         timestamp = FolderUtils._get_timestamp()
         output_dir_path = f'{output_path}{model_name}/{data_prefix}/{timestamp}'
-        return FolderUtils.make_dir(output_dir_path)
+        graphs_path = f'{output_dir_path}/graphs'
+        return FolderUtils.make_dir(output_dir_path), FolderUtils.make_dir(graphs_path)
     
     
     @staticmethod
@@ -29,7 +30,8 @@ class FolderUtils:
     def create_predictions_output_folder(model_name, patch_shape, img_downscale_factor, output_path):
         timestamp = FolderUtils._get_timestamp()
         output_dir_path = f'{output_path}{model_name}/{patch_shape}_{img_downscale_factor}/{timestamp}'
-        return FolderUtils.make_dir(output_dir_path)
+        FolderUtils.make_dir(output_dir_path)
+        return output_dir_path
         
     @staticmethod
     def _get_timestamp():

@@ -5,6 +5,7 @@ import math
 import gc
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
 from shared.path_utils import PathUtils
@@ -15,6 +16,8 @@ from scoring.scoring import Scoring
 from shared.json_loader import JsonLoader
 from shared.image_utils import ImageUtils
 from shared.medifordata import MediforData
+
+from training_callback import TrainingCallback
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
@@ -30,11 +33,11 @@ class PixelPredictions():
         self.model_name = self.config["model_name"]
         img_downscale_factor = self.config['image_downscale_factor']
         output_folder = self.config["path"]["outputs"] + "predictions/"
-        self.output_dir = FolderUtils.create_predictions_pixel_output_folder(
+        self.output_dir, self.graphs_path = FolderUtils.create_predictions_pixel_output_folder(
             self.model_name,
             self.config['data_prefix'],
             output_folder)
-        
+        print(f'Graphs path {self.graphs_path}')
         self.my_logger = LogUtils.init_log(self.output_dir)
         self.patch_shape= self.config['patch_shape']
         img_ref_csv_path, self.ref_data_path, targets, indicators = PathUtils.get_paths(self.config)
@@ -51,9 +54,11 @@ class PixelPredictions():
         
     def train_predict(self):
         avg_scores = []
+        all_models = []
         for it in range(self.config['iterations']):
             print(f'running iteration {it}')
             score =[]
+            current_models = []
             for i in range(2):
                 if i == 1:
                     print('flipping train and test set')
@@ -63,17 +68,20 @@ class PixelPredictions():
                     temp = self.train_data_size
                     self.train_data_size = self.test_data_size
                     self.test_data_size = temp 
-                train_gen, test_gen, valid_gen = self.get_data_generators()
-                model = self.train_model(train_gen, valid_gen)
-                self.predict(model, test_gen)
-                score.append(self.get_score())
-            avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
-            avg_scores.append(avg_score)
+                self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators()
+                model = self.train_model(self.train_gen, self.valid_gen)
+                current_models.append(model)
+#                 self.predict(model, self.test_gen)
+#                 score.append(self.get_score())
+            all_models.append(current_models)
+#             avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
+#             avg_scores.append(avg_score)
 
-        for i, avg_score in enumerate(avg_scores):
-            print(f'average score for iteration {i} : {avg_score}')
-        print(f'max score {max(avg_scores)}')
-        print(f'avg score over iterations {np.mean(avg_scores)}')
+        self.create_graphs(all_models)
+#         for i, avg_score in enumerate(avg_scores):
+#             print(f'average score for iteration {i} : {avg_score}')
+#         print(f'max score {max(avg_scores)}')
+#         print(f'avg score over iterations {np.mean(avg_scores)}')
              
 #         path = PathUtils.get_index_csv_path(self.config)
 #         index_df = pd.read_csv(path) 
@@ -111,6 +119,46 @@ class PixelPredictions():
 #             img.save(full_img_path)
 #         score = self.get_score()
 #         print(score)
+    
+    def create_graphs(self, all_models):
+#         n = len(imgs)
+#         f = plt.figure()
+#         for i, img in enumerate(imgs):
+#             f.add_subplot(1, n, i + 1)
+#             plt.imshow(img)
+#         plt.show()
+        
+        for (j, models) in enumerate(all_models):
+
+            counter = 1
+            for i,model in enumerate(models):
+                plt.figure()
+                plt.subplot(3,1,1)
+
+                plt.plot(model.history.history['accuracy'], color='b')
+                plt.plot(model.history.history['val_accuracy'], color='r')
+                plt.title('model accuracy')
+                plt.ylabel('accuracy')
+                plt.xlabel('epoch')
+                plt.legend(['train', 'test'], loc='upper left')
+    
+                plt.subplot(3,1,2)
+                plt.plot(model.history.history['loss'], color='b')
+                plt.plot(model.history.history['val_loss'], color='r')
+                plt.title('model loss')
+                plt.ylabel('loss')
+                plt.xlabel('epoch')
+                plt.legend(['train', 'test'], loc='upper left')
+                
+                plt.subplot(3,1,3)
+                plt.plot(model.history.history['mcc_scores'][0], color='b')
+                plt.title('Mcc Scores')
+                plt.ylabel('mcc_score')
+                plt.xlabel('epoch')
+                plt.legend(['mcc_scores'], loc='upper left')
+                
+                plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
+                plt.savefig(f'{self.graphs_path}/iteration_{j+1}_{i+1}.png')
     
     def get_data_generators(self):
         
@@ -178,7 +226,12 @@ class PixelPredictions():
 #         model.fit(x,y)
 #         class_weight = np.array([0.5,0.5])
 #         model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers , class_weight=class_weight)
-        model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers)
+        train_callback = TrainingCallback(self)
+        model.fit_generator(generator = train_gen, epochs=epochs,
+            validation_data= valid_gen, 
+            use_multiprocessing=self.config['multiprocessing'], 
+            workers = workers,
+            callbacks=[train_callback])
         return model
                          
     def predict(self, model, test_gen):
