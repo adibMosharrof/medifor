@@ -73,6 +73,9 @@ class ConfigLoader():
 
         parser.add_argument('-lr','--learning_rate', type=float,
                     default=json_config['learning_rate'],help='Patch Shape')
+        
+        parser.add_argument('-g','--graphs', type=bool,
+                    default=json_config['graphs'],help='Patch Shape')
 
         config = vars(parser.parse_args())
         

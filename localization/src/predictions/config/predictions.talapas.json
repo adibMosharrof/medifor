@@ -30,5 +30,6 @@
     "nn_layers":6,
     "iterations":5,
     "regularization":0.00,
-    "learning_rate":0.01
+    "learning_rate":0.01,
+    "graphs":true
 }

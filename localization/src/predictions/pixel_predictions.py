@@ -76,8 +76,8 @@ class PixelPredictions():
             all_models.append(current_models)
 #             avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
 #             avg_scores.append(avg_score)
-
-        self.create_graphs(all_models)
+        if self.config['graphs'] == True:
+            self.create_graphs(all_models)
 #         for i, avg_score in enumerate(avg_scores):
 #             print(f'average score for iteration {i} : {avg_score}')
 #         print(f'max score {max(avg_scores)}')
@@ -226,12 +226,14 @@ class PixelPredictions():
 #         model.fit(x,y)
 #         class_weight = np.array([0.5,0.5])
 #         model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers , class_weight=class_weight)
-        train_callback = TrainingCallback(self)
+        train_callback = None
+        if self.config['graphs']:
+            train_callback = [TrainingCallback(self)]
         model.fit_generator(generator = train_gen, epochs=epochs,
             validation_data= valid_gen, 
             use_multiprocessing=self.config['multiprocessing'], 
             workers = workers,
-            callbacks=[train_callback])
+            callbacks=train_callback)
         return model
                          
     def predict(self, model, test_gen):
