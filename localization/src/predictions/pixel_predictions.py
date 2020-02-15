@@ -71,11 +71,11 @@ class PixelPredictions():
                 self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators()
                 model = self.train_model(self.train_gen, self.valid_gen)
                 current_models.append(model)
-#                 self.predict(model, self.test_gen)
-#                 score.append(self.get_score())
+                self.predict(model, self.test_gen)
+                score.append(self.get_score())
             all_models.append(current_models)
-#             avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
-#             avg_scores.append(avg_score)
+            avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
+            avg_scores.append(avg_score)
         if self.config['graphs'] == True:
             self.create_graphs(all_models)
 #         for i, avg_score in enumerate(avg_scores):
