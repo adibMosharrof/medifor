@@ -77,6 +77,9 @@ class ConfigLoader():
         parser.add_argument('-g','--graphs', type=bool,
                     default=json_config['graphs'],help='Patch Shape')
 
+        parser.add_argument('-dt','--data_type', type=str,
+                    default=json_config['data_type'],help='Patch Shape')
+
         config = vars(parser.parse_args())
         
         config['patch_data_type'] = ConfigLoader._get_patch_data_type(config["patch_data_type"])
