@@ -50,7 +50,7 @@ class ImgRefBuilder:
             ending_index = math.inf
         rows = []
         with open(self.image_ref_csv_path, 'r') as f:
-            reader = csv.reader(f, delimiter='|')
+            reader = csv.reader(f, delimiter=',')
             headers = next(reader)
             counter = 0
             for row in reader:
