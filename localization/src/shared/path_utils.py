@@ -9,7 +9,7 @@ class PathUtils:
         image_ref_csv, ref_data = PathUtils.get_image_ref_paths(config_path, data_path)
         
         targets = f"{config_path['data']}{config['data_prefix']}{config['data_year']}targets/"
-        indicators = f"{config_path['data']}{config['data_year']}indicators/"
+        indicators = f"{config_path['data']}{config['data_prefix']}{config['data_year']}indicators/"
         
         return image_ref_csv, ref_data, targets, indicators
     

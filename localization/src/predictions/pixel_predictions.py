@@ -22,9 +22,7 @@ from training_callback import TrainingCallback
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 
-from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
-from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
-from data_generators.csv_nn_data_generator import CsvNnDataGenerator
+
 
 class PixelPredictions():
     
@@ -40,7 +38,8 @@ class PixelPredictions():
         print(f'Graphs path {self.graphs_path}')
         self.my_logger = LogUtils.init_log(self.output_dir)
         self.patch_shape= self.config['patch_shape']
-        img_ref_csv_path, self.ref_data_path, targets, indicators = PathUtils.get_paths(self.config)
+        img_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config)
+        self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
         self.train_data_size = self.config['train_data_size']
         self.test_data_size = self.ending_index - self.starting_index - self.train_data_size 
@@ -78,56 +77,13 @@ class PixelPredictions():
             avg_scores.append(avg_score)
         if self.config['graphs'] == True:
             self.create_graphs(all_models)
-#         for i, avg_score in enumerate(avg_scores):
-#             print(f'average score for iteration {i} : {avg_score}')
-#         print(f'max score {max(avg_scores)}')
-#         print(f'avg score over iterations {np.mean(avg_scores)}')
-             
-#         path = PathUtils.get_index_csv_path(self.config)
-#         index_df = pd.read_csv(path) 
-#         train_gen, test_gen = self.get_data_generators()
-#         train_df = train_gen.__getitem__(0)
-#         test_df = test_gen.__getitem__(0)
-#         exclude = ['image_id', 'pixel_id', 'label']
-#         indicators = [x for x in test_df.columns if x not in exclude]
-#         X_train = train_df[indicators].values
-#         y_train = train_df['label'].values
-#         model =LogisticRegression() 
-#         model = model.fit(X_train, y_train)
-#         model = self.train_model(train_gen)
-         
-#         X_test = test_df[indicators].values
-#         y_test = test_df['label'].values
-#          
-#         y_score = model.predict_proba(X_test)[:, 1]
-#         test_df['y_score'] = y_score
         
-#         self.predict(model, test_gen)
-         
-#         for i, (image_id, image_df) in enumerate(test_df.groupby('image_id')):
-#             y = image_df['y_score'].values * 255
-#             y = 255 - y.astype(np.uint8)
-#             full_img_path = self.output_dir + image_id + '.png'
-#             # get width and height and original width and height
-#             r = index_df[index_df['image_id'] == image_id]
-#             width, height = int(r['image_width'].values[0]), int(r['image_height'].values[0])
-#             width_og, height_og = int(r['image_width_original'].values[0]), int(r['image_height_original'].values[0])
-#          
-#             # reshape predictions, then resize to its original dimensions
-#             img = Image.fromarray(np.reshape(y, (height, width)))
-#             img = img.resize((width_og, height_og), Image.ANTIALIAS)
-#             img.save(full_img_path)
-#         score = self.get_score()
-#         print(score)
+        for i, avg_score in enumerate(avg_scores):
+            print(f'average score for iteration {i} : {avg_score}')
+        print(f'max score {max(avg_scores)}')
+        print(f'avg score over iterations {np.mean(avg_scores)}')
     
     def create_graphs(self, all_models):
-#         n = len(imgs)
-#         f = plt.figure()
-#         for i, img in enumerate(imgs):
-#             f.add_subplot(1, n, i + 1)
-#             plt.imshow(img)
-#         plt.show()
-        
         for (j, models) in enumerate(all_models):
 
             counter = 1
@@ -164,27 +120,37 @@ class PixelPredictions():
         
         csv_path = PathUtils.get_csv_data_path(self.config)
         df = pd.read_csv(csv_path)
-        if self.model_name in ['unet']:
-            
-            train_gen = CsvNnDataGenerator(
+        if self.config['data_type'] == "image":
+            from data_generators.img_pixel_train_data_generator import ImgPixelTrainDataGenerator
+
+            train_gen = ImgPixelTrainDataGenerator(
                         data_size=self.train_data_size,
-                        data = df,
                         img_refs = self.train_img_refs,
-                        patch_shape = self.patch_shape
+                        patch_shape = self.patch_shape,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
                         )
-            test_gen = CsvNnDataGenerator(
-                        data_size=self.test_data_size,
-                        data= df,
-                        img_refs = self.test_img_refs,
-                        patch_shape = self.patch_shape
+            test_gen = ImgPixelTrainDataGenerator(
+                        data_size=self.train_data_size,
+                        img_refs = self.train_img_refs,
+                        patch_shape = self.patch_shape,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
                         )
-            valid_gen = CsvNnDataGenerator(
-                        data_size=self.test_data_size,
-                        data= df,
-                        img_refs = self.test_img_refs,
-                        patch_shape = self.patch_shape
+            valid_gen = ImgPixelTrainDataGenerator(
+                        data_size=self.train_data_size,
+                        img_refs = self.train_img_refs,
+                        patch_shape = self.patch_shape,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
                         )
         else:
+            from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
+            from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
+            from data_generators.csv_nn_data_generator import CsvNnDataGenerator
             train_gen = CsvPixelTrainDataGenerator(
                         data_size=self.train_data_size,
                         data = df,
