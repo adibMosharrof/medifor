@@ -9,17 +9,17 @@
         }
     },
     "data_year":"MFC18_EvalPart1/",
-    "data_prefix":"medifor_local_small_40/",
+    "data_prefix":"original/",
     "image_downscale_factor":4,
     "csv_data":"",
     "patch_shape":128,
-    "train_batch_size":1,
+    "train_batch_size":3,
     "test_batch_size":2,
-    "train_data_size":250,
+    "train_data_size":500,
     "workers":20,
-    "epochs":15,
+    "epochs":12,
     "starting_index":0,
-    "ending_index":500,
+    "ending_index":1000,
     "model_name":"lr",
     "multiprocessing":true,
     "patch_tuning":{
@@ -32,5 +32,5 @@
     "regularization":0.00,
     "learning_rate":0.01,
     "graphs":false,
-    "data_type":"image"
+    "data_type":"csv"
 }
