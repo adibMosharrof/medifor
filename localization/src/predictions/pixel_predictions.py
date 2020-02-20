@@ -44,6 +44,7 @@ class PixelPredictions():
         self.train_data_size = self.config['train_data_size']
         self.test_data_size = self.ending_index - self.starting_index - self.train_data_size 
         self.train_batch_size = self.config['train_batch_size']
+        self.test_batch_size = self.config['test_batch_size']
         
         irb = ImgRefBuilder(img_ref_csv_path)
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
@@ -123,6 +124,7 @@ class PixelPredictions():
                         data_size=self.train_data_size,
                         img_refs = self.train_img_refs,
                         patch_shape = self.patch_shape,
+                        batch_size = self.train_batch_size,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
@@ -131,6 +133,7 @@ class PixelPredictions():
                         data_size=self.test_data_size,
                         img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
+                        batch_size = self.test_batch_size,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
@@ -138,6 +141,7 @@ class PixelPredictions():
             valid_gen = ImgPixelTrainDataGenerator(
                         data_size=self.test_data_size,
                         img_refs = self.test_img_refs,
+                        batch_size = self.train_batch_size,
                         patch_shape = self.patch_shape,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
@@ -168,7 +172,7 @@ class PixelPredictions():
                         data = df,
                         img_refs = self.test_img_refs
                         )
-#         q,w, id = test_gen.__getitem__(0)
+        q,w, id = test_gen.__getitem__(0)
 #         a,b, id = train_gen.__getitem__(0)
         return train_gen, test_gen, valid_gen
     
@@ -205,7 +209,7 @@ class PixelPredictions():
     def predict(self, model, test_gen):
         predictions = []
         counter = 0
-        for i in range(int(math.ceil(self.test_data_size / self.test_data_size))):
+        for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list, ids = test_gen.__getitem__(i)
                 
             for id, x in zip(ids, x_list):
