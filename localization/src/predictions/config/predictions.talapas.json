@@ -9,7 +9,7 @@
         }
     },
     "data_year":"MFC18_EvalPart1/",
-    "data_prefix":"original/",
+    "data_prefix":"medifor_local_small_40/",
     "image_downscale_factor":4,
     "csv_data":"",
     "patch_shape":128,

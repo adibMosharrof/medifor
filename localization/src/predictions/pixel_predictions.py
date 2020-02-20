@@ -115,10 +115,9 @@ class PixelPredictions():
     
     def get_data_generators(self):
         
-        csv_path = PathUtils.get_csv_data_path(self.config)
-        df = pd.read_csv(csv_path)
         if self.config['data_type'] == "image":
             from data_generators.img_pixel_train_data_generator import ImgPixelTrainDataGenerator
+            from data_generators.img_pixel_test_data_generator import ImgPixelTestDataGenerator
 
             train_gen = ImgPixelTrainDataGenerator(
                         data_size=self.train_data_size,
@@ -128,23 +127,26 @@ class PixelPredictions():
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
                         )
-            test_gen = ImgPixelTrainDataGenerator(
-                        data_size=self.train_data_size,
-                        img_refs = self.train_img_refs,
+            test_gen = ImgPixelTestDataGenerator(
+                        data_size=self.test_data_size,
+                        img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
                         )
             valid_gen = ImgPixelTrainDataGenerator(
-                        data_size=self.train_data_size,
-                        img_refs = self.train_img_refs,
+                        data_size=self.test_data_size,
+                        img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
                         )
         else:
+            csv_path = PathUtils.get_csv_data_path(self.config)
+            df = pd.read_csv(csv_path)
+
             from data_generators.csv_pixel_test_data_generator import CsvPixelTestDataGenerator
             from data_generators.csv_pixel_train_data_generator import CsvPixelTrainDataGenerator
             from data_generators.csv_nn_data_generator import CsvNnDataGenerator
@@ -166,8 +168,8 @@ class PixelPredictions():
                         data = df,
                         img_refs = self.test_img_refs
                         )
-#         q,w = test_gen.__getitem__(0)
-#         a,b = train_gen.__getitem__(0)
+#         q,w, id = test_gen.__getitem__(0)
+#         a,b, id = train_gen.__getitem__(0)
         return train_gen, test_gen, valid_gen
     
     def train_model(self, train_gen, valid_gen):
@@ -197,6 +199,7 @@ class PixelPredictions():
             use_multiprocessing=self.config['multiprocessing'], 
             workers = workers,
             callbacks=train_callback)
+        
         return model
                          
     def predict(self, model, test_gen):

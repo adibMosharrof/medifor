@@ -4,9 +4,10 @@ import math
 import os
 
 from shared.image_utils import ImageUtils
+
 from tensorflow.python.keras.utils.data_utils import Sequence
 
-class ImgPixelTrainDataGenerator(Sequence):
+class ImgPixelTestDataGenerator(Sequence):
     
     def __init__(self, batch_size=10, indicator_directories=[], 
                 shuffle=False, patches_path="", patch_shape=128,
@@ -35,19 +36,8 @@ class ImgPixelTrainDataGenerator(Sequence):
         target_imgs = []
 #         target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
-        y = []
-        for target_img in target_imgs:
-            y = np.concatenate((y, target_img))
-        
-        x = []    
-        for indicators in indicator_imgs:
-            reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
-            if len(x) == 0:
-                x = reshaped
-                continue
-            x = np.concatenate((x,reshaped))
-                
-        return x, y, None
+        x = np.array(indicator_imgs)     
+        return x, target_imgs, [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
         indicators = []
@@ -64,14 +54,14 @@ class ImgPixelTrainDataGenerator(Sequence):
 #         imgs = np.array([])
         imgs = []
         for img_ref in img_refs:
-            img_path = os.path.join(dir_path, img_ref.probe_file_id + ".png")
+            img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
             try:
                 img = ImageUtils.read_image(img_path)
             except FileNotFoundError as err:
                 img = np.zeros([img_ref.img_height, img_ref.img_width])
             imgs.append(img.ravel())
 #             imgs = np.concatenate((imgs, img.ravel()))
-        return imgs
+        return np.array(imgs)
     
     def __len__(self):
         return int(np.ceil(self.data_size / float(self.batch_size)))
