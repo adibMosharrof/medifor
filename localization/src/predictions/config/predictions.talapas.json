@@ -31,6 +31,6 @@
     "iterations":5,
     "regularization":0.00,
     "learning_rate":0.01,
-    "graphs":false,
-    "data_type":"csv"
+    "graphs":true,
+    "data_type":"image"
 }

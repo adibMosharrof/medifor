@@ -89,7 +89,7 @@ class PixelPredictions():
 
             counter = 1
             for i,model in enumerate(models):
-                plt.figure()
+                plt.figure(figsize=(12.8,9.6))
                 plt.subplot(3,1,1)
                 plt.plot(model.history.history['loss'], color='b')
                 plt.title('model loss training')
@@ -104,12 +104,12 @@ class PixelPredictions():
                 plt.xlabel('epoch')
                 plt.legend(['test'], loc='upper left')
                 
-                plt.subplot(3,1,3)
-                plt.plot(model.history.history['mcc_scores'][0], color='g')
-                plt.title('Mcc Scores')
-                plt.ylabel('mcc_score')
-                plt.xlabel('epoch')
-                plt.legend(['mcc_scores'], loc='upper left')
+#                 plt.subplot(3,1,3)
+#                 plt.plot(model.history.history['mcc_scores'][0], color='g')
+#                 plt.title('Mcc Scores')
+#                 plt.ylabel('mcc_score')
+#                 plt.xlabel('epoch')
+#                 plt.legend(['mcc_scores'], loc='upper left')
                 
                 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
                 plt.savefig(f'{self.graphs_path}/iteration_{j+1}_{i+1}.png')
