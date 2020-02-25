@@ -30,7 +30,9 @@ class PatchRunner:
             self.patch_shape, 
             self.img_downscale_factor, patches_folder, 
             PathUtils.get_indicator_directories(indicators_path),
-            self.config['tuning'])
+            self.config['tuning'],
+            self.config['data_year'],
+            self.config['data_prefix'])
         
         LogUtils.init_log(output_dir)
         

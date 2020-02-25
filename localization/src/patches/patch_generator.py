@@ -29,13 +29,13 @@ class PatchGenerator:
                 patch_img_ref = self._create_img_patch(img_ref, targets_path)
             except ZeroDivisionError as err:
                 #not including images that have size less than the patch size
-                print(f"division by zero {img_ref.sys_mask_file_name}")
+                print(f"division by zero {img_ref.probe_file_id}")
                 continue
             patch_img_refs.append(patch_img_ref)
         self.write_patch_img_refs_to_csv(patch_img_refs)
 
     def _create_img_patch(self, img_ref, targets_path):
-        target_image_path = os.path.join(targets_path, "manipulation", "mask", img_ref.ref_mask_file_name) + ".png"
+        target_image_path = os.path.join(targets_path, "manipulation", "mask", img_ref.probe_mask_file_name) + ".png"
         
         border_value = [255,255,255]
         if self.tuning['black_border_y'] is True or self.tuning['dilate_y_black_border_y'] is True:
@@ -47,17 +47,17 @@ class PatchGenerator:
         target_image_out_dir = self.output_dir + 'target_image/'
         bordered_image_patches, patch_window_shape = PatchUtils.get_patches(bordered_img, self.patch_shape)
         for i, patch in enumerate(bordered_image_patches):
-            path = f'{target_image_out_dir}{img_ref.sys_mask_file_name}_{i}.png'
+            path = f'{target_image_out_dir}{img_ref.probe_file_id}_{i}.png'
             ImageUtils.save_image(patch, path)
         patch_img_ref = PatchImageRefFactory.create_img_ref(
-            img_ref.sys_mask_file_name, bordered_img.shape, 
-            patch_window_shape, img_ref.ref_mask_file_name, 
+            img_ref.probe_file_id, bordered_img.shape, 
+            patch_window_shape, img_ref.probe_mask_file_name, 
             original_img_shape, border_top, border_left)
             
         indicators = None
         for indicator_dir in self.indicator_directories:
             indicator_out_path = self.output_dir + indicator_dir + '/'
-            img_path = os.path.join(self.indicators_path, indicator_dir, "mask", img_ref.sys_mask_file_name) + ".png"
+            img_path = os.path.join(self.indicators_path, indicator_dir, "mask", img_ref.probe_file_id) + ".png"
             try:
                 img, _, _, _ = ImageUtils.get_image_with_border(
                     img_path, self.patch_shape,
@@ -69,7 +69,7 @@ class PatchGenerator:
             finally:
                 img_patches, _ = PatchUtils.get_patches(img, self.patch_shape)  
                 for i, patch in enumerate(img_patches):
-                    path = f'{indicator_out_path}{img_ref.sys_mask_file_name}_{i}.png'
+                    path = f'{indicator_out_path}{img_ref.probe_file_id}_{i}.png'
                     ImageUtils.save_image(patch, path)
         
         return patch_img_ref

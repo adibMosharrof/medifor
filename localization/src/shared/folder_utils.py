@@ -18,8 +18,8 @@ class FolderUtils:
     
     
     @staticmethod
-    def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning):
-        output_dir_path = FolderUtils._get_patch_output_folder_name(output_path, patch_shape, img_downscale_factor, tuning)
+    def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning, data_year, data_prefix):
+        output_dir_path = FolderUtils._get_patch_output_folder_name(output_path, patch_shape, img_downscale_factor, tuning, data_year, data_prefix)
         output_dir =  FolderUtils.make_dir(output_dir_path)
         for indicator in indicators:    
             FolderUtils.make_dir(FolderUtils.make_dir(output_dir+ indicator))
@@ -38,12 +38,12 @@ class FolderUtils:
         return datetime.now().strftime("%Y%m%d_%H%M%S")
     
     @staticmethod
-    def _get_patch_output_folder_name(output_path, patch_shape,img_downscale_factor, tuning):
+    def _get_patch_output_folder_name(output_path, patch_shape,img_downscale_factor, tuning,data_year, data_prefix):
         name = ''
         for key, value in tuning.items():
             if value is True:
                 name = key +'/'
-        return '{}{}{}_{}'.format(output_path,name, patch_shape, img_downscale_factor)
+        return '{}{}{}{}{}_{}'.format(output_path,data_year, data_prefix,name, patch_shape, img_downscale_factor)
         
     
     @staticmethod

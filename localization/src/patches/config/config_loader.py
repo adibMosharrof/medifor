@@ -26,8 +26,11 @@ class ConfigLoader():
         parser.add_argument('-dybb','--dilate_y_black_border_y', type=str,
                     default=json_config['tuning']['dilate_y_black_border_y'],help='Dilate y and Black Border y')    
 
-        parser.add_argument('-d','--data', type=str,
-                    default=json_config['data'],help='Dataset')
+        parser.add_argument('-d','--data_year', type=str,
+                    default=json_config['data_year'],help='Dataset')
+        
+        parser.add_argument('-dp','--data_prefix', type=str,
+                    default=json_config['data_prefix'],help='Data Prefix')
 
         parser.add_argument('-idf','--image_downscale_factor', type=int,
                     default=json_config['image_downscale_factor'],help='Image Downscale Factor')
@@ -47,6 +50,7 @@ class ConfigLoader():
     
     @staticmethod
     def print_config(config):
+        print(f"data prefix {config['data_prefix']}")
         print(f"data size {config['ending_index'] - config['starting_index']}" )
         print(f"Image downscale factor {config['image_downscale_factor']}")
         print(f"Tuning {config['tuning']}")
