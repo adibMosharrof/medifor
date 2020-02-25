@@ -31,6 +31,9 @@ class PatchGenerator:
                 #not including images that have size less than the patch size
                 print(f"division by zero {img_ref.probe_file_id}")
                 continue
+            except FileNotFoundError as err:
+                print(f"Could not find image {err}")
+                continue
             patch_img_refs.append(patch_img_ref)
         self.write_patch_img_refs_to_csv(patch_img_refs)
 
