@@ -66,13 +66,14 @@ class ImgPixelTrainDataGenerator(Sequence):
 #         imgs = np.array([])
         imgs = []
         for (i,img_ref) in enumerate(img_refs):
-            img_path = os.path.join(dir_path, img_ref.probe_file_id + ".png")
+            img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
             try:
                 img = ImageUtils.read_image(img_path)
                 imgs.append(img.ravel())
             except FileNotFoundError as err:
+                print(f'deleting img with id {img_ref.probe_mask_file_name}')
                 del img_refs[i]
-                print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
+#                 print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
 #                 img = np.zeros([img_ref.img_height, img_ref.img_width])
 #             imgs = np.concatenate((imgs, img.ravel()))
         return imgs

@@ -28,7 +28,7 @@ class Nn():
 #         opt = keras.optimizers.Adam(learning_rate=config['learning_rate'], beta_1=0.9, beta_2=0.999, amsgrad=False)
 #         opt= SGD(lr=config['learning_rate'], momentum=0.9, decay=1e-2/config['epochs'])
         opt= SGD(lr=config['learning_rate'], momentum=0.9)
-        model.compile(loss='binary_crossentropy', optimizer=opt,  metrics=['accuracy'])        
+        model.compile(loss='mean_squared_error', optimizer=opt,  metrics=['accuracy'])        
         
         return model
 
