@@ -74,7 +74,7 @@ class PixelPredictions():
                 self.predict(model, self.test_gen)
                 score.append(self.get_score())
             all_models.append(current_models)
-            avg_score = (score[0]*self.train_data_size + score[1]*self.test_data_size)/(self.train_data_size+ self.test_data_size)
+            avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
             avg_scores.append(avg_score)
         if self.config['graphs'] == True:
             self.create_graphs(all_models)
