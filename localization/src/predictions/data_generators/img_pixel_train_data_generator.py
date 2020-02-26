@@ -28,9 +28,7 @@ class ImgPixelTrainDataGenerator(Sequence):
         
         img_refs = self.img_refs[starting_index:ending_index]
 
-        indicator_imgs = []
-        for img_ref in img_refs:
-            indicator_imgs.append(self._read_indicators(img_ref))
+
 
         target_imgs = []
 #         target_imgs_path = self.patches_path + 'target_image'
@@ -38,6 +36,10 @@ class ImgPixelTrainDataGenerator(Sequence):
         y = []
         for target_img in target_imgs:
             y = np.concatenate((y, target_img))
+        
+        indicator_imgs = []
+        for img_ref in img_refs:
+            indicator_imgs.append(self._read_indicators(img_ref))
         
         x = []    
         for indicators in indicator_imgs:
@@ -63,13 +65,15 @@ class ImgPixelTrainDataGenerator(Sequence):
     def _read_images_from_directory(self, dir_path, img_refs):
 #         imgs = np.array([])
         imgs = []
-        for img_ref in img_refs:
+        for (i,img_ref) in enumerate(img_refs):
             img_path = os.path.join(dir_path, img_ref.probe_file_id + ".png")
             try:
                 img = ImageUtils.read_image(img_path)
+                imgs.append(img.ravel())
             except FileNotFoundError as err:
-                img = np.zeros([img_ref.img_height, img_ref.img_width])
-            imgs.append(img.ravel())
+                del img_refs[i]
+                print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
+#                 img = np.zeros([img_ref.img_height, img_ref.img_width])
 #             imgs = np.concatenate((imgs, img.ravel()))
         return imgs
     
