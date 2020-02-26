@@ -44,7 +44,8 @@ class ImgPixelTestDataGenerator(Sequence):
         for indicator_name in self.indicator_directories:
             indicator_path = self.indicators_path + indicator_name + "/mask/" + img_ref.probe_file_id + ".png"
             try:
-                indicator_img = ImageUtils.read_image(indicator_path)
+                img = ImageUtils.read_image(indicator_path)
+                indicator_img = 255 - img 
             except FileNotFoundError as err:
                 indicator_img = np.zeros([img_ref.img_height, img_ref.img_width])
             indicators.append(indicator_img.ravel())
@@ -57,9 +58,13 @@ class ImgPixelTestDataGenerator(Sequence):
             img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
             try:
                 img = ImageUtils.read_image(img_path)
+                img_raveled = img.ravel()
+                flipped_img = 255-img_raveled
+                thresholded_img = np.where(flipped_img > 127, 1,0)
+                imgs.append(thresholded_img)
             except FileNotFoundError as err:
-                img = np.zeros([img_ref.img_height, img_ref.img_width])
-            imgs.append(img.ravel())
+                print(f'test, didnt find image with id {img_ref.probe_file_id}')
+#                 img = np.zeros([img_ref.img_height, img_ref.img_width])
 #             imgs = np.concatenate((imgs, img.ravel()))
         return np.array(imgs)
     

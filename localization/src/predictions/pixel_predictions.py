@@ -90,14 +90,14 @@ class PixelPredictions():
             counter = 1
             for i,model in enumerate(models):
                 plt.figure(figsize=(12.8,9.6))
-                plt.subplot(3,1,1)
+                plt.subplot(2,1,1)
                 plt.plot(model.history.history['loss'], color='b')
                 plt.title('model loss training')
                 plt.ylabel('loss')
                 plt.xlabel('epoch')
                 plt.legend(['train'], loc='upper left')
     
-                plt.subplot(3,1,2)
+                plt.subplot(2,1,2)
                 plt.plot(model.history.history['val_loss'], color='r')
                 plt.title('model loss test')
                 plt.ylabel('loss')
