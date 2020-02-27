@@ -70,5 +70,8 @@ class ImgPixelTestDataGenerator(Sequence):
 #             imgs = np.concatenate((imgs, img.ravel()))
         return np.array(imgs)
     
+    def set_data_size(self, size):
+        self.data_size = size
+    
     def __len__(self):
         return int(np.ceil(self.data_size / float(self.batch_size)))

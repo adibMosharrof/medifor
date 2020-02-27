@@ -74,6 +74,7 @@ class PixelPredictions():
                 current_models.append(model)
                 self.predict(model, self.test_gen)
                 self._delete_missing_probe_file_ids(missing_probe_file_ids)
+                self.test_gen.set_data_size(len(self.test_img_refs))
                 score.append(self.get_score())
             all_models.append(current_models)
             avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
