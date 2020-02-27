@@ -89,7 +89,7 @@ class PixelPredictions():
         print(f'avg score over iterations {np.mean(avg_scores)}')
     
     def print_size(self):
-        print(f'train data size {len(self.train_img_refs}')
+        print(f'train data size {len(self.train_img_refs)}')
         print(f'train gen len {len(self.train_gen)}')
     
     def create_graphs(self, all_models):
