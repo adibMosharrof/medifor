@@ -71,6 +71,7 @@ class PixelPredictions():
                     self.test_data_size = temp 
                 self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators(missing_probe_file_ids)
                 model = self.train_model(self.train_gen, self.valid_gen)
+                self.print_size()
                 current_models.append(model)
                 self.predict(model, self.test_gen)
                 self._delete_missing_probe_file_ids(missing_probe_file_ids)
@@ -86,6 +87,10 @@ class PixelPredictions():
             print(f'average score for iteration {i} : {avg_score}')
         print(f'max score {max(avg_scores)}')
         print(f'avg score over iterations {np.mean(avg_scores)}')
+    
+    def print_size(self):
+        print(f'train data size {len(self.train_img_refs}')
+        print(f'train gen len {len(self.train_gen)}')
     
     def create_graphs(self, all_models):
         for (j, models) in enumerate(all_models):
@@ -120,7 +125,7 @@ class PixelPredictions():
     def _delete_missing_probe_file_ids(self, missing_probe_file_ids):
         start = len(self.test_img_refs)
         self.test_img_refs = [img_ref for img_ref in self.test_img_refs if img_ref.probe_file_id not in missing_probe_file_ids]
-        print(f'Deleted {len(self.test_img_refs)-start} images')
+        print(f'Deleted {start - len(self.test_img_refs)} images')
     
     def get_data_generators(self, missing_probe_file_ids):
         
