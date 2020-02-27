@@ -1,11 +1,10 @@
 import numpy as np
-from data_generators.train_data_generator import TrainDataGenerator
 import math
 import os
 
 from shared.image_utils import ImageUtils
-
 from tensorflow.python.keras.utils.data_utils import Sequence
+
 
 class ImgPixelTestDataGenerator(Sequence):
     
@@ -31,15 +30,14 @@ class ImgPixelTestDataGenerator(Sequence):
         img_refs = self.img_refs[starting_index:ending_index]
 
         target_imgs = []
-#         target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         
         indicator_imgs = []
         for img_ref in img_refs:
             indicator_imgs.append(self._read_indicators(img_ref))
-        
-        x = np.array(indicator_imgs)     
-        return x, target_imgs, [i.probe_file_id for i in img_refs]
+        if len(indicator_imgs) ==0:
+            indicator_imgs = np.empty([0,len(self.indicator_directories)])
+        return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
         indicators = []
@@ -54,7 +52,6 @@ class ImgPixelTestDataGenerator(Sequence):
         return np.column_stack(indicators)
     
     def _read_images_from_directory(self, dir_path, img_refs):
-#         imgs = np.array([])
         imgs = []
         for (i,img_ref) in enumerate(img_refs):
             img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
@@ -66,12 +63,7 @@ class ImgPixelTestDataGenerator(Sequence):
                 imgs.append(thresholded_img)
             except FileNotFoundError as err:
                 self.missing_probe_file_ids.append(img_ref.probe_file_id)
-#                 img = np.zeros([img_ref.img_height, img_ref.img_width])
-#             imgs = np.concatenate((imgs, img.ravel()))
-        return np.array(imgs)
-    
-    def set_data_size(self, size):
-        self.data_size = size
+        return imgs
     
     def __len__(self):
         return int(np.ceil(self.data_size / float(self.batch_size)))
