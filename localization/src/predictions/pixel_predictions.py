@@ -119,7 +119,7 @@ class PixelPredictions():
     def _delete_missing_probe_file_ids(self, missing_probe_file_ids):
         start = len(self.test_img_refs)
         self.test_img_refs = [img_ref for img_ref in self.test_img_refs if img_ref.probe_file_id not in missing_probe_file_ids]
-        printf(f'Deleted {len(self.test_img_refs)-start} images')
+        print(f'Deleted {len(self.test_img_refs)-start} images')
     
     def get_data_generators(self, missing_probe_file_ids):
         
