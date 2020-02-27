@@ -110,6 +110,7 @@ class ConfigLoader():
         print(f"Regularization {config['regularization']}" )
         print(f"Learning Rate {config['learning_rate']}" )
         print(f"Graphs {config['graphs']}" )
+        print(f"Data type {config['data_type']}" )
 #         print(f"Patch tuning {config['patch_tuning']}")
     
     @staticmethod
