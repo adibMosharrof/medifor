@@ -17,6 +17,7 @@
     "test_batch_size":2,
     "train_data_size":500,
     "workers":20,
+    "workers":30,
     "epochs":12,
     "starting_index":0,
     "ending_index":1000,
