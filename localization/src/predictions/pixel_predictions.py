@@ -66,8 +66,8 @@ class PixelPredictions():
                     temp = self.train_img_refs
                     self.train_img_refs = self.test_img_refs
                     self.test_img_refs = temp
-                    temp = self.train_data_size
-                    self.train_data_size = self.test_data_size
+                    temp = len(self.train_img_refs)
+                    self.train_data_size = len(self.test_img_refs)
                     self.test_data_size = temp 
                 self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators(missing_probe_file_ids)
                 model = self.train_model(self.train_gen, self.valid_gen)
