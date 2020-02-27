@@ -60,6 +60,7 @@ class PixelPredictions():
             score =[]
             current_models = []
             for i in range(2):
+                missing_probe_file_ids = []
                 if i == 1:
                     print('flipping train and test set')
                     temp = self.train_img_refs
@@ -68,10 +69,11 @@ class PixelPredictions():
                     temp = self.train_data_size
                     self.train_data_size = self.test_data_size
                     self.test_data_size = temp 
-                self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators()
+                self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators(missing_probe_file_ids)
                 model = self.train_model(self.train_gen, self.valid_gen)
                 current_models.append(model)
                 self.predict(model, self.test_gen)
+                self._delete_missing_probe_file_ids(missing_probe_file_ids)
                 score.append(self.get_score())
             all_models.append(current_models)
             avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
@@ -114,7 +116,12 @@ class PixelPredictions():
                 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
                 plt.savefig(f'{self.graphs_path}/iteration_{j+1}_{i+1}.png')
     
-    def get_data_generators(self):
+    def _delete_missing_probe_file_ids(self, missing_probe_file_ids):
+        start = len(self.test_img_refs)
+        self.test_img_refs = [img_ref for img_ref in self.test_img_refs if img_ref.probe_file_id not in missing_probe_file_ids]
+        printf(f'Deleted {len(self.test_img_refs)-start} images')
+    
+    def get_data_generators(self, missing_probe_file_ids):
         
         if self.config['data_type'] == "image":
             from data_generators.img_pixel_train_data_generator import ImgPixelTrainDataGenerator
@@ -137,6 +144,7 @@ class PixelPredictions():
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
+                        missing_probe_file_ids = missing_probe_file_ids
                         )
             valid_gen = ImgPixelTrainDataGenerator(
                         data_size=self.test_data_size,
@@ -172,7 +180,7 @@ class PixelPredictions():
                         data = df,
                         img_refs = self.test_img_refs
                         )
-        q,w, id = test_gen.__getitem__(0)
+#         q,w, id = test_gen.__getitem__(0)
 #         a,b, id = train_gen.__getitem__(0)
         return train_gen, test_gen, valid_gen
     

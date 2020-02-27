@@ -21,6 +21,7 @@ class ImgPixelTrainDataGenerator(Sequence):
         self.indicators_path = indicators_path
         self.indicator_directories = indicator_directories
         self.targets_path = os.path.join(targets_path, "manipulation","mask")
+        self.missing_probe_file_ids = []
         
     def __getitem__(self, index):
         starting_index = index * self.batch_size
@@ -39,6 +40,8 @@ class ImgPixelTrainDataGenerator(Sequence):
         
         indicator_imgs = []
         for img_ref in img_refs:
+            if img_ref.probe_file_id in self.missing_probe_file_ids:
+                continue
             indicator_imgs.append(self._read_indicators(img_ref))
         
         x = []    
@@ -75,11 +78,19 @@ class ImgPixelTrainDataGenerator(Sequence):
                 thresholded_img = np.where(flipped_img > 127, 1,0)
                 imgs.append(thresholded_img)
             except FileNotFoundError as err:
-                print(f'deleting img with id {img_ref.probe_mask_file_name}')
-                del img_refs[i]
+#                 print(f'deleting img with id {img_ref.probe_mask_file_name}')
+                self.missing_probe_file_ids.append(img_ref.probe_file_id)
+#                 del img_refs[i]
 #                 print(f'deleted img with id {self.img_refs[i].probe_file_id} at index {i}')
 #                 img = np.zeros([img_ref.img_height, img_ref.img_width])
 #             imgs = np.concatenate((imgs, img.ravel()))
+#         for i in missing_indexes:
+#             print(f'deleting img with id {img_refs[i].probe_mask_file_name}')
+#             del img_refs[i]
+#         if len(missing_ids) > 0:
+#             indexes  = [i for i,img_ref in enumerate(self.img_refs) if img_ref.probe_file_id in missing_ids]
+#             for i in indexes:
+#                 del self.img_refs[i]
         return imgs
     
     def __len__(self):
