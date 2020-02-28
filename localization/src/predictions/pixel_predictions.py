@@ -124,7 +124,40 @@ class PixelPredictions():
     
     def get_data_generators(self, missing_probe_file_ids):
         
-        if self.config['data_type'] == "image":
+        if self.model_name == "nn_img":
+            from data_generators.img_train_data_generator import ImgTrainDataGenerator
+            from data_generators.img_test_data_generator import ImgTestDataGenerator
+
+            train_gen = ImgTrainDataGenerator(
+                        data_size=self.train_data_size,
+                        img_refs = self.train_img_refs,
+                        patch_shape = self.patch_shape,
+                        batch_size = self.train_batch_size,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
+                        )
+            test_gen = ImgTestDataGenerator(
+                        data_size=self.test_data_size,
+                        img_refs = self.test_img_refs,
+                        patch_shape = self.patch_shape,
+                        batch_size = self.test_batch_size,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
+                        missing_probe_file_ids = missing_probe_file_ids
+                        )
+            valid_gen = ImgTrainDataGenerator(
+                        data_size=self.test_data_size,
+                        img_refs = self.test_img_refs,
+                        batch_size = self.train_batch_size,
+                        patch_shape = self.patch_shape,
+                        indicator_directories = self.indicator_directories,
+                        indicators_path = self.indicators_path,
+                        targets_path = self.targets_path,
+                        )  
+        
+        elif self.config['data_type'] == "image":
             from data_generators.img_pixel_train_data_generator import ImgPixelTrainDataGenerator
             from data_generators.img_pixel_test_data_generator import ImgPixelTestDataGenerator
 
@@ -155,8 +188,9 @@ class PixelPredictions():
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
-                        )
-        else:
+                        )    
+        
+        elif self.config['data_type'] == 'csv':
             csv_path = PathUtils.get_csv_data_path(self.config)
             df = pd.read_csv(csv_path)
 
@@ -198,7 +232,8 @@ class PixelPredictions():
         x, y, ids = train_gen.__getitem__(0)
         if self.model_name in ['lr', 'nn']:
             model = arch.get_model(self.patch_shape,x.shape[1], config=self.config)
-            
+        elif self.model_name in ['nn_img']:
+            model = arch.get_model(self.patch_shape,len(self.indicator_directories), config=self.config)
         else:
             model = arch.get_model(self.patch_shape,x.shape[3])
 #         model.fit(x,y)
@@ -223,9 +258,12 @@ class PixelPredictions():
                 
             for id, x in zip(ids, x_list):
                 try:
-                    if self._is_nn():
+                    if self._is_keras_pixel_model():
                         x = np.array(x)
                         pred = (model.predict(x), id)
+                    if self._is_keras_img_model():
+                        x = np.array([x])
+                        pred = (model.predict(x),id)
                     else:
                         pred= (model.predict_proba(x)[:,1],id) 
                 except:
@@ -243,9 +281,13 @@ class PixelPredictions():
 #             prediction = 255- (prediction*255)
 #             prediction = prediction * 255
             img_ref = next((x for x in self.test_img_refs if x.probe_file_id == id), None)
-            pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
             try:
-                img = pred.reshape(img_ref.img_height, img_ref.img_width)
+                if self._is_keras_img_model():
+                    pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction[0].reshape(-1, 1))).flatten()
+                    img = pred.reshape(self.patch_shape, self.patch_shape)
+                else:
+                    pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
+                    img = pred.reshape(img_ref.img_height, img_ref.img_width)
 #                 img = pred.reshape(prediction.shape[1], prediction.shape[1])
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
@@ -273,11 +315,16 @@ class PixelPredictions():
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
       
-    def _is_nn(self):
-        if self.config['model_name'] in ['nn', 'unet', 'lr']:
+    def _is_keras_pixel_model(self):
+        if self.config['model_name'] in ['nn', 'lr']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
+    def _is_keras_img_model(self):
+        if self.config['model_name'] in ['nn_img', 'unet']:
+#         if self.config['model_name'] in ['single_layer_nn', 'unet']:
+            return True
+        return False_
              
     def _get_architecture(self):
         model_name = self.config['model_name']
@@ -292,5 +339,8 @@ class PixelPredictions():
             arch = UNet()    
         elif model_name == 'nn':
             from architectures.nn import Nn
-            arch = Nn()    
+            arch = Nn()  
+        elif model_name == 'nn_img':
+            from architectures.nn_img import NnImg
+            arch = NnImg()    
         return arch        
