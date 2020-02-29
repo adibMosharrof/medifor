@@ -43,7 +43,7 @@ class FolderUtils:
         for key, value in tuning.items():
             if value is True:
                 name = key +'/'
-        return '{}{}{}{}{}_{}'.format(output_path,data_year, data_prefix,name, patch_shape, img_downscale_factor)
+        return '{}{}{}{}{}_{}'.format(output_path,data_prefix, data_year,name, patch_shape, img_downscale_factor)
         
     
     @staticmethod
