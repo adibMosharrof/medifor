@@ -60,7 +60,7 @@ class PixelPredictions(Predictions):
     def _prepare_img_refs(self, img_ref_csv_path):
         irb = ImgRefBuilder(img_ref_csv_path)
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
-        irb.add_image_width_height(img_refs, self.config)
+        ImgRefBuilder.add_image_width_height(img_refs, self.config)
         self.train_img_refs = img_refs[:self.train_data_size]
         self.test_img_refs = img_refs[self.train_data_size:]  
       
@@ -69,6 +69,8 @@ class PixelPredictions(Predictions):
             from data_generators.img_train_data_generator import ImgTrainDataGenerator
             from data_generators.img_test_data_generator import ImgTestDataGenerator
 
+            targets_path = os.path.join(self.targets_path, "manipulation","mask")
+            
             train_gen = ImgTrainDataGenerator(
                         data_size=self.train_data_size,
                         img_refs = self.train_img_refs,
@@ -76,7 +78,7 @@ class PixelPredictions(Predictions):
                         batch_size = self.train_batch_size,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
-                        targets_path = self.targets_path,
+                        targets_path = targets_path,
                         )
             test_gen = ImgTestDataGenerator(
                         data_size=self.test_data_size,
@@ -85,7 +87,7 @@ class PixelPredictions(Predictions):
                         batch_size = self.test_batch_size,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
-                        targets_path = self.targets_path,
+                        targets_path = targets_path,
                         missing_probe_file_ids = missing_probe_file_ids
                         )
             valid_gen = ImgTrainDataGenerator(
@@ -95,7 +97,7 @@ class PixelPredictions(Predictions):
                         patch_shape = self.patch_shape,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
-                        targets_path = self.targets_path,
+                        targets_path = targets_path,
                         )  
         
         elif self.config['data_type'] == "image":

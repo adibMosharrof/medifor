@@ -21,7 +21,7 @@ class ImgTestDataGenerator(Sequence):
         self.data_size = data_size
         self.indicators_path = indicators_path
         self.indicator_directories = indicator_directories
-        self.targets_path = os.path.join(targets_path, "manipulation","mask")
+        self.targets_path = targets_path
         self.missing_probe_file_ids = missing_probe_file_ids
         
     def __getitem__(self, index):

@@ -77,7 +77,8 @@ class ImgRefBuilder:
     def extract_ref_mask_file_name(self, text):
         return re.search("(?<=reference\/manipulation-image\/mask\/).*(?=.ccm.png)", text).group()
 
-    def add_image_width_height(self, img_refs, config):
+    @staticmethod
+    def add_image_width_height(img_refs, config):
         index_csv_path = PathUtils.get_index_csv_path(config)
         with open(index_csv_path, 'r') as f:
             reader = csv.reader(f, delimiter=',')
@@ -100,8 +101,6 @@ class ImgRefBuilder:
                 counter +=1
                 if counter == len(img_refs):
                     break
-            
-        
 
 class ImgRefs:
     probe_file_id = None

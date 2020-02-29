@@ -29,9 +29,7 @@ class ImgTrainDataGenerator(ImgTestDataGenerator):
 
         target_imgs = []
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
-        y = []
-        for target_img in target_imgs:
-           y.append(target_img) 
+
         
         indicator_imgs =[] 
         for img_ref in img_refs:
@@ -40,7 +38,7 @@ class ImgTrainDataGenerator(ImgTestDataGenerator):
             indicator_imgs.append(self._read_indicators(img_ref))
         
         x = np.array(indicator_imgs)
-        y = np.array(y)
+        y = target_imgs
         return x, y, None
         
     def __len__(self):

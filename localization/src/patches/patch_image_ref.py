@@ -1,8 +1,11 @@
 import csv
 from ast import literal_eval
 import math
+import sys
+sys.path.append('..')
+from scoring.img_ref_builder import ImgRefs
 
-class PatchImageRef():
+class PatchImageRef(ImgRefs):
 
     def __init__(self, id, bordered_img_shape, patch_window_shape, 
                 probe_mask_file_name, original_img_shape,
@@ -14,6 +17,7 @@ class PatchImageRef():
         self.original_img_shape = original_img_shape
         self.border_top = border_top
         self.border_left = border_left
+
         
     def __iter__(self):
         return iter([self.probe_file_id, self.bordered_img_shape,

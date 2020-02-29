@@ -11,7 +11,7 @@ class PredictionRunner():
     def start(self):
         config , email_json = ConfigLoader.get_config()
         #patch_pred = PatchPredictions(config)
-        if config['model_name'] in []:
+        if config['model_name'] in ['unet']:
             pred = PatchPredictions(config)
         else:
             pred = PixelPredictions(config)
