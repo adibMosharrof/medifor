@@ -111,7 +111,8 @@ class ConfigLoader():
         print(f"Learning Rate {config['learning_rate']}" )
         print(f"Graphs {config['graphs']}" )
         print(f"Data type {config['data_type']}" )
-#         print(f"Patch tuning {config['patch_tuning']}")
+        print(f"Image Downscale Factor {config['image_downscale_factor']}" )
+        print(f"Patch Shape {config['patch_shape']}" )
     
     @staticmethod
     def _get_patch_data_type(code):
