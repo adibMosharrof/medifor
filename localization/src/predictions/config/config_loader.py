@@ -65,6 +65,9 @@ class ConfigLoader():
         parser.add_argument('-nnl','--nn_layers', type=int,
                     default=json_config['nn_layers'],help='Patch Shape')
 
+        parser.add_argument('-unl','--unet_layers', type=int,
+                    default=json_config['unet_layers'],help='Patch Shape')
+
         parser.add_argument('-i','--iterations', type=int,
                     default=json_config['iterations'],help='Patch Shape')
         
@@ -106,6 +109,7 @@ class ConfigLoader():
         print(f"test data size {config['ending_index'] - config['starting_index'] - config['train_data_size']}" )
         print(f"Model name {config['model_name']}")
         print(f"Nn layers {config['nn_layers']}")
+        print(f"Unet layers {config['unet_layers']}")
         print(f"Num iterations {config['iterations']}" )
         print(f"Regularization {config['regularization']}" )
         print(f"Learning Rate {config['learning_rate']}" )

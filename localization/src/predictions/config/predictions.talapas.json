@@ -29,6 +29,7 @@
     },
     "patch_data_type":"",
     "nn_layers":6,
+    "unet_layers":3,
     "iterations":5,
     "regularization":0.00,
     "learning_rate":0.01,
