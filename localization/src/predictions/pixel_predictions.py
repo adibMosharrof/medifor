@@ -124,7 +124,7 @@ class PixelPredictions():
     
     def get_data_generators(self, missing_probe_file_ids):
         
-        if self.model_name == "nn_img":
+        if self._is_keras_img_model():
             from data_generators.img_train_data_generator import ImgTrainDataGenerator
             from data_generators.img_test_data_generator import ImgTestDataGenerator
 
@@ -188,7 +188,7 @@ class PixelPredictions():
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
-                        )    
+                        )
         
         elif self.config['data_type'] == 'csv':
             csv_path = PathUtils.get_csv_data_path(self.config)
@@ -230,9 +230,9 @@ class PixelPredictions():
         workers = self.config["workers"]
         arch = self._get_architecture()
         x, y, ids = train_gen.__getitem__(0)
-        if self.model_name in ['lr', 'nn']:
+        if self._is_keras_pixel_model():
             model = arch.get_model(self.patch_shape,x.shape[1], config=self.config)
-        elif self.model_name in ['nn_img']:
+        elif self._is_keras_img_model():
             model = arch.get_model(self.patch_shape,len(self.indicator_directories), config=self.config)
         else:
             model = arch.get_model(self.patch_shape,x.shape[3])
@@ -261,7 +261,7 @@ class PixelPredictions():
                     if self._is_keras_pixel_model():
                         x = np.array(x)
                         pred = (model.predict(x), id)
-                    if self._is_keras_img_model():
+                    elif self._is_keras_img_model():
                         x = np.array([x])
                         pred = (model.predict(x),id)
                     else:
@@ -302,7 +302,7 @@ class PixelPredictions():
             file_path = self.output_dir + file_name
             ImageUtils.save_image(img_original_size, file_path)
 #             img_original_size.save(file_path)
-        print(f'Number of errors {counter}') 
+        print(f'Number of errors in reconstruction {counter}') 
                                   
     def get_score(self, img_refs):
         
@@ -324,7 +324,7 @@ class PixelPredictions():
         if self.config['model_name'] in ['nn_img', 'unet']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
-        return False_
+        return False
              
     def _get_architecture(self):
         model_name = self.config['model_name']
