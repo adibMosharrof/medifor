@@ -73,6 +73,7 @@ class PatchTestDataGenerator(Sequence):
                     thresholded_img = np.where(flipped_img > 127, 1,0)
                     imgs.append(thresholded_img.reshape(self.patch_shape, self.patch_shape, 1))
                 except FileNotFoundError as err:
+                    print(f'could not find file with id {img_ref.probe_file_id}')
                     self.missing_probe_file_ids.append(img_ref.probe_file_id)
             all_imgs.append(imgs)
         return all_imgs

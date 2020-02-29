@@ -36,4 +36,8 @@ class PatchTrainDataGenerator(PatchTestDataGenerator):
             except ValueError as err:
                 y = j
         
+        if len(x) == 0:
+            x = np.empty([0,self.patch_shape, self.patch_shape,len(self.indicator_directories)])        
+        if len(y) == 0:
+            y = np.empty([0,self.patch_shape, self.patch_shape, 1])       
         return np.array(x),np.array(y), None
