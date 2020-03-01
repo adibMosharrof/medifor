@@ -148,7 +148,10 @@ class Predictions():
                         x = np.array(x)
                         pred = (model.predict(x), id)
                     elif self._is_keras_img_model():
-                        pred = (model.predict(np.array(x)),id)
+                        if self.model_name == "nn_img":
+                            pred = (model.predict(np.array([x])), id)
+                        else:
+                            pred = (model.predict(np.array(x)),id)
                     else:
                         pred= (model.predict_proba(x)[:,1],id) 
                 except:

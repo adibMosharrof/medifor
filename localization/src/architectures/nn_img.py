@@ -16,8 +16,8 @@ class NnImg():
         filters = 1
         kernel_size = (3,3)
         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(inputs)
-        c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
-        outputs = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
+#         c = keras.layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, activation="relu")(c)
+        outputs = keras.layers.Conv2D(filters, (1,1), padding=padding, strides=strides, activation="relu")(c)
 #         outputs = keras.layers.Conv2D(1, (1, 1), padding="same", activation="sigmoid")(inputs)
         outputs = outputs[:,:,:,-1]
         

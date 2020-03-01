@@ -27,7 +27,6 @@ class ImgTrainDataGenerator(ImgTestDataGenerator):
         
         img_refs = self.img_refs[starting_index:ending_index]
 
-        target_imgs = []
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
 
         
@@ -38,7 +37,10 @@ class ImgTrainDataGenerator(ImgTestDataGenerator):
             indicator_imgs.append(self._read_indicators(img_ref))
         
         x = np.array(indicator_imgs)
-        y = target_imgs
+        y = np.array(target_imgs)
+        if len(x)==0:
+            x = np.empty([0,self.patch_shape, self.patch_shape, len(self.indicator_directories)])
+            y = np.empty([0,self.patch_shape, self.patch_shape, 1])
         return x, y, None
         
     def __len__(self):

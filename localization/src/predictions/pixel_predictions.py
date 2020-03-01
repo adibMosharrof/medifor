@@ -72,7 +72,7 @@ class PixelPredictions(Predictions):
             targets_path = os.path.join(self.targets_path, "manipulation","mask")
             
             train_gen = ImgTrainDataGenerator(
-                        data_size=self.train_data_size,
+                        data_size=len(self.train_img_refs),
                         img_refs = self.train_img_refs,
                         patch_shape = self.patch_shape,
                         batch_size = self.train_batch_size,
@@ -81,7 +81,7 @@ class PixelPredictions(Predictions):
                         targets_path = targets_path,
                         )
             test_gen = ImgTestDataGenerator(
-                        data_size=self.test_data_size,
+                        data_size=len(self.test_img_refs),
                         img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
                         batch_size = self.test_batch_size,
@@ -91,7 +91,7 @@ class PixelPredictions(Predictions):
                         missing_probe_file_ids = missing_probe_file_ids
                         )
             valid_gen = ImgTrainDataGenerator(
-                        data_size=self.test_data_size,
+                        data_size=len(self.test_img_refs),
                         img_refs = self.test_img_refs,
                         batch_size = self.train_batch_size,
                         patch_shape = self.patch_shape,

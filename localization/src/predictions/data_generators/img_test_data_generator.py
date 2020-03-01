@@ -37,7 +37,7 @@ class ImgTestDataGenerator(Sequence):
         for img_ref in img_refs:
             indicator_imgs.append(self._read_indicators(img_ref))
         if len(indicator_imgs) ==0:
-            indicator_imgs = np.empty([0,len(self.indicator_directories)])
+            indicator_imgs = np.empty([0,self.patch_shape, self.patch_shape,len(self.indicator_directories)])
         return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
