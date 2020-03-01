@@ -59,7 +59,7 @@ class Predictions():
                 self.predict(model, self.test_gen)
                 img_refs_to_score=self._delete_missing_probe_file_ids(missing_probe_file_ids)
                 try:
-                    print(f'calling score with {len(img_refs_to_score} img refs')
+                    print(f'calling score with {len(img_refs_to_score)} img refs')
                     score.append(self.get_score(img_refs_to_score))
                 except Exception:
                     print("failed in scoring")
