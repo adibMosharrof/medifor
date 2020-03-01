@@ -28,10 +28,18 @@ class Scoring(object):
     def get_average_score(self, data):
         scores = 0
         for i, d in enumerate(data):
-            bw = ImageUtils.get_black_and_white_image(d.ref)
+            try:
+                bw = ImageUtils.get_black_and_white_image(d.ref)
+            except FileNotFoundError as err:
+                print(f'scoring, couldnt read img with id {d.sys} at index {i}')
+                exit
             normalized_ref = self.flip(bw)
             noscore_img = self.get_noscore_image(normalized_ref)
-            sys_image = ImageUtils.read_image(d.sys)
+            try:
+                sys_image = ImageUtils.read_image(d.sys)
+            except FileNotFoundError as err:
+                print(f'scoring, couldnt read img with id {d.sys} at index {i}')
+                exit
             score = self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
             scores += score
             print(f'running average {round(scores/(i+1),5)} current {round(score,5)}')

@@ -58,7 +58,11 @@ class Predictions():
                 current_models.append(model)
                 self.predict(model, self.test_gen)
                 img_refs_to_score=self._delete_missing_probe_file_ids(missing_probe_file_ids)
-                score.append(self.get_score(img_refs_to_score))
+                try:
+                    score.append(self.get_score(img_refs_to_score))
+                except Exception:
+                    print("failed in scoring")
+                    exit
             all_models.append(current_models)
             avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
             avg_scores.append(avg_score)
@@ -97,7 +101,7 @@ class Predictions():
     def _delete_missing_probe_file_ids(self, missing_probe_file_ids):
         start = len(self.test_img_refs)
         img_refs = [img_ref for img_ref in self.test_img_refs if img_ref.probe_file_id not in missing_probe_file_ids]
-        print(f'Missing Images {start - len(self.test_img_refs)}')
+        print(f'Number of Missing Images {start - len(self.test_img_refs)}')
         return img_refs            
                 
     def train_model(self, train_gen, valid_gen):
