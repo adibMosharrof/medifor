@@ -90,7 +90,7 @@ class PatchPredictions(Predictions):
 #             prediction = prediction * 255
             img = self._reconstruct_image_from_patches(prediction, patch_img_ref)
             img_original_size = cv2.resize(
-                img, (patch_img_ref.img_orig_height, patch_img_ref.img_orig_width))
+                img, (patch_img_ref.img_orig_width, patch_img_ref.img_orig_height))
             
             file_name = f'{patch_img_ref.probe_file_id}.png'
             file_path = self.output_dir + file_name
