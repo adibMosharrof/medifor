@@ -55,7 +55,7 @@ class PatchPredictions(Predictions):
 
     def get_data_generators(self, missing_probe_file_ids):
         train_gen = PatchTrainDataGenerator(
-                        data_size=self.train_data_size,
+                        data_size=len(self.train_img_refs),
                         img_refs = self.train_img_refs,
                         patch_shape = self.patch_shape,
                         batch_size = self.train_batch_size,
@@ -64,7 +64,7 @@ class PatchPredictions(Predictions):
                         targets_path = self.targets_path,
                         )
         test_gen = PatchTestDataGenerator(
-                        data_size=self.test_data_size,
+                        data_size=len(self.test_img_refs),
                         img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
                         batch_size = self.test_batch_size,
@@ -74,7 +74,7 @@ class PatchPredictions(Predictions):
                         missing_probe_file_ids = missing_probe_file_ids
                         )
         valid_gen = PatchTrainDataGenerator(
-                        data_size=self.test_data_size,
+                        data_size=len(self.test_img_refs),
                         img_refs = self.test_img_refs,
                         batch_size = self.train_batch_size,
                         patch_shape = self.patch_shape,

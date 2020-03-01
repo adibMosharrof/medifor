@@ -63,7 +63,6 @@ class Predictions():
                     score.append(self.get_score(img_refs_to_score))
                 except Exception:
                     print("failed in scoring")
-                    exit
             all_models.append(current_models)
             avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
             avg_scores.append(avg_score)
