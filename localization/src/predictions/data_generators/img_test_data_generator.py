@@ -41,8 +41,9 @@ class ImgTestDataGenerator(Sequence):
         return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
-        indicators = []
-        for indicator_name in self.indicator_directories:
+        indicators = np.empty([self.patch_shape, self.patch_shape, len(self.indicator_directories)])
+#         indicators = []
+        for i,indicator_name in enumerate(self.indicator_directories):
             indicator_path = self.indicators_path + indicator_name + "/mask/" + img_ref.probe_file_id + ".png"
             try:
                 img = ImageUtils.read_image(indicator_path)
@@ -50,13 +51,12 @@ class ImgTestDataGenerator(Sequence):
                 ind_img = 255 - img 
             except FileNotFoundError as err:
                 ind_img = np.zeros([self.patch_shape, self.patch_shape])
-                
-            ind_img = ind_img.reshape(self.patch_shape, self.patch_shape, 1)
+#             ind_img = ind_img.reshape(self.patch_shape, self.patch_shape, 1)
             try:
-                indicators = np.append(indicators, ind_img, axis=2)
+                indicators[:,:,i] = ind_img
+#                 indicators = np.append(indicators, ind_img, axis=2)
             except ValueError as err:
                 indicators = ind_img
-#         return np.column_stack(indicators)
         return indicators
     
     def _read_images_from_directory(self, dir_path, img_refs):

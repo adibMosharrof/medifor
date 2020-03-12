@@ -42,8 +42,9 @@ class PatchTestDataGenerator(Sequence):
         
         num_images = img_ref.patch_window_shape[0] * img_ref.patch_window_shape[1]
         for j in range(num_images):
-            indicators = []
-            for indicator_name in self.indicator_directories:
+            #indicators = []
+            indicators = np.empty([self.patch_shape, self.patch_shape, len(self.indicator_directories)])
+            for i, indicator_name in enumerate(self.indicator_directories):
                 indicator_path = f'{self.indicators_path}{indicator_name}/{img_ref.probe_file_id}_{j}.png'
                 try:
                     img = ImageUtils.read_image(indicator_path)
@@ -51,11 +52,12 @@ class PatchTestDataGenerator(Sequence):
                 except FileNotFoundError as err:
                     ind_img = np.zeros([self.patch_shape, self.patch_shape])
                     
-                ind_img = ind_img.reshape(self.patch_shape, self.patch_shape, 1)
-                try:
-                    indicators = np.append(indicators, ind_img, axis=2)
-                except ValueError as err:
-                    indicators = ind_img
+#                 ind_img = ind_img.reshape(self.patch_shape, self.patch_shape, 1)
+                indicators[:,:,i] = ind_img
+#                 try:
+#                     indicators = np.append(indicators, ind_img, axis=2)
+#                 except ValueError as err:
+#                     indicators = ind_img
             all_indicators.append(indicators)
         return all_indicators
     
