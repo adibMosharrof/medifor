@@ -12,6 +12,7 @@ import csv
 import re
 import math
 import logging
+import pandas as pd
 from typing import overload, List
 from pythonlangutil.overload import Overload, signature
 from shared.path_utils import PathUtils
@@ -49,29 +50,36 @@ class ImgRefBuilder:
         if ending_index is -1:
             ending_index = math.inf
         rows = []
-        with open(self.image_ref_csv_path, 'r') as f:
-            reader = csv.reader(f, delimiter='|')
-            headers = next(reader)
-            if not len(headers) > 1:
-                reader = csv.reader(f, delimiter=',')
-                headers = next(reader)
-            counter = 0
-            for row in reader:
-                #only selected images that have a reference(we are only scoring the manipulated images)
-                if(row[4] == ''):
-                    continue
-                if counter>= starting_index and counter <ending_index:
-                    rows.append([row[1], row[4]])
-                counter +=1
-                if counter is ending_index:
-                    break
-                
-        rows = np.array(rows)        
+#         with open(self.image_ref_csv_path, 'r') as f:
+#             reader = csv.reader(f, delimiter='|')
+#             headers = next(reader)
+#             if not len(headers) > 1:
+#                 reader = csv.reader(f, delimiter=',')
+#                 headers = next(reader)
+#             counter = 0
+#             for row in reader:
+#                 #only selected images that have a reference(we are only scoring the manipulated images)
+#                 if(row[4] == ''):
+#                     continue
+#                 if counter>= starting_index and counter <ending_index:
+#                     rows.append([row[1], row[4]])
+#                 counter +=1
+#                 if counter is ending_index:
+#                     break
+        data = pd.read_csv(self.image_ref_csv_path, sep="|")
+        if not len(data.columns) > 1:
+            data = pd.read_csv(self.image_ref_csv_path, sep=",")
+        rows  = data[data['ProbeMaskFileName'].notnull()]
+        rows = rows[['image_id','ProbeMaskFileName']]
+        rows.sort_values(by=['image_id'])
+        rows = rows.to_numpy()[starting_index:ending_index]
+#         rows = np.array(rows)        
         sys_masks = rows[:,0]
         ref_masks = list(map(lambda x:self.extract_ref_mask_file_name(x) ,rows[:,1]))
         img_refs = []
         for i in range(len(sys_masks)):
             img_refs.append(ImgRefs(sys_masks[i], ref_masks[i]))
+        img_refs.sort(key=lambda x:x.probe_file_id)
         return img_refs
         
     def extract_ref_mask_file_name(self, text):
