@@ -22,17 +22,19 @@ from sklearn.preprocessing import MinMaxScaler
 
 class Predictions():
     
-    def __init__(self, config):
+    def __init__(self, config, model_name=None, output_dir=None):
         self.config = config
-        self.model_name = self.config['model_name']
         
-        output_folder = self.config["path"]["outputs"] + "predictions/"
-        self.output_dir, self.graphs_path = FolderUtils.create_predictions_pixel_output_folder(
+        self.model_name = model_name or self.config['model_name']
+        self.output_dir = output_dir
+        if not config['ensemble']:
+            output_folder = self.config["path"]["outputs"] + "predictions/"
+            self.output_dir, self.graphs_path = FolderUtils.create_predictions_pixel_output_folder(
             self.model_name,
             self.config['data_prefix'],
             output_folder)
-        print(f'Graphs path {self.graphs_path}')
-        self.my_logger = LogUtils.init_log(self.output_dir)
+            print(f'Graphs path {self.graphs_path}')
+            self.my_logger = LogUtils.init_log(self.output_dir)
         self.patch_shape= self.config['patch_shape']
         self._set_data_size()
     
@@ -46,13 +48,7 @@ class Predictions():
             for i in range(2):
                 missing_probe_file_ids = []
                 if i == 1:
-                    print('flipping train and test set')
-                    temp = self.train_img_refs
-                    self.train_img_refs = self.test_img_refs
-                    self.test_img_refs = temp
-                    temp = len(self.train_img_refs)
-                    self.train_data_size = len(self.test_img_refs)
-                    self.test_data_size = temp 
+                    self._flip_train_test() 
                 self.train_gen, self.test_gen, self.valid_gen = self.get_data_generators(missing_probe_file_ids)
                 model = self.train_model(self.train_gen, self.valid_gen)
                 current_models.append(model)
@@ -80,23 +76,43 @@ class Predictions():
 
             counter = 1
             for i,model in enumerate(models):
-                plt.figure(figsize=(12.8,9.6))
-                plt.subplot(2,1,1)
-                plt.plot(model.history.history['loss'], color='b')
-                plt.title('model loss training')
-                plt.ylabel('loss')
-                plt.xlabel('epoch')
-                plt.legend(['train'], loc='upper left')
-    
-                plt.subplot(2,1,2)
-                plt.plot(model.history.history['val_loss'], color='r')
-                plt.title('model loss test')
-                plt.ylabel('loss')
-                plt.xlabel('epoch')
-                plt.legend(['test'], loc='upper left')
+                self.create_graph(model, j, i)
+#                 plt.figure(figsize=(12.8,9.6))
+#                 plt.subplot(2,1,1)
+#                 plt.plot(model.history.history['loss'], color='b')
+#                 plt.title('model loss training')
+#                 plt.ylabel('loss')
+#                 plt.xlabel('epoch')
+#                 plt.legend(['train'], loc='upper left')
+#     
+#                 plt.subplot(2,1,2)
+#                 plt.plot(model.history.history['val_loss'], color='r')
+#                 plt.title('model loss test')
+#                 plt.ylabel('loss')
+#                 plt.xlabel('epoch')
+#                 plt.legend(['test'], loc='upper left')
+#                 
+#                 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
+#                 plt.savefig(f'{self.graphs_path}/iteration_{j+1}_{i+1}.png')
                 
-                plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
-                plt.savefig(f'{self.graphs_path}/iteration_{j+1}_{i+1}.png')
+    def create_graph(self, model, iteration, data_flip_number):
+        plt.figure(figsize=(12.8,9.6))
+        plt.subplot(2,1,1)
+        plt.plot(model.history.history['loss'], color='b')
+        plt.title('model loss training')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train'], loc='upper left')
+
+        plt.subplot(2,1,2)
+        plt.plot(model.history.history['val_loss'], color='r')
+        plt.title('model loss test')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['test'], loc='upper left')
+        
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
+        plt.savefig(f'{self.graphs_path}/iteration_{iteration+1}_{data_flip_number+1}.png')
                 
     def _delete_missing_probe_file_ids(self, missing_probe_file_ids):
         start = len(self.test_img_refs)
@@ -146,18 +162,18 @@ class Predictions():
                 try:
                     if self._is_keras_pixel_model():
                         x = np.array(x)
-                        pred = (model.predict(x), id)
+                        prediction = (model.predict(x), id)
                     elif self._is_keras_img_model():
-                        if self.model_name == "nn_img":
-                            pred = (model.predict(np.array([x])), id)
+                        if self.model_name in ["nn_img","nn"]:
+                            prediction = (model.predict(np.array([x])), id)
                         else:
-                            pred = (model.predict(np.array(x)),id)
+                            prediction = (model.predict(np.array(x)),id)
                     else:
-                        pred= (model.predict_proba(x)[:,1],id) 
+                        prediction= (model.predict_proba(x)[:,1],id) 
                 except:
                     counter +=1
-                    pred = (np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width), id)
-                predictions.append(pred)
+                    prediction = (np.zeros(self.test_img_refs[i].img_height * self.test_img_refs[i].img_width), id)
+                predictions.append(prediction)
         print(f"Num of missing images {counter}")
         self._reconstruct(predictions, ids)            
         
@@ -170,6 +186,15 @@ class Predictions():
             error_msg = 'Program failed \n {} \n {}'.format(sys.exc_info()[0], sys.exc_info()[1])
             self.my_logger.debug(error_msg)
             sys.exit(error_msg)
+            
+    def _flip_train_test(self):
+        print('flipping train and test set')
+        temp = self.train_img_refs
+        self.train_img_refs = self.test_img_refs
+        self.test_img_refs = temp
+        temp = len(self.train_img_refs)
+        self.train_data_size = len(self.test_img_refs)
+        self.test_data_size = temp 
     
     def _set_data_size(self):
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)

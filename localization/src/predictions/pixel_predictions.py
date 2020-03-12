@@ -26,8 +26,8 @@ from predictions import Predictions
 
 class PixelPredictions(Predictions):
     
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, model_name=None, output_dir=None):
+        super().__init__(config, model_name, output_dir)
         img_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config)
         self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
         

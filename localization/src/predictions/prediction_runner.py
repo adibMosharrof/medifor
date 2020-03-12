@@ -4,6 +4,7 @@ sys.path.append('..')
 from config.config_loader import ConfigLoader
 from patch_predictions import PatchPredictions
 from pixel_predictions import PixelPredictions
+from ensemble_predictions import Ensemble_Predictions
 
 
 class PredictionRunner():
@@ -11,7 +12,9 @@ class PredictionRunner():
     def start(self):
         config , email_json = ConfigLoader.get_config()
         #patch_pred = PatchPredictions(config)
-        if config['model_name'] in ['unet']:
+        if config['ensemble']:
+            pred = Ensemble_Predictions(config) 
+        elif config['model_name'] in ['unet']:
             pred = PatchPredictions(config)
         else:
             pred = PixelPredictions(config)

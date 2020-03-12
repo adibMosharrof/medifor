@@ -16,6 +16,20 @@ class FolderUtils:
         graphs_path = f'{output_dir_path}/graphs'
         return FolderUtils.make_dir(output_dir_path), FolderUtils.make_dir(graphs_path)
     
+    @staticmethod
+    def create_ensemble_output_folder(data_prefix, output_path, model_names):
+        timestamp = FolderUtils._get_timestamp()
+        output_dir_path = f'{output_path}{data_prefix}/{timestamp}'
+        results_path = f'{output_dir_path}/results'
+        graphs_path = f'{results_path}/graphs'
+        model_paths = []
+        for model_name in model_names:
+            model_path = f'{output_dir_path}/{model_name}/'
+#             FolderUtils.make_dir(model_path)
+            FolderUtils.make_dir(f'{model_path}graphs')
+            model_paths.append(model_path)
+        return FolderUtils.make_dir(output_dir_path), FolderUtils.make_dir(results_path), FolderUtils.make_dir(graphs_path), model_paths
+    
     
     @staticmethod
     def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning, data_year, data_prefix):

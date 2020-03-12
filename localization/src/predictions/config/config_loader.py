@@ -83,6 +83,14 @@ class ConfigLoader():
         parser.add_argument('-dt','--data_type', type=str,
                     default=json_config['data_type'],help='Patch Shape')
 
+        parser.add_argument('-en','--ensemble', type=bool,
+                    default=json_config['ensemble'],help='Patch Shape')
+
+        parser.add_argument('-enmn','--ensemble_model_names', type=str, nargs='+',
+                    default=json_config['ensemble_model_names'],help='Patch Shape')
+
+        parser.add_argument('-enmw','--ensemble_model_weights', type=float, nargs='+',
+                    default=json_config['ensemble_model_weights'],help='Patch Shape')
         config = vars(parser.parse_args())
         
         config['patch_data_type'] = ConfigLoader._get_patch_data_type(config["patch_data_type"])

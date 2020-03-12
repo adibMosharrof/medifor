@@ -43,8 +43,8 @@ from predictions import Predictions
 
 class PatchPredictions(Predictions):
     
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, model_name=None, output_dir=None):
+        super().__init__(config, model_name, output_dir)
         
         self.patches_path, patch_img_ref_path, self.indicators_path, img_ref_csv, self.ref_data_path = PathUtils.get_paths_for_patches(self.config)
         self.targets_path= self.patches_path +"target_image/"
@@ -82,6 +82,7 @@ class PatchPredictions(Predictions):
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
                         )  
+#         a,b,c = test_gen.__getitem__(0)
         return train_gen, test_gen, valid_gen
         
     def _reconstruct(self, predictions, ids):
