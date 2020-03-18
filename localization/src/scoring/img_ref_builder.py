@@ -72,7 +72,10 @@ class ImgRefBuilder:
         if not len(data.columns) > 1:
             data = pd.read_csv(self.image_ref_csv_path, sep=",")
         rows  = data[data['ProbeMaskFileName'].notnull()]
-        rows = rows[['image_id','ProbeMaskFileName']]
+        if 'image_id' in data.columns:
+            rows = rows[['image_id','ProbeMaskFileName']]
+        else:
+            rows =  rows[['ProbeFileId','ProbeMaskFileName']]
         rows.sort_values(by=['image_id'])
         rows = rows.to_numpy()[starting_index:ending_index]
 #         rows = np.array(rows)        
