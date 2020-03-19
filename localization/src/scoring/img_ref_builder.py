@@ -74,9 +74,10 @@ class ImgRefBuilder:
         rows  = data[data['ProbeMaskFileName'].notnull()]
         if 'image_id' in data.columns:
             rows = rows[['image_id','ProbeMaskFileName']]
+            rows.sort_values(by=['image_id'])
         else:
             rows =  rows[['ProbeFileID','ProbeMaskFileName']]
-        rows.sort_values(by=['image_id'])
+            rows.sort_values(by=['ProbeFileID'])
         rows = rows.to_numpy()[starting_index:ending_index]
 #         rows = np.array(rows)        
         sys_masks = rows[:,0]
