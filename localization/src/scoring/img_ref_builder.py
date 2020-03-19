@@ -75,7 +75,7 @@ class ImgRefBuilder:
         if 'image_id' in data.columns:
             rows = rows[['image_id','ProbeMaskFileName']]
         else:
-            rows =  rows[['ProbeFileId','ProbeMaskFileName']]
+            rows =  rows[['ProbeFileID','ProbeMaskFileName']]
         rows.sort_values(by=['image_id'])
         rows = rows.to_numpy()[starting_index:ending_index]
 #         rows = np.array(rows)        
