@@ -125,7 +125,7 @@ class PatchPredictions(Predictions):
         return num_patches    
                 
     def _get_architecture(self):
-        model_name = self.config['model_name']
+        model_name = self.model_name
         if model_name == "unet":
             from architectures.unet import UNet
             arch = UNet()

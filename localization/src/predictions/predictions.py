@@ -204,19 +204,19 @@ class Predictions():
         self.test_batch_size = self.config['test_batch_size'] 
         
     def _is_keras_pixel_model(self):
-        if self.config['model_name'] in ['nn', 'lr']:
+        if self.model_name in ['nn', 'lr']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
     
     def _is_keras_img_model(self):
-        if self.config['model_name'] in ['nn_img', 'unet']:
+        if self.model_name in ['nn_img', 'unet']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
              
     def _get_architecture(self):
-        model_name = self.config['model_name']
+        model_name = self.model_name
         if model_name == 'lr':
             from architectures.lr import Lr
             arch = Lr()
