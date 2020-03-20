@@ -53,7 +53,7 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         if len(x) == 0:
             x = np.empty([0,len(self.indicator_directories)])     
         if len(x) != len(y):   
-            print(f'length of x and y is not the same for index {index}')
+            print(f'length of x {len(x)} and y {len(y)} is not the same for index {index}')
             return np.empty([0,len(self.indicator_directories)]), [], None
         return np.array(x), np.array(y), None
         
