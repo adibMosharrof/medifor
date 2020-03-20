@@ -52,10 +52,12 @@ class ImgPixelTestDataGenerator(Sequence):
                 indicator_img = np.zeros([img_ref.img_height, img_ref.img_width])
  #           indicators.append(indicator_img.ravel())
             try:
-                indicators[:,i] = indicator_img.ravel()
+                raveled = indicator_img.ravel()
+                indicators[:,i] = raveled
             except ValueError as err:
-                print(f'error with adding indicator with probe file id {img_ref.probe_file_id}')
+                print(f'img ref dims {img_ref.img_height* img_ref.img_width}')
                 print(f'index value {self.index}')
+                print(f'indicators shape {indicators.shape} current indicator shape {raveled.shape}')
                 
                 
 #        return np.column_stack(indicators)
