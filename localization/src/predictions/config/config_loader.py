@@ -125,6 +125,8 @@ class ConfigLoader():
         print(f"Data type {config['data_type']}" )
         print(f"Image Downscale Factor {config['image_downscale_factor']}" )
         print(f"Patch Shape {config['patch_shape']}" )
+        print(f"Ensemble {config['ensemble']}" )
+        print(f"Ensemble models {config['ensemble_model_names']}" )
     
     @staticmethod
     def _get_patch_data_type(code):
