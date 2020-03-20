@@ -22,11 +22,12 @@ class ImgPixelTestDataGenerator(Sequence):
         self.indicator_directories = indicator_directories
         self.targets_path = os.path.join(targets_path, "manipulation","mask")
         self.missing_probe_file_ids = missing_probe_file_ids
+        self.index= None
         
     def __getitem__(self, index):
         starting_index = index * self.batch_size
         ending_index = (index + 1) * self.batch_size
-        
+        self.index = index
         img_refs = self.img_refs[starting_index:ending_index]
 
         target_imgs = []
@@ -40,16 +41,25 @@ class ImgPixelTestDataGenerator(Sequence):
         return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
-        indicators = []
-        for indicator_name in self.indicator_directories:
+#        indicators = []
+        indicators = np.empty([-1+img_ref.img_height* img_ref.img_width, len(self.indicator_directories)])
+        for i,indicator_name in enumerate(self.indicator_directories):
             indicator_path = self.indicators_path + indicator_name + "/mask/" + img_ref.probe_file_id + ".png"
             try:
                 img = ImageUtils.read_image(indicator_path)
                 indicator_img = 255 - img 
             except FileNotFoundError as err:
                 indicator_img = np.zeros([img_ref.img_height, img_ref.img_width])
-            indicators.append(indicator_img.ravel())
-        return np.column_stack(indicators)
+ #           indicators.append(indicator_img.ravel())
+            try:
+                indicators[:,i] = indicator_img.ravel()
+            except ValueError as err:
+                print(f'error with adding indicator with probe file id {img_ref.probe_file_id}')
+                print(f'index value {self.index}')
+                
+                
+#        return np.column_stack(indicators)
+        return indicators
     
     def _read_images_from_directory(self, dir_path, img_refs):
         imgs = []

@@ -22,10 +22,11 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
                         missing_probe_file_ids = missing_probe_file_ids)
         
         
+        
     def __getitem__(self, index):
         starting_index = index * self.batch_size
         ending_index = (index + 1) * self.batch_size
-        
+        self.index = index
         img_refs = self.img_refs[starting_index:ending_index]
 
         target_imgs = []
