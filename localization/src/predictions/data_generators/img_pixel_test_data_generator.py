@@ -42,7 +42,7 @@ class ImgPixelTestDataGenerator(Sequence):
         
     def _read_indicators(self, img_ref):
 #        indicators = []
-        indicators = np.empty([-1+img_ref.img_height* img_ref.img_width, len(self.indicator_directories)])
+        indicators = np.empty([img_ref.img_height* img_ref.img_width, len(self.indicator_directories)])
         for i,indicator_name in enumerate(self.indicator_directories):
             indicator_path = self.indicators_path + indicator_name + "/mask/" + img_ref.probe_file_id + ".png"
             try:
