@@ -30,7 +30,7 @@ class PixelPredictions(Predictions):
         super().__init__(config, model_name, output_dir)
         img_ref_csv_path, self.ref_data_path, self.targets_path, self.indicators_path = PathUtils.get_paths(self.config)
         self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
-        
+        self.image_downscale_factor = config['image_downscale_factor']
         self._prepare_img_refs(img_ref_csv_path)
         
     def _reconstruct(self, predictions, ids):
@@ -112,6 +112,7 @@ class PixelPredictions(Predictions):
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
+                        image_downscale_factor=self.image_downscale_factor
                         )
             test_gen = ImgPixelTestDataGenerator(
                         data_size=self.test_data_size,
@@ -121,7 +122,8 @@ class PixelPredictions(Predictions):
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
-                        missing_probe_file_ids = missing_probe_file_ids
+                        missing_probe_file_ids = missing_probe_file_ids,
+                        image_downscale_factor=self.image_downscale_factor
                         )
             valid_gen = ImgPixelTrainDataGenerator(
                         data_size=self.test_data_size,
@@ -131,6 +133,7 @@ class PixelPredictions(Predictions):
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
+                        image_downscale_factor=self.image_downscale_factor
                         )
         
         elif self.config['data_type'] == 'csv':

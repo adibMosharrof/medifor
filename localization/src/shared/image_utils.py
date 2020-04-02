@@ -89,6 +89,11 @@ class ImageUtils:
     @staticmethod
     def shrink_image(img, image_downscale_factor):
         return cv2.resize(img, (img.shape[1] // image_downscale_factor, img.shape[0] // image_downscale_factor))
+    
+    @staticmethod
+    def get_shrunken_dimensions(height, width, image_downscale_factor):
+        return height//image_downscale_factor, width//image_downscale_factor
+        
         
     @staticmethod
     def dilate(img):

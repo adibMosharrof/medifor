@@ -10,7 +10,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
     def __init__(self, batch_size=10, indicator_directories=[], 
                 shuffle=False, patches_path="", patch_shape=128,
                 num_patches=8,patch_tuning=None, img_refs=None, data_size = 100,
-                targets_path = "", indicators_path="", missing_probe_file_ids=[]
+                targets_path = "", indicators_path="", missing_probe_file_ids=[],
+                image_downscale_factor=1
                 ):
         super().__init__(data_size=data_size,
                         img_refs = img_refs,
@@ -19,7 +20,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
                         indicator_directories = indicator_directories,
                         indicators_path = indicators_path,
                         targets_path = targets_path,
-                        missing_probe_file_ids = missing_probe_file_ids)
+                        missing_probe_file_ids = missing_probe_file_ids,
+                        image_downscale_factor= image_downscale_factor)
         
         
         
