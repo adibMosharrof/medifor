@@ -30,12 +30,11 @@ class ImgPixelTestDataGenerator(Sequence):
         self.index = index
         img_refs = self.img_refs[starting_index:ending_index]
 
-        target_imgs = []
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         
-        indicator_imgs = []
-        for img_ref in img_refs:
-            indicator_imgs.append(self._read_indicators(img_ref))
+        indicator_imgs = [None]*len(img_refs)
+        for i,img_ref in enumerate(img_refs):
+            indicator_imgs[i] = self._read_indicators(img_ref)
         if len(indicator_imgs) ==0:
             indicator_imgs = np.empty([0,len(self.indicator_directories)])
         return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
@@ -64,7 +63,8 @@ class ImgPixelTestDataGenerator(Sequence):
         return indicators
     
     def _read_images_from_directory(self, dir_path, img_refs):
-        imgs = []
+        imgs = [None]*len(img_refs)
+#         imgs = np.empty((len(img_refs),), dtype=object)
         for (i,img_ref) in enumerate(img_refs):
             img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
             try:
@@ -72,7 +72,8 @@ class ImgPixelTestDataGenerator(Sequence):
                 img_raveled = img.ravel()
                 flipped_img = 255-img_raveled
                 thresholded_img = np.where(flipped_img > 127, 1,0)
-                imgs.append(thresholded_img)
+                imgs[i]=thresholded_img
+#                 imgs.append(thresholded_img)
             except FileNotFoundError as err:
                 self.missing_probe_file_ids.append(img_ref.probe_file_id)
         return imgs

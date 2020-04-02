@@ -32,9 +32,20 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         target_imgs = []
 #         target_imgs_path = self.patches_path + 'target_image'
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
-        y = []
+        y_size = 0
+        for img in target_imgs:
+            y_size += len(img)
+        
+        y = [None]*y_size
+        current_index = 0
         for target_img in target_imgs:
-            y = np.concatenate((y, target_img))
+            img_size = len(target_img)
+            y[current_index:current_index+img_size] = target_img
+            current_index+= img_size
+        
+#         y1 = []        
+#         for target_img in target_imgs:
+#             y1 = np.concatenate((y1, target_img))
         
         indicator_imgs =[] 
         for img_ref in img_refs:
@@ -42,13 +53,31 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
                 continue
             indicator_imgs.append(self._read_indicators(img_ref))
         
-        x = []    
+        x_size = 0
+        x_dict = []
+        for img in target_imgs:
+            x_dict.append(len(img))
+            x_size += len(img)
+        
+        if x_size != y_size:
+            print(f'length of x {len(x)} and y {len(y)} is not the same for index {index}')
+            return np.empty([0,len(self.indicator_directories)]), np.array([]), None
+            
+        x = [None]*x_size
+        current_index=0
         for indicators in indicator_imgs:
             reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
-            if len(x) == 0:
-                x = reshaped
-                continue
-            x = np.concatenate((x,reshaped))
+            img_size = len(reshaped)
+            x[current_index:current_index+img_size] = reshaped
+            current_index+= img_size
+        
+#         x1 = []    
+#         for indicators in indicator_imgs:
+#             reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
+#             if len(x1) == 0:
+#                 x1 = reshaped
+#                 continue
+#             x1 = np.concatenate((x1,reshaped))
             
         if len(x) == 0:
             x = np.empty([0,len(self.indicator_directories)])     
