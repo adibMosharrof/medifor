@@ -9,6 +9,16 @@ class ConfigLoader():
     def get_config():
         json_config, email = JsonLoader.load_config_email("predictions")
         
+        def str2bool(v):
+            if isinstance(v, bool):
+               return v
+            if v.lower() in ('yes', 'true', 't', 'y', '1'):
+                return True
+            elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+                return False
+            else:
+                raise argparse.ArgumentTypeError('Boolean value expected.')
+        
         parser = argparse.ArgumentParser(description='Train a model make predictions')
         
         parser.add_argument('-si','--starting_index', type=int,
@@ -23,7 +33,7 @@ class ConfigLoader():
         parser.add_argument('-e','--epochs', type=int,
                     default=json_config['epochs'],help='Num Epochs')
 
-        parser.add_argument('-m','--multiprocessing', type=bool,
+        parser.add_argument('-m','--multiprocessing', type=str2bool,
                     default=json_config['multiprocessing'],help='Multiprocessing')
 
         parser.add_argument('-w','--workers', type=int,
@@ -77,13 +87,13 @@ class ConfigLoader():
         parser.add_argument('-lr','--learning_rate', type=float,
                     default=json_config['learning_rate'],help='Patch Shape')
         
-        parser.add_argument('-g','--graphs', type=bool,
+        parser.add_argument('-g','--graphs', type=str2bool,
                     default=json_config['graphs'],help='Patch Shape')
 
         parser.add_argument('-dt','--data_type', type=str,
                     default=json_config['data_type'],help='Patch Shape')
 
-        parser.add_argument('-en','--ensemble', type=bool,
+        parser.add_argument('-en','--ensemble', type=str2bool,
                     default=json_config['ensemble'],help='Patch Shape')
 
         parser.add_argument('-enmn','--ensemble_model_names', type=str, nargs='+',
