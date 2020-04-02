@@ -67,8 +67,6 @@ class ImgRefBuilder:
 #                 if counter is ending_index:
 #                     break
         data = pd.read_csv(self.image_ref_csv_path, sep="|")
-        print(f'length of columns {len(data.columns)}')
-        print(f'columns {data.columns}')
         if not len(data.columns) > 1:
             data = pd.read_csv(self.image_ref_csv_path, sep=",")
         rows  = data[data['ProbeMaskFileName'].notnull()]
