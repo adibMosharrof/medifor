@@ -55,6 +55,7 @@ class ImgPixelTestDataGenerator(Sequence):
                 indicators[:,i] = raveled
             except ValueError as err:
                 print(f'img ref dims {img_ref.img_height* img_ref.img_width}')
+                print(f'img ref original dims {img_ref.img_orig_height* img_ref.img_orig_width}')
                 print(f'index value {self.index}')
                 print(f'indicators shape {indicators.shape} current indicator shape {raveled.shape}')
                 
