@@ -45,7 +45,12 @@ class PixelPredictions(Predictions):
                     img = pred.reshape(self.patch_shape, self.patch_shape)
                 else:
                     pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
-                    img = pred.reshape(img_ref.img_height, img_ref.img_width)
+                    if self.model_name == 'nn':
+                        img = pred.reshape(
+                            img_ref.img_height//self.image_downscale_factor, 
+                            img_ref.img_width//self.image_downscale_factor)
+                    else:
+                        img = pred.reshape(img_ref.img_height, img_ref.img_width)
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
             except:
