@@ -29,18 +29,18 @@ class PatchTestDataGenerator(Sequence):
         target_imgs = []
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         
-        indicator_imgs = []
-        for img_ref in img_refs:
-            indicator_imgs.append(self._read_indicators(img_ref))
+        indicator_imgs = [None]*len(img_refs)
+        for i,img_ref in enumerate(img_refs):
+            indicator_imgs[i] = self._read_indicators(img_ref)
 
         if len(indicator_imgs) ==0:
             indicator_imgs = np.empty([0,len(self.indicator_directories)])
         return np.array(indicator_imgs), np.array(target_imgs), [i.probe_file_id for i in img_refs]
         
     def _read_indicators(self, img_ref):
-        all_indicators = []
         
         num_images = img_ref.patch_window_shape[0] * img_ref.patch_window_shape[1]
+        all_indicators = [None]*num_images
         for j in range(num_images):
             #indicators = []
             indicators = np.empty([self.patch_shape, self.patch_shape, len(self.indicator_directories)])
@@ -51,33 +51,26 @@ class PatchTestDataGenerator(Sequence):
                     ind_img = 255 - img 
                 except FileNotFoundError as err:
                     ind_img = np.zeros([self.patch_shape, self.patch_shape])
-                    
-#                 ind_img = ind_img.reshape(self.patch_shape, self.patch_shape, 1)
                 indicators[:,:,i] = ind_img
-#                 try:
-#                     indicators = np.append(indicators, ind_img, axis=2)
-#                 except ValueError as err:
-#                     indicators = ind_img
-            all_indicators.append(indicators)
+            all_indicators[j] =indicators
         return all_indicators
     
     def _read_images_from_directory(self, dir_path, img_refs):
-        all_imgs = []
+        all_imgs = [None]*len(img_refs)
         for (i,img_ref) in enumerate(img_refs):
-            imgs = []
             num_images = img_ref.patch_window_shape[0] * img_ref.patch_window_shape[1]
+            imgs = [None]*num_images
             for j in range(num_images):
-#                 img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
                 img_path = f'{dir_path}/{img_ref.probe_file_id}_{j}.png'
                 try:
                     img = ImageUtils.read_image(img_path)
                     flipped_img = 255-img
                     thresholded_img = np.where(flipped_img > 127, 1,0)
-                    imgs.append(thresholded_img.reshape(self.patch_shape, self.patch_shape, 1))
+                    imgs[j] = thresholded_img.reshape(self.patch_shape, self.patch_shape, 1)
                 except FileNotFoundError as err:
                     print(f'could not find file with id {img_ref.probe_file_id}')
                     self.missing_probe_file_ids.append(img_ref.probe_file_id)
-            all_imgs.append(imgs)
+            all_imgs[i]=imgs
         return all_imgs
     
     def __len__(self):

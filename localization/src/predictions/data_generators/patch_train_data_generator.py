@@ -24,17 +24,29 @@ class PatchTrainDataGenerator(PatchTestDataGenerator):
 
     def __getitem__(self, index):
         indicator_imgs, target_imgs, ids = super().__getitem__(index) 
-        x = []
-        y = []
-        for i,j in zip(indicator_imgs,target_imgs):
-            try:
-                x = np.concatenate((x,i))
-            except ValueError as err:
-                x = i
-            try:
-                y = np.concatenate((y,j))
-            except ValueError as err:
-                y = j
+#         x = []
+#         y = []
+        num_patches = 0
+        for i in target_imgs:
+            num_patches += len(i)
+        
+        x = np.empty([num_patches,self.patch_shape, self.patch_shape, len(self.indicator_directories)])
+        y = np.empty([num_patches,self.patch_shape, self.patch_shape, 1])
+#         for i,j in zip(indicator_imgs,target_imgs):
+#             try:
+#                 x = np.concatenate((x,i))
+#             except ValueError as err:
+#                 x = i
+#             try:
+#                 y = np.concatenate((y,j))
+#             except ValueError as err:
+#                 y = j
+        index =0
+        for i,j in zip(indicator_imgs, target_imgs):
+            patches = len(i)
+            x[index:index+patches] = i
+            y[index:index+patches] = j
+            index += patches
         
         if len(x) == 0:
             x = np.empty([0,self.patch_shape, self.patch_shape,len(self.indicator_directories)])        
