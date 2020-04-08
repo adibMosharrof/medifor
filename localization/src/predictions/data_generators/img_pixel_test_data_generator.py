@@ -87,6 +87,9 @@ class ImgPixelTestDataGenerator(Sequence):
 #                 imgs.append(thresholded_img)
             except FileNotFoundError as err:
                 self.missing_probe_file_ids.append(img_ref.probe_file_id)
+        if len(self.missing_probe_file_ids):
+            print(f'img refs length {len(img_refs)}')
+            print(f'missing probe file ids {len(self.missing_probe_file_ids)}')
         return imgs
     
     def __len__(self):
