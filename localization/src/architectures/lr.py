@@ -4,7 +4,7 @@ from sklearn.linear_model import LogisticRegression
 
 class Lr():
     
-    def get_model(self, image_size, num_indicators, layers=1):
+    def get_model(self, image_size, num_indicators, layers=1,config=None):
         
 #         return LogisticRegression()
         
