@@ -34,7 +34,8 @@ class ImgPixelTestDataGenerator(Sequence):
 
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         
-        indicator_imgs = [None]*len(img_refs)
+#         indicator_imgs = [None]*len(img_refs)
+        indicator_imgs = np.empty([len(img_refs)], dtype=object)
         for i,img_ref in enumerate(img_refs):
             indicator_imgs[i] = self._read_indicators(img_ref)
         if len(indicator_imgs) ==0:
@@ -73,8 +74,8 @@ class ImgPixelTestDataGenerator(Sequence):
         return indicators
     
     def _read_images_from_directory(self, dir_path, img_refs):
-        imgs = [None]*len(img_refs)
-#         imgs = np.empty((len(img_refs),), dtype=object)
+#         imgs = [None]*len(img_refs)
+        imgs = np.empty((len(img_refs),), dtype=object)
         for (i,img_ref) in enumerate(img_refs):
             img_path = os.path.join(dir_path, img_ref.probe_mask_file_name + ".png")
             try:

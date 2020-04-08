@@ -38,7 +38,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         for img in target_imgs:
             y_size += len(img)
         
-        y = [None]*y_size
+#         y = [None]*y_size
+        y = np.empty([y_size], dtype=object)
         current_index = 0
         for target_img in target_imgs:
             img_size = len(target_img)
@@ -65,7 +66,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
             print(f'length of x {len(x)} and y {len(y)} is not the same for index {index}')
             return np.empty([0,len(self.indicator_directories)]), np.array([]), None
             
-        x = [None]*x_size
+#         x = [None]*x_size
+        x = np.empty([x_size, len(self.indicator_directories)], dtype=object)
         current_index=0
         for indicators in indicator_imgs:
             reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
