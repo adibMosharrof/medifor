@@ -36,9 +36,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         y_size = 0
         for img in target_imgs:
-            if not img.size:
-                continue
-            y_size += len(img)
+            if img:
+                y_size += len(img)
         
 #         y = [None]*y_size
         y = np.empty([y_size], dtype=object)
@@ -60,9 +59,8 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         
         x_size = 0
         for img in target_imgs:
-            if not img.size:
-                continue
-            x_size += len(img)
+            if img:
+                x_size += len(img)
         
         if x_size != y_size:
             print(f'length of x {len(x)} and y {len(y)} is not the same for index {index}')
