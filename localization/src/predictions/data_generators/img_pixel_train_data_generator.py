@@ -45,9 +45,12 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         y = np.empty([y_size], dtype=object)
         current_index = 0
         for target_img in target_imgs:
-            img_size = len(target_img)
-            y[current_index:current_index+img_size] = target_img
-            current_index+= img_size
+            try:
+                img_size = len(target_img)
+                y[current_index:current_index+img_size] = target_img
+                current_index+= img_size
+            except:
+                continue
         
 #         y1 = []        
 #         for target_img in target_imgs:
@@ -63,7 +66,7 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         for img in target_imgs:
             try:
                 x_size += len(img)
-            except:
+            except :
                 continue
         
         if x_size != y_size:
@@ -74,10 +77,13 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         x = np.empty([x_size, len(self.indicator_directories)], dtype=object)
         current_index=0
         for indicators in indicator_imgs:
-            reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
-            img_size = len(reshaped)
-            x[current_index:current_index+img_size] = reshaped
-            current_index+= img_size
+            try:
+                reshaped =  np.array(indicators).reshape(-1, len(self.indicator_directories))
+                img_size = len(reshaped)
+                x[current_index:current_index+img_size] = reshaped
+                current_index+= img_size
+            except :
+                continue
         
 #         x1 = []    
 #         for indicators in indicator_imgs:
