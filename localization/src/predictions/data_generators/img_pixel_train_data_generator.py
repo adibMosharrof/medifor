@@ -36,7 +36,7 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         target_imgs = self._read_images_from_directory(self.targets_path, img_refs)
         y_size = 0
         for img in target_imgs:
-            if img == None:
+            if not img.size:
                 continue
             y_size += len(img)
         
@@ -60,7 +60,7 @@ class ImgPixelTrainDataGenerator(ImgPixelTestDataGenerator):
         
         x_size = 0
         for img in target_imgs:
-            if img == None:
+            if not img.size:
                 continue
             x_size += len(img)
         
