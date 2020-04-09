@@ -76,6 +76,8 @@ class ImgRefBuilder:
         else:
             rows =  rows[['ProbeFileID','ProbeMaskFileName']]
             rows.sort_values(by=['ProbeFileID'])
+        if len(rows)==0:
+            return []
         rows = rows.to_numpy()[starting_index:ending_index]
 #         rows = np.array(rows)        
         sys_masks = rows[:,0]
