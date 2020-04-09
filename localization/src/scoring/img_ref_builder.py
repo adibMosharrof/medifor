@@ -48,7 +48,7 @@ class ImgRefBuilder:
     @signature("int","int")
     def get_img_ref(self, starting_index, ending_index):
         if ending_index is -1:
-            ending_index = math.inf
+            ending_index = 2100
         rows = []
 #         with open(self.image_ref_csv_path, 'r') as f:
 #             reader = csv.reader(f, delimiter='|')
