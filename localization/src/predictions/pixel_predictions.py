@@ -50,9 +50,14 @@ class PixelPredictions(Predictions):
                             img_ref.img_height//self.image_downscale_factor, 
                             img_ref.img_width//self.image_downscale_factor)
                     else:
-                        img = pred.reshape(
-                            img_ref.img_height//self.image_downscale_factor, 
-                            img_ref.img_width//self.image_downscale_factor)
+                        if self.config['data_type']=="image":
+                            img = pred.reshape(
+                                img_ref.img_height//self.image_downscale_factor, 
+                                img_ref.img_width//self.image_downscale_factor)
+                        elif self.config['data_type'] =="csv":
+                            img = pred.reshape(
+                                img_ref.img_height, 
+                                img_ref.img_width)
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
             except:
