@@ -45,19 +45,14 @@ class PixelPredictions(Predictions):
                     img = pred.reshape(self.patch_shape, self.patch_shape)
                 else:
                     pred = 255 - np.array(MinMaxScaler((0, 255)).fit_transform(prediction.reshape(-1, 1))).flatten()
-                    if self.model_name == 'nn':
+                    if self.config['data_type']=="image":
                         img = pred.reshape(
                             img_ref.img_height//self.image_downscale_factor, 
                             img_ref.img_width//self.image_downscale_factor)
-                    else:
-                        if self.config['data_type']=="image":
-                            img = pred.reshape(
-                                img_ref.img_height//self.image_downscale_factor, 
-                                img_ref.img_width//self.image_downscale_factor)
-                        elif self.config['data_type'] =="csv":
-                            img = pred.reshape(
-                                img_ref.img_height, 
-                                img_ref.img_width)
+                    elif self.config['data_type'] =="csv":
+                        img = pred.reshape(
+                            img_ref.img_height, 
+                            img_ref.img_width)
                 img_original_size = cv2.resize(
                     img, (img_ref.img_orig_width, img_ref.img_orig_height))
             except:
@@ -171,7 +166,8 @@ class PixelPredictions(Predictions):
             test_gen = CsvPixelTestDataGenerator(
                         data_size=self.test_data_size,
                         data = df,
-                        img_refs = self.test_img_refs
+                        img_refs = self.test_img_refs,
+                        batch_size = self.test_batch_size,
                         )
 #         q,w, id = test_gen.__getitem__(0)
 #         a,b, id = train_gen.__getitem__(0)
