@@ -40,6 +40,9 @@ class ConfigLoader():
 
         config = vars(parser.parse_args())
         
+        if config['csv_to_image']:
+            json_config['path']['data'] = json_config['path']['outputs']+"csv_to_image/"
+            
         config['tuning'] = {'dilate_y':bool(config['dilate_y']), 'black_border_y':bool(config['black_border_y']), 'dilate_y_black_border_y':bool(config['dilate_y_black_border_y'])}
         for param in ["black_border_y", "dilate_y", 'dilate_y_black_border_y']:
             del config[param]

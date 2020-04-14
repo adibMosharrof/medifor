@@ -15,5 +15,6 @@
         "dilate_y": false,
         "black_border_y": false,
         "dilate_y_black_border_y":false
-    }
+    },
+    "csv_to_image":true
 }
