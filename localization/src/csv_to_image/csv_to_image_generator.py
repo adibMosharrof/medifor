@@ -39,6 +39,8 @@ class CsvToImageGenerator:
             
         for image_id, group in grouped:
             target_img = self._get_img_from_image_id(group, image_id, "label")
+            if target_img == None:
+                continue
             try:
                 file_name=self.img_ref_dict[image_id]
             except KeyError:
