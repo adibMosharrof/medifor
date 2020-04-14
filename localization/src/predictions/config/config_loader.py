@@ -142,7 +142,8 @@ class ConfigLoader():
         print(f"Patch Shape {config['patch_shape']}" )
         print(f"Ensemble {config['ensemble']}" )
         print(f"Ensemble models {config['ensemble_model_names']}" )
-    
+        print(f"CSV to image {config['csv_to_image']}")
+
     @staticmethod
     def _get_patch_data_type(code):
         dict = {
