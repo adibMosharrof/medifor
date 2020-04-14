@@ -9,6 +9,16 @@ class ConfigLoader():
     def get_config():
         json_config = JsonLoader.load_config("patches")
         
+        def str2bool(v):
+            if isinstance(v, bool):
+               return v
+            if v.lower() in ('yes', 'true', 't', 'y', '1'):
+                return True
+            elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+                return False
+            else:
+                raise argparse.ArgumentTypeError('Boolean value expected.')
+        
         parser = argparse.ArgumentParser(description='Break images into patches')
         
         parser.add_argument('-si','--starting_index', type=int,
@@ -37,6 +47,10 @@ class ConfigLoader():
         
         parser.add_argument('-ps','--patch_shape', type=int,
                     default=json_config['patch_shape'],help='Patch Shape')
+        
+        parser.add_argument('-cti','--csv_to_image', type=str2bool,
+                    default=json_config['csv_to_image'],help='Patch Shape')
+        
 
         config = vars(parser.parse_args())
         
