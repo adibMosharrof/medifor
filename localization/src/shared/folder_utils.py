@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+from shutil import copyfile
 
 class FolderUtils:
     @staticmethod
@@ -46,7 +47,24 @@ class FolderUtils:
         output_dir_path = f'{output_path}{model_name}/{patch_shape}_{img_downscale_factor}/{timestamp}'
         FolderUtils.make_dir(output_dir_path)
         return output_dir_path
-        
+    
+    @staticmethod
+    def create_csv_to_image_output_folder(output_path,data_prefix, data_year,indicators):
+        output_dir_path = f'{output_path}{data_prefix}{data_year}'
+        output_dir = FolderUtils.make_dir(output_dir_path)
+        indicators_dir = FolderUtils.make_dir(output_dir_path+"indicators")
+        for indicator in indicators:
+            FolderUtils.make_dir(indicators_dir+ indicator+"/mask/")
+        FolderUtils.make_dir(f'{output_dir}targets/manipulation/mask')
+        index_dir = FolderUtils.make_dir(f'{output_dir}indexes/')
+        img_ref_dir = FolderUtils.make_dir(f'{output_dir}reference/manipulation')
+        return output_dir, index_dir, img_ref_dir
+    
+    @staticmethod
+    def csv_to_image_copy_csv_files(data_path, index_dir, img_ref_dir):
+        copyfile(f'{data_path}reference/manipulation/image_ref.csv', f'{img_ref_dir}image_ref.csv')
+        copyfile(f'{data_path}indexes/index.csv', f'{index_dir}index.csv')
+    
     @staticmethod
     def _get_timestamp():
         return datetime.now().strftime("%Y%m%d_%H%M%S")

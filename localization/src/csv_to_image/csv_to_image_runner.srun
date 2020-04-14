@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH --partition=long
+#SBATCH --job-name=csv_to_image
+#SBATCH --output=/home/adibm/uoml/adib/outputs/csv_to_image/talapas/%j.out
+#SBATCH --error=/home/adibm/uoml/adib/outputs/csv_to_image/talapas/%j.err
+#SBATCH --account=uoml
+source activate adib
+python csv_to_image_runner.py

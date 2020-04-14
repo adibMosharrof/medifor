@@ -101,8 +101,13 @@ class ConfigLoader():
 
         parser.add_argument('-enmw','--ensemble_model_weights', type=float, nargs='+',
                     default=json_config['ensemble_model_weights'],help='Patch Shape')
-        config = vars(parser.parse_args())
+
+        parser.add_argument('-cti','--csv_to_image', type=str2bool,
+                    default=json_config['csv_to_image'],help='Patch Shape')
         
+        config = vars(parser.parse_args())
+        if config['csv_to_image']:
+            json_config['path']['data'] = json_config['path']['outputs']+"csv_to_image/"
         config['patch_data_type'] = ConfigLoader._get_patch_data_type(config["patch_data_type"])
         
         config['patch_tuning'] = {'dilate_y':bool(config['dilate_y']), 'patch_black':bool(config['patch_black'])}

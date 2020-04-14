@@ -36,5 +36,6 @@
     "data_type":"image",
     "ensemble":true,
     "ensemble_model_names":["unet","nn"],
-    "ensemble_model_weights":[0.2, 0.8]
+    "ensemble_model_weights":[0.2, 0.8],
+    "csv_to_image":true
 }

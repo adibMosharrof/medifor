@@ -1,0 +1,20 @@
+{
+    "path":{
+        "data" : "../../data/",
+        "outputs":"../../outputs/",
+        "target_mask":"targets/manipulation/mask/",
+        "image_ref_csv":"reference/manipulation/image_ref.csv"
+    },
+    "patch_shape":"64",
+    "image_downscale_factor":1,
+    "starting_index":0,
+    "ending_index":"20",
+    "csv_data":"",
+    "data_year":"MFC18_EvalPart1/",
+    "data_prefix":"medifor_local_small_40/",
+    "tuning":{
+        "dilate_y": false,
+        "black_border_y": false,
+        "dilate_y_black_border_y":false
+    }
+}
