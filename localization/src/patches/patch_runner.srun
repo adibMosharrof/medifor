@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --partition=long
 #SBATCH --job-name=patches
-#SBATCH --output=talapas/patch_runner.out
-#SBATCH --error=talapas/patch_runner.err
+#SBATCH --output=/home/adibm/uoml/adib/outputs/patches/talapas/%j.out
+#SBATCH --error=/home/adibm/uoml/adib/outputs/patches/talapas/%j.out
 #SBATCH --account=uoml
 source activate adib
 python patch_runner.py
