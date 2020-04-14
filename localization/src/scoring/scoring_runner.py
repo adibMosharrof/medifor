@@ -45,7 +45,8 @@ class ScoringRunner():
         #self.emailsender.send(self.email_json)
      
     def log_configs(self):
-        self.my_logger.info("Threshold step: {0}".format(self.config["threshold_step"]))
+        a=1
+#         self.my_logger.info("Threshold step: {0}".format(self.config["threshold_step"]))
 
     def start(self):
         env_path = self.config['path']

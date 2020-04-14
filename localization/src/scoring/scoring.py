@@ -34,6 +34,7 @@ class Scoring(object):
                 bw = ImageUtils.get_black_and_white_image(d.ref)
             except FileNotFoundError as err:
                 print(f'scoring, couldnt read img with id {d.sys} at index {i}')
+                continue
 
             normalized_ref = self.flip(bw)
             noscore_img = self.get_noscore_image(normalized_ref)

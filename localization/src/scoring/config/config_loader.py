@@ -20,9 +20,12 @@ class ConfigLoader():
         parser.add_argument('-mn','--model_name', type=str,
                     default=json_config['model_name'],help='Architecture Model Name')
  
-        parser.add_argument('-d','--data', type=str,
-                    default=json_config['data'],help='Dataset')
+        parser.add_argument('-d','--data_year', type=str,
+                    default=json_config['data_year'],help='Dataset')
         
+        parser.add_argument('-dp','--data_prefix', type=str,
+                    default=json_config['data_prefix'],help='Data Prefix')
+
         parser.add_argument('-p','--predictions', type=str,
                     default=json_config['predictions'],help='Predictions Path')
         
