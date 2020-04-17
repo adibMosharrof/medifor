@@ -6,7 +6,7 @@ class Lr():
     
     def get_model(self, image_size, num_indicators, layers=1,config=None):
         
-#         return LogisticRegression()
+        return LogisticRegression()
         
         
         model = Sequential()

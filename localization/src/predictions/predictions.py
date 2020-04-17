@@ -63,7 +63,10 @@ class Predictions():
             avg_score = (score[0]*len(self.train_img_refs)+ score[1]*len(self.test_img_refs))/(len(self.test_img_refs)+ len(self.train_img_refs))
             avg_scores.append(avg_score)
         if self.config['graphs'] == True:
-            self.create_graphs(all_models)
+            try:
+                self.create_graphs(all_models)
+            except AttributeError as err:
+                a=1
         
         for i, avg_score in enumerate(avg_scores):
             print(f'average score for iteration {i} : {avg_score}')
@@ -136,19 +139,21 @@ class Predictions():
         elif self._is_keras_img_model():
             model = arch.get_model(self.patch_shape,len(self.indicator_directories), config=self.config)
         else:
-            model = arch.get_model(self.patch_shape,x.shape[3])
+            model = arch.get_model(self.patch_shape,x.shape[1])
 #         model.fit(x,y)
 #         class_weight = np.array([0.5,0.5])
 #         model.fit_generator(generator = train_gen, epochs=epochs, validation_data= valid_gen, use_multiprocessing=self.config['multiprocessing'], workers = workers , class_weight=class_weight)
         train_callback = None
         if self.config['graphs']:
             train_callback = [TrainingCallback(self)]
-        model.fit_generator(generator = train_gen, epochs=epochs,
-            validation_data= valid_gen, 
-            use_multiprocessing=self.config['multiprocessing'], 
-            workers = workers,
-            callbacks=train_callback)
-        
+        try:
+            model.fit_generator(generator = train_gen, epochs=epochs,
+                validation_data= valid_gen, 
+                use_multiprocessing=self.config['multiprocessing'], 
+                workers = workers,
+                callbacks=train_callback)
+        except AttributeError as err:
+            model.fit(x.astype('int32'),y.astype('int32'))
         return model           
     
     
@@ -204,7 +209,7 @@ class Predictions():
         self.test_batch_size = self.config['test_batch_size'] 
         
     def _is_keras_pixel_model(self):
-        if self.model_name in ['nn', 'lr']:
+        if self.model_name in ['nn']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
