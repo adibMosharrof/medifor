@@ -28,20 +28,30 @@ class Scoring(object):
     def get_average_score(self, data):
         scores = 0
         counter = 0
+        c = 0
         for i, d in enumerate(data):
             try:
                 sys_image = ImageUtils.read_image(d.sys)
-                bw = ImageUtils.get_black_and_white_image(d.ref)
             except FileNotFoundError as err:
                 print(f'scoring, couldnt read img with id {d.sys} at index {i}')
                 continue
+            try:
+#                 bw = ImageUtils.get_black_and_white_image(d.ref)
+                bw = ImageUtils.read_image(d.ref)
+            except FileNotFoundError:
+                c+=1
+                counter +=1
+                continue
+#                bw = np.zeros(sys_image.shape)
 
-            normalized_ref = self.flip(bw)
+#             normalized_ref = self.flip(bw)
+            normalized_ref = bw
             noscore_img = self.get_noscore_image(normalized_ref)
-            score = self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), np.array(sys_image).ravel())     
+            score = self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), sys_image.ravel())     
             scores += score
             counter +=1
-            print(f'running average {round(scores/(i+1),5)} current {round(score,5)}')
+#             print(f'running average {round(scores/(i+1),5)} current {round(score,5)}')
+        print(f'ref imgs not found {c}')
         return scores/counter
       
     def get_noscore_image(self, img):
@@ -73,6 +83,7 @@ class Scoring(object):
         normalized_pred = self.flip(sys)
         pred = normalized_pred[scoring_indexes].astype(int)
         manipulations = ref[scoring_indexes].astype(int)
+#         MccBinarized.plot_graph(pred,manipulations)
         mcc_scores = MccBinarized.compute(pred, manipulations)
         max_score = max(mcc_scores)
 #         self.plot_scores(mcc_scores)
@@ -86,6 +97,8 @@ class Scoring(object):
         
     def get_scoring_indexes(self, ref):
         result = np.where(ref != 0 )
+        if len(result[0]) == 0:
+            result = np.where(ref !=None)
         return result[0]
     
     def flip(self, img):

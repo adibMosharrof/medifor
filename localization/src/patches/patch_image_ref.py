@@ -36,20 +36,21 @@ class PatchImageRefFactory():
                             border_top, border_left)
     
     @staticmethod
-    def get_img_refs_from_csv(csv_path, starting_index, ending_index):
+    def get_img_refs_from_csv(csv_path, starting_index, ending_index, target_index=-1):
         if ending_index is -1:
             ending_index = math.inf
         with open(csv_path, 'r') as f:
             reader = csv.reader(f)
             headers = next(reader)
             patch_img_refs = []
+            ti = 3 if target_index is -1 else 0
             for i, row in enumerate(reader):
                 if i >= starting_index and i < ending_index:
                     patch_img_refs.append(PatchImageRefFactory.create_img_ref(
                         row[0], 
                         literal_eval(row[1]), 
                         literal_eval(row[2]),
-                        row[3],
+                        row[ti],
                         literal_eval(row[4]),
                         int(row[5]),
                         int(row[6])

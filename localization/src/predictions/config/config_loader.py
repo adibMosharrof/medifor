@@ -105,6 +105,12 @@ class ConfigLoader():
         parser.add_argument('-cti','--csv_to_image', type=str2bool,
                     default=json_config['csv_to_image'],help='Patch Shape')
         
+        parser.add_argument('-ct','--change_targets', type=str2bool,
+                    default=json_config['change_targets'],help='Patch Shape')
+        
+        parser.add_argument('-tid','--target_id', type=int,
+                    default=json_config['target_id'],help='Patch Shape')
+        
         config = vars(parser.parse_args())
         if config['csv_to_image']:
             json_config['path']['data'] = json_config['path']['outputs']+"csv_to_image/"

@@ -42,16 +42,11 @@ class ImageUtils:
         return np.where(img < 255, 0, img)
     
     @staticmethod
-    def display(img):
-        plt.imshow(img, cmap='gray')
-        plt.show()
-        
-    @staticmethod
     def resize_image(img, size_tuple):
         return cv2.resize(img, size_tuple)
     
     @staticmethod
-    def display_multiple(*imgs):
+    def display(*imgs):
         n = len(imgs)
         f = plt.figure()
         for i, img in enumerate(imgs):

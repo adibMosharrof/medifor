@@ -70,8 +70,11 @@ class Predictions():
         
         for i, avg_score in enumerate(avg_scores):
             print(f'average score for iteration {i} : {avg_score}')
-        print(f'max score {max(avg_scores)}')
-        print(f'avg score over iterations {np.mean(avg_scores)}')
+        max_score = max(avg_scores)
+        avg = np.mean(avg_scores)
+        print(f'max score {max_score}')
+        print(f'avg score over iterations {avg}')
+        return max_score, avg
         
         
     def create_graphs(self, all_models):

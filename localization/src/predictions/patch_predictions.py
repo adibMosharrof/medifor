@@ -43,15 +43,16 @@ from predictions import Predictions
 
 class PatchPredictions(Predictions):
     
-    def __init__(self, config, model_name=None, output_dir=None):
+    def __init__(self, config, model_name=None, output_dir=None, target_id=None):
         super().__init__(config, model_name, output_dir)
         
-        self.patches_path, patch_img_ref_path, self.indicators_path, img_ref_csv, self.ref_data_path = PathUtils.get_paths_for_patches(self.config)
-        self.targets_path= self.patches_path +"target_image/"
+        self.patches_path, self.patch_img_ref_path, self.indicators_path, img_ref_csv, self.ref_data_path = PathUtils.get_paths_for_patches(self.config)
+        self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
+           
+        self.set_target_paths(target_id or config['target_id'])
         self.starting_index, self.ending_index = JsonLoader.get_data_size(self.config)
         
-        self.indicator_directories = PathUtils.get_indicator_directories(self.indicators_path)
-        self._prepare_img_refs(patch_img_ref_path)
+        self._prepare_img_refs(self.patch_img_ref_path)
 
     def get_data_generators(self, missing_probe_file_ids):
         train_gen = PatchTrainDataGenerator(
@@ -84,7 +85,16 @@ class PatchPredictions(Predictions):
                         )  
 #         a,b,c = test_gen.__getitem__(0)
         return train_gen, test_gen, valid_gen
-        
+            
+    def set_target_paths(self, target_id):
+        self.target_id = target_id
+        self._prepare_img_refs(self.patch_img_ref_path)
+        if target_id is -1:
+            self.targets_path= self.patches_path +"target_image/"
+        else:
+            self.targets_path = self.patches_path + self.indicator_directories[target_id] + '/'
+            self.ref_data_path = self.ref_data_path.replace('targets/manipulation', 'indicators/'+self.indicator_directories[target_id])
+    
     def _reconstruct(self, predictions, ids):
         for (prediction,id) , patch_img_ref in zip(predictions, self.test_img_refs):
             prediction = 255- (prediction*255)
@@ -123,6 +133,7 @@ class PatchPredictions(Predictions):
             window_shape = patch_img_ref.patch_window_shape
             num_patches += window_shape[0] * window_shape[1]
         return num_patches    
+
                 
     def _get_architecture(self):
         model_name = self.model_name
@@ -142,7 +153,8 @@ class PatchPredictions(Predictions):
     
     def _prepare_img_refs(self, patch_img_ref_path):
         self.img_refs, self.ending_index = PatchImageRefFactory.get_img_refs_from_csv(
-            patch_img_ref_path, self.starting_index, self.ending_index)
+            patch_img_ref_path, self.starting_index, self.ending_index, 
+            target_index=self.target_id)
         ImgRefBuilder.add_image_width_height(self.img_refs, self.config)
                 
         self.num_training_patches = self._get_num_patches(self.img_refs[:self.train_data_size])
