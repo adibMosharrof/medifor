@@ -64,7 +64,8 @@ class Predictions():
             avg_scores.append(avg_score)
         if self.config['graphs'] == True:
             try:
-                self.create_graphs(all_models)
+                a=1
+#                 self.create_graphs(all_models)
             except AttributeError as err:
                 a=1
         
