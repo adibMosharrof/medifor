@@ -6,10 +6,11 @@
         "target_mask":"targets/manipulation/mask/",
         "image_ref_csv":"reference/manipulation/image_ref.csv"
     },
-    "starting_index":1430,
-    "ending_index":1432,
-    "data":"MFC18_EvalPart1/",
-    "predictions":"single_layer_nn/128_4/server/20191118_095251",
-    "model_name":"single_layer_nn"
+    "starting_index":0,
+    "ending_index":200,
+    "data_year":"MFC18_EvalPart1/",
+    "data_prefix":"medifor_local_small_40/",
+    "predictions":"nn/medifor_local_small_40/server/20200412_190012",
+    "model_name":"nn"
 }
 

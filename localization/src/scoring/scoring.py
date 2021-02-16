@@ -45,6 +45,7 @@ class Scoring(object):
 #                bw = np.zeros(sys_image.shape)
 
 #             normalized_ref = self.flip(bw)
+#             ImageUtils.display(sys_image,bw)
             normalized_ref = bw
             noscore_img = self.get_noscore_image(normalized_ref)
             score = self.get_image_score(noscore_img.ravel(), normalized_ref.ravel(), sys_image.ravel())     
@@ -81,8 +82,10 @@ class Scoring(object):
     def get_image_score(self, noscore_img, ref, sys):
         scoring_indexes = self.get_scoring_indexes(noscore_img);
         normalized_pred = self.flip(sys)
-        pred = normalized_pred[scoring_indexes].astype(int)
-        manipulations = ref[scoring_indexes].astype(int)
+        pred = normalized_pred.astype(int)
+        manipulations = ref.astype(int)
+#         pred = normalized_pred[scoring_indexes].astype(int)
+#         manipulations = ref[scoring_indexes].astype(int)
 #         MccBinarized.plot_graph(pred,manipulations)
         mcc_scores = MccBinarized.compute(pred, manipulations)
         max_score = max(mcc_scores)

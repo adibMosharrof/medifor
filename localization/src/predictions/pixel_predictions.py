@@ -69,7 +69,10 @@ class PixelPredictions(Predictions):
         img_refs = irb.get_img_ref(self.starting_index, self.ending_index)
         ImgRefBuilder.add_image_width_height(img_refs, self.config)
         self.train_img_refs = img_refs[:self.train_data_size]
-        self.test_img_refs = img_refs[self.train_data_size:]  
+        if self.config['test_on_train']:
+            self.test_img_refs = self.train_img_refs
+        else:
+            self.test_img_refs = img_refs[self.train_data_size:]  
       
     def get_data_generators(self, missing_probe_file_ids):
         if self._is_keras_img_model():

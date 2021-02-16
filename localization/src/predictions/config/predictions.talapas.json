@@ -39,5 +39,6 @@
     "ensemble_model_weights":[0.2, 0.8],
     "csv_to_image":true,
     "change_targets":true,
-    "target_id":-1
+    "target_id":-1,
+    "test_on_train":true
 }

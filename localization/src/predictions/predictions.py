@@ -167,16 +167,18 @@ class Predictions():
         for i in range(int(math.ceil(self.test_data_size / self.test_batch_size))):
             x_list, y_list, ids = test_gen.__getitem__(i)
                 
-            for id, x in zip(ids, x_list):
+            for id, x, y in zip(ids, x_list,y_list):
                 try:
                     if self._is_keras_pixel_model():
                         x = np.array(x)
                         prediction = (model.predict(x), id)
+#                         prediction = (np.expand_dims(y,axis=1), id)
                     elif self._is_keras_img_model():
                         if self.model_name in ["nn_img","nn"]:
                             prediction = (model.predict(np.array([x])), id)
                         else:
                             prediction = (model.predict(np.array(x)),id)
+#                             prediction = (np.array(y).squeeze(axis=3),id)
                     else:
                         prediction= (model.predict_proba(x)[:,1],id) 
                 except:
@@ -213,13 +215,13 @@ class Predictions():
         self.test_batch_size = self.config['test_batch_size'] 
         
     def _is_keras_pixel_model(self):
-        if self.model_name in ['nn']:
+        if self.model_name in ['nn_pixel']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
     
     def _is_keras_img_model(self):
-        if self.model_name in ['nn_img', 'unet']:
+        if self.model_name in ['nn_img', 'unet', 'nn']:
 #         if self.config['model_name'] in ['single_layer_nn', 'unet']:
             return True
         return False
@@ -238,6 +240,9 @@ class Predictions():
         elif model_name == 'nn':
             from architectures.nn import Nn
             arch = Nn()  
+        elif model_name == 'nn_pixel':
+            from architectures.nn_pixel import NnPixel
+            arch = NnPixel()  
         elif model_name == 'nn_img':
             from architectures.nn_img import NnImg
             arch = NnImg()    

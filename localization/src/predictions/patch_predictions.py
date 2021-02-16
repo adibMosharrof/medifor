@@ -68,7 +68,8 @@ class PatchPredictions(Predictions):
                         data_size=len(self.test_img_refs),
                         img_refs = self.test_img_refs,
                         patch_shape = self.patch_shape,
-                        batch_size = self.test_batch_size,
+                        batch_size = self.train_batch_size,
+#                         batch_size = self.test_batch_size,
                         indicator_directories = self.indicator_directories,
                         indicators_path = self.indicators_path,
                         targets_path = self.targets_path,
@@ -159,6 +160,7 @@ class PatchPredictions(Predictions):
                 
         self.num_training_patches = self._get_num_patches(self.img_refs[:self.train_data_size])
         self.num_testing_patches = self._get_num_patches(self.img_refs[self.train_data_size:])
-        self.test_img_refs = self.img_refs[self.train_data_size:]
+#         self.test_img_refs = self.img_refs[self.train_data_size:]
         self.train_img_refs = self.img_refs[:self.train_data_size]
+        self.test_img_refs = self.train_img_refs
         

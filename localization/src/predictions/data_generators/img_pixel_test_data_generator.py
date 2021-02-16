@@ -92,6 +92,6 @@ class ImgPixelTestDataGenerator(Sequence):
             print(f'img refs length {len(img_refs)}')
             print(f'missing probe file ids {len(self.missing_probe_file_ids)}')
         return imgs
-    
+
     def __len__(self):
         return int(np.ceil(self.data_size / float(self.batch_size)))

@@ -108,6 +108,9 @@ class ConfigLoader():
         parser.add_argument('-ct','--change_targets', type=str2bool,
                     default=json_config['change_targets'],help='Patch Shape')
         
+        parser.add_argument('-tot','--test_on_train', type=str2bool,
+                    default=json_config['test_on_train'],help='Patch Shape')
+        
         parser.add_argument('-tid','--target_id', type=int,
                     default=json_config['target_id'],help='Patch Shape')
         
@@ -148,7 +151,7 @@ class ConfigLoader():
         print(f"Patch Shape {config['patch_shape']}" )
         print(f"Ensemble {config['ensemble']}" )
         print(f"Ensemble models {config['ensemble_model_names']}" )
-        print(f"CSV to image {config['csv_to_image']}")
+        print(f"Test on train {config['test_on_train']}")
 
     @staticmethod
     def _get_patch_data_type(code):
