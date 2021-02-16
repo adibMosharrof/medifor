@@ -15,7 +15,6 @@ class ImageUtils:
     def read_image(path, error_message=None, normalize=False):
         try:
             image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-#             image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
             if image is None:
                 raise FileNotFoundError(f"No image found at the path {path}")
         except FileNotFoundError as err:
@@ -88,10 +87,20 @@ class ImageUtils:
     @staticmethod
     def get_shrunken_dimensions(height, width, image_downscale_factor):
         return height//image_downscale_factor, width//image_downscale_factor
-        
-        
+           
     @staticmethod
     def dilate(img):
         kernel = np.ones((15,15),np.uint8)
         dilated_img = cv2.erode(img,kernel,iterations = 3)
         return dilated_img
+    
+    @staticmethod
+    def get_image_dimensions(path=None, image=None):
+        if path:
+            image = ImageUtils.read_image(path)
+        return image.shape
+            
+    @staticmethod
+    def is_image_extension(path):
+        valid_extensions = ['png','jpeg','jpg']
+        return path[-3:] in valid_extensions
