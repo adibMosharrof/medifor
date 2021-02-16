@@ -31,7 +31,6 @@ class FolderUtils:
             model_paths.append(model_path)
         return FolderUtils.make_dir(output_dir_path), FolderUtils.make_dir(results_path), FolderUtils.make_dir(graphs_path), model_paths
     
-    
     @staticmethod
     def create_patch_output_folder(patch_shape,img_downscale_factor,  output_path, indicators, tuning, data_year, data_prefix):
         output_dir_path = FolderUtils._get_patch_output_folder_name(output_path, patch_shape, img_downscale_factor, tuning, data_year, data_prefix)
@@ -65,6 +64,10 @@ class FolderUtils:
         copyfile(f'{data_path}reference/manipulation/image_ref.csv', f'{img_ref_dir}image_ref.csv')
         copyfile(f'{data_path}indexes/index.csv', f'{index_dir}index.csv')
     
+    @staticmethod
+    def create_data_exploration_output_folder(output_path, data_prefix, data_year):
+        return FolderUtils.make_dir(os.path.join(output_path, data_prefix, data_year))
+                                    
     @staticmethod
     def _get_timestamp():
         return datetime.now().strftime("%Y%m%d_%H%M%S")

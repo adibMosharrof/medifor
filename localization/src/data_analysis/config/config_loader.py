@@ -7,7 +7,7 @@ class ConfigLoader():
     
     @staticmethod
     def get_config():
-        json_config = JsonLoader.load_config("csv_to_image")
+        json_config = JsonLoader.load_config("data_analysis")
         
         parser = argparse.ArgumentParser(description='Break images into patches')
         
