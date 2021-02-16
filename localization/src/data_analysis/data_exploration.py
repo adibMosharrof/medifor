@@ -45,6 +45,7 @@ class DataExploration:
         bins = pd.cut(fractions, bins=cut_bins, labels=labels, ordered=False).value_counts()
         y = bins.values
         
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)  
         fig1, ax1 = plt.subplots(figsize=(12.8,9.6))
         wedges, texts, autotexts = ax1.pie(y, autopct='%1.1f%%',
                 shadow=True, startangle=90)
@@ -63,8 +64,8 @@ class DataExploration:
         plt.setp(autotexts, size=8, weight="bold")
         
         ax1.set_title("Manipulation Fractions")
-        plt.savefig(os.path.join(self.out_folder, f'manipulation_fractions_{self.starting_index}_{self.ending_index}.png'))
-        plt.show()
+        plt.savefig(os.path.join(self.out_folder, f'manipulation_fractions_{self.starting_index}_{self.ending_index}.png'), bbox_inches='tight')
+#         plt.show()
     
     def _image_dimensions(self):        
         dimensions = self._loop_over_images(Operations.Dimensions)
