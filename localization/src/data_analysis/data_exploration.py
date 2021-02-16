@@ -48,6 +48,7 @@ class DataExploration:
         plt.xlabel("Image Dimensions")
         plt.ylabel("Frequency")
         plt.title('Image Dimensions Distribution')
+        plt.xticks(x[::5],  rotation='vertical')
         
         plt.savefig(os.path.join(self.out_folder, f'image_distribution_{self.starting_index}_{self.ending_index}.png'))
         
