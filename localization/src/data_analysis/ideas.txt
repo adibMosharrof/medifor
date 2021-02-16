@@ -1,0 +1,15 @@
+create a baseline with predicting 1 or 0
+try to show whether its overfitting or underfitting by using training and validation errors
+
+data
+    project
+    how the images were generated
+    algorithms that were applied to create the localization masks
+    metrics used for scoring
+    the algo devs were using to optimize the methods
+    indv algo performs
+    dimension of images, smallest and largest..distribution of images (histogram to show data info)
+    different tags on the images (indoor, outdoor)
+    different types of manipulations , size of manipulation (compare with whole image, fraction, % of manipulation)
+    
+    

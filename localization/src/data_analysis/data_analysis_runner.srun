@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH --partition=short
+#SBATCH --job-name=data_analysis
+#SBATCH --output=/home/adibm/uoml/adib/outputs/data_analysis/talapas/%j.out
+#SBATCH --error=/home/adibm/uoml/adib/outputs/data_analysis/talapas/%j.err
+#SBATCH --account=uoml
+source activate adib
+python data_analysis_runner.py 
