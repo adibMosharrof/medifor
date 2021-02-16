@@ -95,12 +95,29 @@ class ImageUtils:
         return dilated_img
     
     @staticmethod
-    def get_image_dimensions(path=None, image=None):
-        if path:
-            image = ImageUtils.read_image(path)
+    def get_image_dimensions(path):
+        image = ImageUtils.read_image(path)
         return image.shape
             
     @staticmethod
     def is_image_extension(path):
         valid_extensions = ['png','jpeg','jpg']
         return path[-3:] in valid_extensions
+    
+    @staticmethod
+    def get_color_value_percentage(path):
+        image = ImageUtils.read_image(path)
+        unique, counts = np.unique(image, return_counts=True)
+        man = 0
+        non_man = 0
+        if len(unique) == 2:
+            man = counts[0]
+            non_man = counts[1]
+        elif len(unique) == 1:
+            if unique[0] == 0:
+                man = counts[0]
+            else:
+                non_man = counts[0]
+        return man*100/(man+non_man)
+#         return dict(zip(unique,counts))
+        
