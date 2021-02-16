@@ -30,15 +30,44 @@ class DataExploration:
         a=1
         
     def explore(self):
-       self._image_distribution()
+        self._image_dimensions()
+        self._image_manipulation_fraction()
        
-    def _image_distribution(self):
-        dimensions= []
-        for file_name in os.listdir(self.targets_path)[self.starting_index:self.ending_index]:
-            path = os.path.join(self.targets_path,file_name)
-            if not ImageUtils.is_image_extension(file_name):
+    def _image_manipulation_fraction(self):
+        fractions = self._loop_over_images(Operations.Fractions)
+        cut_bins = [0,10,20,30,50,70,100]
+        labels = []
+        for i, v in enumerate(cut_bins):
+            if i is len(cut_bins)-1:
                 continue
-            dimensions.append(ImageUtils.get_image_dimensions(path=path))
+            text = f'{cut_bins[i]}-{cut_bins[i+1]}'
+            labels.append(text)
+        bins = pd.cut(fractions, bins=cut_bins, labels=labels, ordered=False).value_counts()
+        y = bins.values
+        
+        fig1, ax1 = plt.subplots(figsize=(12.8,9.6))
+        wedges, texts, autotexts = ax1.pie(y, autopct='%1.1f%%',
+                shadow=True, startangle=90)
+        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        total = sum(y)
+        pie_lables = []
+        for v, l in zip(y, labels):
+            value = round(v*100/total,1)
+            pie_lables.append(f'{l}, {value}%')
+            
+        ax1.legend(wedges, pie_lables,
+          title="Ingredients",
+          loc="center left",
+          bbox_to_anchor=(1, 0, 0.5, 1))
+
+        plt.setp(autotexts, size=8, weight="bold")
+        
+        ax1.set_title("Manipulation Fractions")
+        plt.savefig(os.path.join(self.out_folder, f'manipulation_fractions_{self.starting_index}_{self.ending_index}.png'))
+        plt.show()
+    
+    def _image_dimensions(self):        
+        dimensions = self._loop_over_images(Operations.Dimensions)
         df = pd.DataFrame({"shape":dimensions})
         counts = df['shape'].value_counts()
         
@@ -68,6 +97,20 @@ class DataExploration:
         plt.savefig(os.path.join(self.out_folder, f'image_distribution_table_{self.starting_index}_{self.ending_index}.png'))
 #         plt.show()
         
+    def _loop_over_images(self, operation, color=0):
+        output= []
+        for file_name in os.listdir(self.targets_path)[self.starting_index:self.ending_index]:
+            path = os.path.join(self.targets_path,file_name)
+            if not ImageUtils.is_image_extension(file_name):
+                continue
+            if operation is Operations.Dimensions:
+                output.append(ImageUtils.get_image_dimensions(path))
+            elif operation is Operations.Fractions:
+                percentage = ImageUtils.get_color_value_percentage(path)
+                output.append(percentage)
+        return output
 
-        
-        
+from enum import Enum
+class Operations(Enum):
+    Dimensions = 1
+    Fractions = 2
