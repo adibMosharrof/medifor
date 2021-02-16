@@ -40,7 +40,7 @@ class DataExploration:
         for i, v in enumerate(cut_bins):
             if i is len(cut_bins)-1:
                 continue
-            text = f'{cut_bins[i]}-{cut_bins[i+1]}'
+            text = f'{cut_bins[i]}-{cut_bins[i+1]}%'
             labels.append(text)
         bins = pd.cut(fractions, bins=cut_bins, labels=labels, ordered=False).value_counts()
         y = bins.values
