@@ -42,6 +42,8 @@ class DataExploration:
         counts = df['shape'].value_counts()
         
         x = [str(i) for i in counts.index]
+        plt.figure(figsize=(12.8,9.6))
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
         plt.bar(x,counts.values, color='green')
         plt.xlabel("Image Dimensions")
         plt.ylabel("Frequency")
