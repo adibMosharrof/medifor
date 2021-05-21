@@ -1,44 +1,51 @@
 {
-    "path":{
-        "data" : "/home/adibm/uoml/medifor_data/",
-        "outputs":"/home/adibm/uoml/adib/outputs/",
-        "target_mask":"targets/manipulation/mask/",
-        "image_ref_csv":"reference/manipulation/image_ref.csv",
-        "model_type":{
-            "unet":"unet"
+    "path": {
+        "data": "/home/adibm/uoml/medifor_data/",
+        "outputs": "/home/adibm/uoml/adib/outputs/",
+        "target_mask": "targets/manipulation/mask/",
+        "image_ref_csv": "reference/manipulation/image_ref.csv",
+        "model_type": {
+            "unet": "unet"
         }
     },
-    "data_year":"MFC18_EvalPart1/",
-    "data_prefix":"original/",
-    "image_downscale_factor":10,
-    "csv_data":"",
-    "patch_shape":64,
-    "train_batch_size":1,
-    "test_batch_size":1,
-    "train_data_size":1000,
-    "workers":30,
-    "epochs":6,
-    "starting_index":0,
-    "ending_index":2000,
-    "model_name":"lr",
-    "multiprocessing":true,
-    "patch_tuning":{
-        "dilate_y":false,
-        "patch_black":false
+    "data_year": "MFC18_EvalPart1/",
+    "data_prefix": "original/",
+    "image_downscale_factor": 10,
+    "csv_data": "",
+    "patch_shape": 64,
+    "train_batch_size": 1,
+    "test_batch_size": 1,
+    "train_data_size": 1000,
+    "workers": 30,
+    "epochs": 6,
+    "starting_index": 0,
+    "ending_index": 2000,
+    "model_name": "lr",
+    "multiprocessing": true,
+    "patch_tuning": {
+        "dilate_y": false,
+        "patch_black": false
     },
-    "patch_data_type":"",
-    "nn_layers":5,
-    "unet_layers":3,
-    "iterations":5,
-    "regularization":0.00,
-    "learning_rate":0.01,
-    "graphs":true,
-    "data_type":"image",
-    "ensemble":true,
-    "ensemble_model_names":["unet","nn"],
-    "ensemble_model_weights":[0.2, 0.8],
-    "csv_to_image":true,
-    "change_targets":true,
-    "target_id":-1,
-    "test_on_train":true
+    "patch_data_type": "",
+    "nn_layers": 5,
+    "unet_layers": 3,
+    "iterations": 5,
+    "regularization": 0.00,
+    "learning_rate": 0.01,
+    "graphs": true,
+    "data_type": "image",
+    "ensemble": true,
+    "ensemble_model_names": [
+        "unet",
+        "nn"
+    ],
+    "ensemble_model_weights": [
+        0.2,
+        0.8
+    ],
+    "csv_to_image": true,
+    "change_targets": true,
+    "target_id": -1,
+    "test_on_train": true,
+    "text": "no description provided"
 }

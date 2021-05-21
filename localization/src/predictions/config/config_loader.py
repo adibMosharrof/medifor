@@ -114,6 +114,9 @@ class ConfigLoader():
         parser.add_argument('-tid','--target_id', type=int,
                     default=json_config['target_id'],help='Patch Shape')
         
+        parser.add_argument('-t','--text', type=str,
+                    default=json_config['text'],help='Text description')
+        
         config = vars(parser.parse_args())
         if config['csv_to_image']:
             json_config['path']['data'] = json_config['path']['outputs']+"csv_to_image/"
@@ -133,6 +136,7 @@ class ConfigLoader():
 #         print(f"patch size_image downscale {config['patch_shape']}_{config['image_downscale_factor']}" )
 #         print(f"Patch data type {config['patch_data_type'] or 'default'}" )
 #         print(f"CSV Data {config['csv_data']}" )
+        print(f"Testing {config['text']}" )
         print(f"Data prefix {config['data_prefix']}" )
         
         
