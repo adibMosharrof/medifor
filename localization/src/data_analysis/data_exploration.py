@@ -57,7 +57,7 @@ class DataExploration:
             pie_lables.append(f'{l}, {value}%')
             
         ax1.legend(wedges, pie_lables,
-          title="Ingredients",
+          title="Manipulation Frequency",
           loc="center left",
           bbox_to_anchor=(1, 0, 0.5, 1))
 
@@ -69,10 +69,12 @@ class DataExploration:
     
     def _image_dimensions(self):        
         dimensions = self._loop_over_images(Operations.Dimensions)
+        # dimensions.sort(key=lambda x: x[0]*x[1], reverse=True)
         df = pd.DataFrame({"shape":dimensions})
-        counts = df['shape'].value_counts()
         
-        x = [str(i) for i in counts.index]
+        counts = df['shape'].value_counts()
+        # a = counts.index.sort_values(key=lambda x: x[0]*x[1])
+        x = [str(i) for i in counts.index.sort_values()]
         plt.figure(figsize=(12.8,9.6))
         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
         plt.bar(x,counts.values, color='green')
