@@ -44,11 +44,16 @@ class DataExploration:
             labels.append(text)
         bins = pd.cut(fractions, bins=cut_bins, labels=labels, ordered=False).value_counts()
         y = bins.values
-        
+        plt.figure(figsize=(12.8,9.6))
         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)  
         fig1, ax1 = plt.subplots(figsize=(12.8,9.6))
+        plt.rcParams["font.size"] = "20"
+
+
+
         wedges, texts, autotexts = ax1.pie(y, autopct='%1.1f%%',
-                shadow=True, startangle=90)
+                shadow=False, startangle=90, textprops=dict(color="w", fontsize=13))
+        
         ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         total = sum(y)
         pie_lables = []
@@ -61,7 +66,6 @@ class DataExploration:
           loc="center left",
           bbox_to_anchor=(1, 0, 0.5, 1))
 
-        plt.setp(autotexts, size=8, weight="bold")
         
         ax1.set_title("Manipulation Fractions")
         plt.savefig(os.path.join(self.out_folder, f'manipulation_fractions_{self.starting_index}_{self.ending_index}.png'), bbox_inches='tight')
