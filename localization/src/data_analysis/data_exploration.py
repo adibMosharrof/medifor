@@ -77,7 +77,7 @@ class DataExploration:
         # dimensions.sort(key=lambda x: x[0]*x[1], reverse=True)
         df = pd.DataFrame({"shape":dimensions})
         
-        skip = 15
+        skip = 5
         counts = df['shape'].value_counts()
         # a = counts.index.sort_values(key=lambda x: x[0]*x[1])
         x = [str(i) for i in counts.index.sort_values()]
