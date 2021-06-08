@@ -6,6 +6,7 @@ import cv2
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 from shared.log_utils import LogUtils
 from shared.folder_utils import FolderUtils
 from shared.json_loader import JsonLoader
@@ -76,16 +77,17 @@ class DataExploration:
         # dimensions.sort(key=lambda x: x[0]*x[1], reverse=True)
         df = pd.DataFrame({"shape":dimensions})
         
+        skip = 5
         counts = df['shape'].value_counts()
         # a = counts.index.sort_values(key=lambda x: x[0]*x[1])
         x = [str(i) for i in counts.index.sort_values()]
-        plt.figure(figsize=(12.8,9.6))
+        plt.figure(figsize=(18.8,14.6))
         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
         plt.bar(x,counts.values, color='green')
-        plt.xlabel("Image Dimensions")
-        plt.ylabel("Frequency")
-        plt.title('Image Dimensions Distribution')
-        plt.xticks(x[::5],  rotation='vertical')
+        plt.xlabel("Image Dimensions", fontsize=20)
+        plt.ylabel("Frequency", fontsize=20)
+        plt.title('Image Dimensions Frequency Distribution', fontsize=30, pad=20)
+        plt.xticks(x[::skip],  rotation='vertical', fontsize=15)
         
         plt.savefig(os.path.join(self.out_folder, f'image_distribution_{self.starting_index}_{self.ending_index}.png'))
         
@@ -97,11 +99,19 @@ class DataExploration:
 #         fig.figure(figsize=(12.8,9.6))
 #         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0) 
         
-        num_items = len(counts)//5
-        table_values = np.stack((counts.index[self.starting_index:self.starting_index+num_items], counts.values[self.starting_index:self.starting_index+num_items]), axis=-1)
-        ax.table(cellText=table_values, colLabels=['Dimensions', 'Frequency'], loc='center')
-#         fig.tight_layout()
-        plt.savefig(os.path.join(self.out_folder, f'image_distribution_table_{self.starting_index}_{self.ending_index}.png'))
+        num_items = len(counts)//skip
+        dims = counts.index[self.starting_index:self.starting_index+num_items]
+        freq = counts.values[self.starting_index:self.starting_index+num_items]
+        with open(os.path.join(self.out_folder, f'image_distribution_{self.starting_index}_{self.ending_index}.csv'), 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Dimensions", "Frequency"])
+            for d,f in zip(dims, freq):
+                writer.writerow([d,f])
+
+#         table_values = np.stack((counts.index[self.starting_index:self.starting_index+num_items], counts.values[self.starting_index:self.starting_index+num_items]), axis=-1)
+#         ax.table(cellText=table_values, colLabels=['Dimensions', 'Frequency'], loc='center')
+# #         fig.tight_layout()
+#         plt.savefig(os.path.join(self.out_folder, f'image_distribution_table_{self.starting_index}_{self.ending_index}.png'))
 #         plt.show()
         
     def _loop_over_images(self, operation, color=0):
