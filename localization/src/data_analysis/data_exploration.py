@@ -106,7 +106,8 @@ class DataExploration:
             writer = csv.writer(file)
             writer.writerow(["Dimensions", "Frequency"])
             for d,f in zip(dims, freq):
-                writer.writerow([d,f])
+                writer.writerow([f'{d[0]}*{d[1]}',f])
+                # writer.writerow([d,f])
 
 #         table_values = np.stack((counts.index[self.starting_index:self.starting_index+num_items], counts.values[self.starting_index:self.starting_index+num_items]), axis=-1)
 #         ax.table(cellText=table_values, colLabels=['Dimensions', 'Frequency'], loc='center')
